@@ -3,3 +3,6 @@
 data
 node_modules
 *~
+*.exe
+*.sfx
+*.7z
