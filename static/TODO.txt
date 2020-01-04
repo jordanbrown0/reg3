@@ -1,0 +1,241 @@
+Style and convention decisions
+* No business logic in the server.
+* No modifying param structures in the callee.
+* "Tally" reports are done by pushing a reduce expression to the server to execute, with the assumption that the data returned will be manageable in size.
+* Member records contain class code, not class key, so that you can delete and recreate a class without breaking the linkage.
+
+Design note:  if you're on server A, and you merge {A:1} with {B:1}, the result has to be {A:2, B:1} so that the changes involved in the merge itself cause a version bump.  Otherwise, if it resulted in {A:1, B:1} then it would be indistinguishable from a record resulting from a potentially different merge on another server.
+
+
+----
+
+Time zones.  We need to display and accept input in local time.  Do we trust the system's TZ, or do we make it be a convention parameter?  Probably a convention parameter, since then it's easy to set and hard to get out of sync.  But can we trust the system to have accurate UTC?  (That is, can we trust that the time has been set to match the time zone setting?)  Remember that breakdown-by-time reports want to use the local TZ.
+
+Support as-of time.  As-of is a station parameter, so this is a little tricky.  Probably need to have a pre-scan expression that initializes a variable with either the current date/time or the as-of date/time.
+
+Display date/time.  Use server time.  Can calculate an offset and offset from server time, so we're not hitting the server all the time.  OTOH, hitting the server once a minute is probably no big deal, and we don't need more precise than that.
+
+Stock "framework" UI stuff, like PESO (and clock?).
+
+Login / logout.  Logged-in user is presumably a station configuration parameter.
+
+Vanity membership numbers.  Maybe less necessary as a distinct concept now that the actual key is artificial.  Maybe they're just a matter of having strings instead of numbers.
+
+Input cleanup.  Automatically translate USA variants to the canonical form, "Calif" to "CA", et cetera.  Driven by a table, of course.  Both on demand (to clean up imported data) and during data entry.  (Would be cool if it was totally hot, so that you type something, tab away, and it gets corrected.)
+
+Search performance with large member tables (20K entries).  Will probably need to learn to skip searches, so that we don't search until we've processed all of the input.  (But keystroke suppression during RPC will lose keystrokes; for this case we need to reverse the priority of the two.)
+
+Print performance (~500ms to print long name requiring several shrink steps)
+	* Just have fewer font sizes?
+
+We suppress keystrokes while RPC requests are outstanding, which fixes the problem of receiving keystrokes while in the middle of an RPC request (and, e.g., saving the record twice), but means that keystrokes might be dropped - during a search, for instance.  Also, there may be some RPC calls that are OK to allow keystrokes during - class lookup in member records, content lookups in lists, et cetera.
+
+IE focuses search box on AC but not on P.  Fixed?
+
+Station list if printer no longer exists.
+Station list row when station is not initialized.  (Maybe just one or more &nbsp;.)
+
+Printer ID - print a label on each printer giving its Windows and human names (and any stations assigned to it?)
+
+Force landscape on label printers
+Alert when attempting to print and configured printer no longer exists.
+Human name of new printer is "undefined".
+
+Should station configuration gain a server field and be global?
+Make the server ID be configurable, so that you can preconfigure servers and then (re)assign them to existing IDs.  Probably this would take the form of demanding a server ID if one has not been assigned.
+
+Use Windows computer name as server ID?  It's in global.process.env.COMPUTERNAME.
+
+Maybe get config less frequently.
+
+Style
+	Breakdown of responsibility for constructor and .activate() method.
+		Or should there be a .activate method at all? Should I use a different
+		pattern for switching?
+		Or maybe a create / load split?
+		Or maybe we should create the entire structure, and then load and switch as required?
+
+UI
+	Non-buttons in NavBar?  E.g. for All checkbox in class picker.
+	NavBar layout?  Multiple lines, ordering?
+	NavBar positioning?  IE doesn't put it at bottom of window.  Maybe always
+	put it at the top?
+	Put page-flip controls somewhere else?  Note we arguably only need page flip on touch devices, so maybe we don't care.
+	Do we want Esc/Enter/</> buttons on PCs?
+	* How to detect tablets?
+	* Maybe support iOS scroll events for page flip.
+
+Note that import / merge will need to be something of a three-way merge:  the two versions of the record as reported in the conflict, and the version of the record as it exists now.  For A being the existing record on this server and B being the record being imported, the merge operation probably needs to take (A+B) and B as arguments, and merge the version vectors.  It then needs to compare that merged VV with the then-current record, and if it's still newer then bump the VV and store.  If it's not newer - if the existing record has been bumped in the interim - then it needs to return (A+B) with the merged VV, and the new C, for conflict resolution, and repeat.  That might happen almost automatically if DBput starts returning conflict data.  Probably just restart the conflict resolver on that record, with the new records.
+
+Membership number allocation causes the DB to be rewritten.  Even if we do incremental writes, we end up with a record written for each number allocated.
+
+Maybe rethink List "summarize" to take a schema.
+
+Classes
+	* Format of start/end in AC - more generally, date input and display
+
+Permissions
+
+Printer records need to be qualified by server.
+
+Station records need to be server-qualified if only to make the display understandable.  The display needs to be sorted by server and include server in the List.  Need error messages for "your station is configured to print on a printer on a different server".  Whether that will be a real issue will depend on network configuration; if the server is always the same name / IP address then stations will maintain their identity when moved.
+
+What should happen when a station moves from one server to another?  Probably the station record says which server saw it last.
+
+For stations and printers, default to showing only those for this server?  (Yes.)
+
+Printer picker needs to filter for printers on *this* server.
+
+Printer management must only clean up the printer list for *this* server.  Must filter the list of printers by server.
+
+In List with headers, the "No matches" message only ends up in column 1.  But, other than walking the DOM, how to colspan?
+
+AQ list has funky rendering in Firefox.  Probably related to dynamically changing list.
+
+If writing the DB (either to persist or for export) is asynchronous, it might interleave with changes.  That's OK for most things, but we might write the server membership number and then later write a record created *after* that point.  Perhaps it needs to stay synchronous, or perhaps we need to ensure that we write the server table last, or perhaps we need to decide that it's OK since after all only this server should care and *it* has the current data.
+
+If writing the DB for persistence is asynchronous, we need to ensure that we restart the write if changes occur during it.  For extra credit, abort a write-in-progress and restart.  Or maybe not; a completed write still gets us a snapshot, versus (in theory) maybe never getting it all written out.
+
+If writing the DB for persistence is asynchronous, we need to make sure we don't do it twice at the same time(!).
+
+Make it clearer when an error is a server-side error.
+
+single threading in DB load
+
+Try with 6+ label printers
+
+What is UI for new members?
+	* how does lookup in MASTER fit in?
+	* Do anything about looking up existing memberships first?
+
+Menu items should perhaps look more button-y.
+Heck, buttons should look more button-y.
+
+Conflict resolver should use edit schema, at least to get order and labels.  Multi-page conflict resolver would be confusing, but we might have to go there.
+
+Import from DBF - schema translation.  Ideally, admin-controlled schema translation.
+
+Import from Member Solutions
+
+Import from CSV
+
+Export (DBF?  CSV?)
+
+Specialty operations during add / put - e.g., timestamp, increment.  Maybe execute an arbitrary program.  The special increment method could be replaced by this, maybe even to the point of automatically incrementing a field in *another* table. That would let an add-member be a single atomic-ish operation.
+
+Turn the expression language into a full-ish programming language.
+
+General alert/error UI (alert()?  Modal?)
+
+Transaction log - should this be client-side or server-side?
+	* Maybe have the database itself be a transaction log, overwriting earlier versions on load.
+	** But export would probably be current versions only; otherwise, we'd have to store all previous versions in memory.
+	** And would have to sync previous versions too.
+	* If transaction log is a regular DB then it'd always be in memory and that might be too much.
+	* How would transaction log sync work?  Ordinary mechanisms would work but seem expensive.  But let's see how fast import is.
+
+Offline operations
+	* Use real time?
+	* If not, time is <xxx>.
+	* Caution on home page.
+
+Figure out how to get leave-page warning.
+
+Keyboard commands are still kind of iffy.  See comments in Base.
+
+IE has focus problems (maybe fixed)
+
+Fix previous record
+
+Printer in either real units or % of label, not pixels.
+
+reports
+	* Seem to require server-side knowledge of the schema, sigh.
+	* Though I should check the practicality of pulling 20K records over into the browser and then pushing them back to the server.  Maybe it's not as bad as I fear.
+	* Maybe push across an expression that describes the report?
+	* Report by pushing a reporting expression (or expressions) that are executed server-side and print?  Or by pushing a query expression that does connection and tallying and returns the data to the client for the client to format and send back a print request?  Probably both.
+	* How to do reports to files?  Tally reports might not be too bad, but what about member lists?  Maybe a half-REST where we push a report expression using JSON-RPC and it streams back a report?  That would be plain text only, but maybe that's OK.
+	* Note Node.js PDFkit could generate PDF reports.  Maybe that's the only kind of report; leave the actual printing to AcroRead.  But plain text can be useful for other purposes.
+
+Classes
+	* Do we need single-keystroke selection?
+	* Should class records use code as the key?  Probably, to prevent duplication.
+
+upgrades
+
+transfers - UI, and how to track.  Since membership number is no longer the key, maybe that's the answer.  The transfer-history records would all have the same membership number, but different keys.  This might require specialized search support - or maybe not; maybe you'd be able to look up a transfer-from record just like a normal record.  Special marking in the List and in the Editor, though.
+
+Incrementally write DB, rather than rewriting the entire thing.  Note that you can just add new versions of a record on the end and they'll overwrite the old ones.  Note also that because we keep the DB in memory it doesn't really matter how long it takes to read it.
+
+Editor:
+	Don't write record if no change.  (Or is this part of DB.put?)
+	General validators.  (Have I already got this?)
+	
+Log:
+	parentelem is not implemented
+	If Log() is instantiated before <body> loads, we end up with two bodies.
+	
+Console log
+	suppresses duplicates
+
+Maybe have "All" support be a generic feature for List?  It's now a generic feature for DBManager, but maybe it should move down into List.  (But maybe it should really be checkbox-based to allow for different filters - e.g. for printers there's "show printers on all servers" and "show hidden printers".)
+
+Test edit-edit conflicts, make sure you get a reasonable error.  Lead to conflict resolution.
+
+Test delete-{list,edit} conflicts.
+
+Force global configuration when not configured.
+
+Force station configuration when not configured.
+
+Should printers use an artificial key, or should they use the Windows name as
+their key?
+
+Support multiple conventions.
+
+Full screen.  Might need to prompt user to click to approve.  If we have full screen, we might also want a QUIT button that closes the window, so that people don't have to figure out how to de-full-screen.  Or maybe just maximize.  (Can we maximize from JS?)
+
+Push the printer support work upstream.
+
+Put the whole thing on GitHub.
+
+Receipts
+
+Installation
+* Server installation
+** Include Node.js, or require separate installation?  Prefer to include it.
+** Include the various npm modules, or require separate installation?  FAR prefer to include them.  OH SO VERY MUCH.  An npm install can require a C compiler installation!  This probably drives the other things backwards:  we don't want to rebuild the modules, so they need to be distributed in binary form, so they need(?) to be matched with the particular Node.js build, so the whole wad needs to be private to each instance.
+** Share one installation between conventions, or just keep with the current scheme where each convention is totally self-contained and lives in its own directory.  Note that sharing introduces version skew problems.
+** Maybe a hybrid:  a particular Node.js / software installation could support multiple conventions, but you could have multiple installations.  Probably don't want to support running multiple conventions out of the same server at the same time(!).  Hybrid would need a way to migrate convention data to a new instance of the software.
+** Server installation comes in three-ish steps:  (1) get the software onto your system (2) create a convention (3) replicate that convention to a second server.  Use the existing ooze / setup / clone model?  Note that as things like DBF import schema mapping are added it will be more and more desirable to clone some of them.  (And see note below about selective exports.)
+** Install label printer driver?  Or maybe just short cut to vendor's download page.
+* Client installation
+** Join network.
+** Shortcuts/autostarts to server web page.  (Note that if the network config stays constant, a single shortcut can work forever.)
+** Something to point upload/download at an appropriate device?
+** Maybe some of that can be semi-self-configuring, by having the server application serve a batch file (or whatever) that will tweak the client config.
+
+REST operations don't have a way to return errors.
+
+Member types (booleans:  artist, staff, concom, guest, dealer, gamer, masquerade, ...).  Probably need a table describing the options available.
+
+Import/Export user interface.  Do we need a minimal-keystroke variant, given that import/export is expected to be far less frequent than it is today?
+
+Memory usage statistics, perhaps on the busy% line.
+
+--------------
+
+Blue Sky
+
+Maybe TLS and certificate authentication for clients?  But then you have to import the server cert on the clients, and you have to somehow get a client cert to the clients.
+
+Badges
+	* Schedule for program participants
+	** Requires coordination with Programming for what key to use
+	   for the member.
+
+New merged database is a PITA to edit.  Need general-purpose DBMS tools.
+
+Drive member schema largely or completely from a table.
+
+Credit card integration
