@@ -119,12 +119,12 @@ DBEdit.prototype.get = function (cb) {
 
 DBEdit.prototype.getOrAdd = function (cb) {
 	var o = this;
-	o.params.table.getOrAdd(o.k, cb);
+	o.params.table.getOrAdd(o.k, null, cb);
 };
 
 DBEdit.prototype.put = function (cb) {
 	var o = this;
-	o.params.table.put(o.k, o.r, cb);
+	o.params.table.put(o.k, o.r, null, cb);
 };
 
 DBEdit.prototype.done = function () {
@@ -164,7 +164,7 @@ DBAdd.prototype.activate = function () {
 
 DBAdd.prototype.add = function (cb) {
 	var o = this;
-	o.params.table.add(null, o.r, cb);
+	o.params.table.add(null, o.r, null, cb);
 };
 
 DBAdd.prototype.done = function () {

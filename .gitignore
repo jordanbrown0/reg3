@@ -2,6 +2,7 @@
 .hgignore
 data
 node_modules
+temp
 *~
 *.exe
 *.sfx

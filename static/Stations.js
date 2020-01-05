@@ -95,7 +95,7 @@ StationEdit.prototype.get = function (cb) {
 var Station = {};
 
 Station.getX = function (k, cb) {
-	table.stations.getOrAdd(k, cb);
+	table.stations.getOrAdd(k, null, cb);
 };
 
 Station.get = function (cb) {

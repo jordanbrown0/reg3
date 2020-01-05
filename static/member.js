@@ -143,7 +143,7 @@ MemberDisplay.prototype.unmark = function () {
 	
 	if (o.r.pickedup) {
 		o.r.pickedup = '';
-		table.members.put(o.key, o.r, function () {
+		table.members.put(o.key, o.r, null, function () {
 			base.switchTo(new MemberDisplay(o.key));
 		});
 	}
@@ -165,7 +165,7 @@ MemberEdit.prototype.activate = function () {
 			schema: memberSchema,
 			doneButton: 'Save',
 			done: function () {
-				table.members.put(o.key, r,
+				table.members.put(o.key, r, null,
 					function () { base.switchTo(new MemberDisplay(o.key)); }
 				);
 			},

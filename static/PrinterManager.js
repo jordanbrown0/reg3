@@ -63,7 +63,7 @@ Printers.refresh = function (cb) {
 			var sync = function () {
 				var p;
 				if (p = newPrinters.pop()) {
-					table.printers.add(null, { windows: p }, sync);
+					table.printers.add(null, { windows: p }, null, sync);
 				} else if (p = deletePrinters.pop()) {
 					table.printers.delete(p.k, p.r, sync);
 				} else {

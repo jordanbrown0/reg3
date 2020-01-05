@@ -69,7 +69,7 @@ Server.newMembershipNumber = function (cb) {
 
 Server.get = function(cb) {
 	Server.id(function (id) {
-		table.servers.getOrAdd(id, cb );
+		table.servers.getOrAdd(id, null, cb);
 	});
 };
 

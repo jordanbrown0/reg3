@@ -122,7 +122,7 @@ ConflictResolver.prototype.resolve = function () {
 	// incorporate tables.* when we bring in the edit schema for display of the
 	// resolution UI.
 	var table = new DBTable(db.reg, o.c.t);
-	table.put(o.c.k, o.c.result, function () {
+	table.put(o.c.k, o.c.result, null, function () {
 		o.params.resolved();
 	});
 };

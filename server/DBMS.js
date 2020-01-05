@@ -4,6 +4,7 @@ const StreamValues = require('stream-json/streamers/StreamValues');
 const fs = require('fs');
 const Version = require('./version');
 const Expression = require('./Expression');
+const { assert } = require('./utils.js');
 
 var versionVerbose = false;
 
@@ -567,9 +568,9 @@ DBMS.init = async function () {
 		serverID = Date.now();
 		if (r) {
 			r.id = serverID;
-			t.put(rkey, r);
+			t.put(rkey, r, null);
 		} else {
-			t.add(rkey, { id: serverID });
+			t.add(rkey, { id: serverID }, null);
 		}
 	}
 	console.log('Server ID', serverID);

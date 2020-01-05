@@ -11,7 +11,7 @@ Design note:  if you're on server A, and you merge {A:1} with {B:1}, the result 
 
 Time zones.  We need to display and accept input in local time.  Do we trust the system's TZ, or do we make it be a convention parameter?  Probably a convention parameter, since then it's easy to set and hard to get out of sync.  But can we trust the system to have accurate UTC?  (That is, can we trust that the time has been set to match the time zone setting?)  Remember that breakdown-by-time reports want to use the local TZ.
 
-Support as-of time.  As-of is a station parameter, so this is a little tricky.  Probably need to have a pre-scan expression that initializes a variable with either the current date/time or the as-of date/time.
+Support as-of time.  As-of is a station parameter and "now" is a server-side value, so this is a little tricky.  Probably need to have a pre-scan expression that initializes a variable with either the current date/time or the as-of date/time.  Or maybe have the client retrieve the current time and then pass it back.
 
 Display date/time.  Use server time.  Can calculate an offset and offset from server time, so we're not hitting the server all the time.  OTOH, hitting the server once a minute is probably no big deal, and we don't need more precise than that.
 

@@ -37,7 +37,7 @@ GlobalEdit.prototype.get = function (cb) {
 var Global = {};
 
 Global.get = function (cb) {
-	table.global.getOrAdd("", cb);
+	table.global.getOrAdd("", null, cb);
 };
 
 init.push(function () {

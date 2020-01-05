@@ -4,7 +4,7 @@
 // It is undefined to specify more than one verb; use the "and" or "or"
 // verbs.
 
-var trace = true;
+var trace = false;
 function log() {
 	if (trace) {
 		console.log.apply(console, arguments);
@@ -16,6 +16,14 @@ function Expression(e) {
 	o.e = e;
 	o.variables = {};
 }
+
+Expression.trace = function (t) {
+	var old = trace;
+	if (t !== undefined) {
+		trace = t;
+	}
+	return (old);
+};
 
 Expression.prototype.exec = function (r, e) {
 	var o = this;

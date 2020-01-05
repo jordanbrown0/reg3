@@ -2,18 +2,14 @@ const port = 80;
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const app = express();
-const bodyParser = require('body-parser');
+// const bodyParser = require('body-parser');
 const DBMS = require('./DBMS');
 const DBF = require('./DBF');
 const label = require('myclinic-drawer-printer').api;
 const sprintf = require('sprintf-js').sprintf;
-const readline = require('readline');
+// const readline = require('readline');
 const Expression = require('./Expression');
-
-// NEEDSWORK utils just dumps stuff into global space.
-// It might be better to require that the caller (this file)
-// explicitly sets them, e.g. const { assert } = require('./utils')
-require('./utils');
+const { assert } = require('./utils');
 
 // NEEDSWORK:  general trace mechanism
 var rpcVerbose = false;
@@ -21,7 +17,7 @@ var showBusy = true;
 
 var methods = {};
 
-methods.methods = function (params) {
+methods.methods = function () {
 	return (Object.keys(methods));
 };
 
@@ -49,8 +45,8 @@ methods.DBget = async function(dbName, tName, k) {
 	return ((await getTable(dbName, tName)).get(k));
 };
 
-methods.DBgetOrAdd = async function(dbName, tName, k) {
-	return ((await getTable(dbName, tName)).getOrAdd(k));
+methods.DBgetOrAdd = async function(dbName, tName, k, expr) {
+	return ((await getTable(dbName, tName)).getOrAdd(k, expr));
 };
 
 methods.DBput = async function (dbName, tName, k, r, expr) {
@@ -95,7 +91,7 @@ methods.importDBF = async function (dbName, tName, filename, map) {
 			return;
 		}
 		delete db_r._deleted;
-		t.add(null, db_r);
+		t.add(null, db_r, null);
 	});
 	await dbf.close();
 	t.sync(true);
@@ -218,12 +214,22 @@ setInterval(tick, busyTick).unref();
  
 async function methodcall(req)
 {
-	if (!methods[req.name]) {
+	assert(req.name, 'No req.name');
+	assert(req.params, 'No req.params');
+	var method = methods[req.name];
+	if (!method) {
 		return ({error: 'No such method '+req.name});
+	}
+	var params = req.params;
+	if (method.length != params.length) {
+		var msg = sprintf("%s: argument mismatch, expected %d got %d",
+		    req.name, method.length, params.length);
+		console.log(msg);
+		return ({ error: msg });
 	}
 	var retval;
 	try {
-		retval = await methods[req.name].apply(null, req.params);
+		retval = await method.apply(null, params);
 	} catch (e) {
 		// This is a programmer error.
 		// It would be good if we could *both* return an error *and*
@@ -303,6 +309,8 @@ process.stdin.setEncoding('utf8');
 process.stdin.setRawMode(true);
 var count = 0;
 process.stdin.on('data', function (c) {
+	console.log('');
+	console.log('');
 	switch (c) {
 	case '\3':
 		process.exit();
@@ -312,23 +320,38 @@ process.stdin.on('data', function (c) {
 		break;
 	case 'r':
 		rpcVerbose = !rpcVerbose;
-		console.log('rpcVerbose', rpcVerbose);
-		break
+		console.log(rpcVerbose
+			? 'Tracing RPC'
+			: 'Not tracing RPC');
+		break;
 	case 'b':
 		showBusy = !showBusy;
-		console.log('showBusy', showBusy);
-		break
+		console.log(showBusy
+			? 'Showing busy percentage'
+			: 'Not showing busy percentage');
+		break;
+	case 'e':
+		var exprTrace = !Expression.trace();
+		Expression.trace(exprTrace);
+		console.log(exprTrace
+			? 'Tracing expressions'
+			: 'Not tracing expressions');
+		break;
 	case '?':
 		console.log('q - quit');
-		console.log('r - toggle rpcVerbose');
-		console.log('b - toggle showBusy');
+		console.log('r - toggle RPC tracing');
+		console.log('e - toggle expression tracing');
+		console.log('b - toggle busy monitor');
+		break;
+	default:
+		console.log('Huh?  Press ? for a list of commands.');
 		break;
 	}
+	console.log('');
 });
 
 DBMS.init().then(function () {
 	app.route('/Call')
-		// .put(bodyParser.json())
 		.put(express.json())
 		.put(methodcallmiddleware);
 	app.route('/REST')

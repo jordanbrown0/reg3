@@ -80,7 +80,7 @@ init.push(function (cb) {
 		}
 	}
 
-	call({name: 'methods'}, function(r) {
+	call({name: 'methods', params: []}, function(r) {
 		addmethods(r.response);
 		if (rpcVerbose) {
 			log('RPC ready');

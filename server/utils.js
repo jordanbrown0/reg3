@@ -1,9 +1,9 @@
-// var utils = {};
+var utils = {};
 
-global.assert = function (bool, param) {
+utils.assert = function (bool, param) {
 	if (!bool) {
 		throw (new Error('assertion failure: ' + param));
 	}
 }
 
-// module.exports = exports = utils;
+module.exports = exports = utils;
