@@ -1,0 +1,8 @@
+syntax: glob
+.git
+node_modules
+data
+package-lock.json
+*.sfx
+*.exe
+*.7z

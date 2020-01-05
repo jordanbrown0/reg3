@@ -1,5 +1,4 @@
 .hg
-.hgignore
 data
 node_modules
 temp
