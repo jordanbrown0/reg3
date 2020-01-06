@@ -1,0 +1,3 @@
+Copyright © 2020 Jordan Brown
+
+The intent is that this software will eventually be released under a relatively liberal license.  However, for now, it's not ready for production use.  Feel free to look at it and, if you like, play with it, but you are NOT AUTHORIZED to use this software for production use.
