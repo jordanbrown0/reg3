@@ -1,6 +1,9 @@
 @echo off
-call nodever
+call Program\lib\nodever
 set SAVEPATH=%PATH%
+set SAVECD=%CD%
 PATH %PATH%;%NODEDIR%
+cd Program
 node server\reg.js
 PATH %SAVEPATH%
+cd %SAVECD%

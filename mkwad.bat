@@ -1,21 +1,84 @@
-call nodevar
+:: Make a 7z wad containing the specified content.
+:: This batch file lives in Program\lib.
 
-erase wad.7z
-erase %NODE%.7z
+setlocal
+
+set SAVECD=%CD%
+
+if "%1" == "" goto usage
+if "%2" == "" goto usage
+
+set out=%~f1
+
+:: Get us to the top of the convention directory.
+%~d0
+cd %~p0\..\..
+
+shift
+
+if exist %out% (
+	erase %out%
+)
+
+set z=Program\imported\7za
+
+:loop
+
+if "%1" == "" goto done
+
+if "%1" == "program" goto program
+if "%1" == "data" goto data
+if "%1" == "node" goto node
+
+echo "Unknown thing to put in wad '%1'"
+goto done
+
+:program
+
+%z% a %out% Program\imported Program\static Program\server Program\src
+:: OK, so I'm obsessing.  But these build artifacts total to
+:: more than 7MB.
+
+set rel=Program\node_modules\myclinic-drawer-printer\build\Release
+%z% a %out% Program\node_modules -x!%rel%\*.pdb -x!%rel%\obj\drawer\*.obj -x!%rel%\*.iobj -x!%rel%\*.map
+
+%z% a %out% *.bat Program\lib Program\*.bat
+%z% a %out% README.txt Documentation
+%z% a %out% Program\package.json Program\package-lock.json
+%z% a %out% Program\data -x!Program\data\*
+goto next
+
+:data
+
+: Note that we do not want to pick up data\serverID.json because we are
+: presumably making this wad to install another server.
+%z% a %out% Program\data -x!Program\data\serverID.json
+goto next
+
+:node
+
+call Program\lib\nodevar
+
+if exist %NODE%.7z (
+    erase %NODE%.7z
+)
 
 :: The only thing in the default global node_modules is npm, and
 :: that totals to nearly 20MB.  A developer wad would need it, but
 :: a production wad doesn't.
-7za a %NODE%.7z %NODEDIR% -x!%NODE%\node_modules
+%z% a %NODE%.7z %NODEDIR% -x!%NODE%\node_modules -x!%NODE%\npm -x!%NODE%\npm.cmd -x!%NODE%\npx -x!%NODE%\npx.cmd
 
-7za a wad.7z %NODE%.7z
-7za a wad.7z 7za.exe 7zSD-noadmin.sfx
-7za a wad.7z static
-7za a wad.7z server
-:: OK, so I'm obsessing.  But these build artifacts total to
-:: more than 7MB.
-7za a wad.7z drawer.cc node_modules -x!node_modules\myclinic-drawer-printer\build\Release\*.pdb -x!node_modules\myclinic-drawer-printer\build\Release\obj\drawer\*.obj -x!node_modules\myclinic-drawer-printer\build\Release\*.iobj -x!node_modules\myclinic-drawer-printer\build\Release\*.map
-7za a wad.7z *.bat *.txt
-7za a wad.7z package.json package-lock.json
+%z% a %out% %NODE%.7z
 
-copy /b 7zSD-noadmin.sfx + selfextract.cfg + wad.7z wad.exe
+erase %NODE%.7z
+
+goto next
+
+:next
+shift
+goto loop
+
+:usage
+echo "Usage:  new <wad>.7z { program | data | node } ..."
+:done
+cd %SAVECD%
