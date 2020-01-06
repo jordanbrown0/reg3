@@ -24,8 +24,14 @@ if not exist %parent%\%NODE% (
 erase %NODE%.7z
 
 mkdir %dest%
+if errorlevel 1 (
+	echo Bad directory name %myname%, aborting.
+	goto :EOF
+)
 
 xcopy /e . %dest%
+
+call Program\lib\mkbat %dest% %myname%
 
 echo %dest% is ready.
 pause

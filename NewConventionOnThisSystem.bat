@@ -1,35 +1,34 @@
-:: Make a new convention on this system, and changes directory to it.
-:: NewConventionOnThisSystem <name>
+:: Make a new convention on this system.
 @echo off
-
-if "%1" == "" (
-	echo "Usage:  NewConventionOnThisSystem name"
-	goto :EOF
-)
-
-if exist "%~dp0\..\%1" (
-	echo %1 already exists
-	goto :EOF
-)
+setlocal
 
 :: Get us to the top of the convention directory.
-:: Do this outside the setlocal so that we end up there.
 %~d0
 cd %~p0
 
-setlocal
+set /p myname=Directory for new convention?
 
-set name=%1
+call :getparent %CD%
+set dest=%parent%%myname%
+
+if exist "%dest%" (
+	echo %dest% already exists
+	goto :EOF
+)
 
 set z=%CD%\Program\imported\7za
 
-call Program\lib\mkwad new.7z program
+call Program\lib\mkwad %myname%.7z program
 
-mkdir ..\%name%
-%z% x -o..\%name% new.7z
-erase new.7z
+mkdir %dest%
+%z% x -o%dest% %myname%.7z
+erase %myname%.7z
+call Program\lib\mkbat %dest% %myname%
 
-endlocal
+echo %dest% is ready.
 
-cd ..\%1
-echo %CD% is ready.
+goto :EOF
+
+:getparent
+set parent=%~dp1
+goto :EOF

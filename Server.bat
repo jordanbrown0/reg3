@@ -1,9 +1,11 @@
+:: Start server.
 @echo off
+setlocal
+:: Get us to the top of the convention directory.
+:: Do this outside the setlocal so that we end up there.
+%~d0
+cd %~p0
 call Program\lib\nodever
-set SAVEPATH=%PATH%
-set SAVECD=%CD%
 PATH %PATH%;%NODEDIR%
 cd Program
 node server\reg.js
-PATH %SAVEPATH%
-cd %SAVECD%

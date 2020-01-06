@@ -23,7 +23,7 @@ if exist %outexe% (
 set z=Program\imported\7za
 
 call Program\lib\mkwad %outz% program data node
-echo set myname=%myname% > myname.bat
+echo set /p myname=Directory for new convention? > myname.bat
 %z% a %outz% myname.bat
 erase myname.bat
 
