@@ -1,10 +1,8 @@
+NewConventionOnThisSystem needs error checking on the mkdir.
 
+All of the setup stuff could probably use more checking on the new directory name.
 
-----
-
-Write a dirname(1) so that I can find the directory a batch file lives in.
-
-Time zones.  We need to display and accept input in local time.  Do we trust the system's TZ, or do we make it be a convention parameter?  Probably a convention parameter, since then it's easy to set and hard to get out of sync.  But can we trust the system to have accurate UTC?  (That is, can we trust that the time has been set to match the time zone setting?)  Remember that breakdown-by-time reports want to use the local TZ.
+Time zones.  We need to display and accept input in local time.  Do we trust the system's TZ, or do we make it be a convention parameter?  Probably a convention parameter, since then it's easy to set and hard to get out of sync.  But can we trust the system to have accurate UTC?  (That is, can we trust that the time has been set to match the time zone setting?)  Remember that breakdown-by-time reports want to use the local TZ.  A:  Don't trust the system's TZ.  Do trust that it has accurate UTC.  Use only server time, not client time.
 
 Support as-of time.  As-of is a station parameter and "now" is a server-side value, so this is a little tricky.  Probably need to have a pre-scan expression that initializes a variable with either the current date/time or the as-of date/time.  Or maybe have the client retrieve the current time and then pass it back.
 
