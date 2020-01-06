@@ -1,6 +1,6 @@
 :: Build a self-extracting wad that clones this convention to use to set up
 :: a new server.
-
+@echo off
 setlocal
 
 set dir=%CD%
@@ -12,9 +12,6 @@ cd %~p0
 for /f %%F in ('call Program\lib\basename %CD%') do (
 	set myname=%%F
 )
-
-echo myname=%myname%
-pause
 
 set outz=%dir%\%myname%.7z
 if exist %outz% (
@@ -33,5 +30,14 @@ echo set myname=%myname% > myname.bat
 %z% a %outz% myname.bat
 erase myname.bat
 
-copy /b Program\imported\7zSD-noadmin.sfx + Program\lib\NewServer.cfg + %outz% %outexe%
+echo ;!@Install@!UTF-8!                                              > tmp.cfg
+echo Title="Reg3"                                                    >> tmp.cfg
+echo BeginPrompt="Do you want to install Reg3 for a %myname%?"       >> tmp.cfg
+echo RunProgram="Program\lib\Setup.bat"                              >> tmp.cfg
+echo ;!@InstallEnd@!                                                 >> tmp.cfg
+
+copy /b Program\imported\7zSD-noadmin.sfx + tmp.cfg + %outz% %outexe%
+erase tmp.cfg
 erase %outz%
+
+echo %outexe% is ready.

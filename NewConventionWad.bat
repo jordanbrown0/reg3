@@ -1,21 +1,40 @@
 :: Build a self-extracting wad that sets up a new convention.
+@echo off
 setlocal
 
-set outz=%CD%\NewConvention.7z
-if exist %outz% (
-	erase %outz%
-)
-
-set outexe=%CD%\NewConvention.exe
-if exist %outexe% (
-	erase %outexe%
-)
+set dir=%CD%
 
 :: Get us to the top of the convention directory.
 %~d0
 cd %~p0
 
-call Program\lib\mkwad %outz% program data node
+set myname=Reg3
 
-copy /b Program\imported\7zSD-noadmin.sfx + Program\lib\NewConvention.cfg + %outz% %outexe%
+set outz=%dir%\%myname%.7z
+if exist %outz% (
+	erase %outz%
+)
+
+set outexe=%dir%\%myname%.exe
+if exist %outexe% (
+	erase %outexe%
+)
+
+set z=Program\imported\7za
+
+call Program\lib\mkwad %outz% program data node
+echo set myname=%myname% > myname.bat
+%z% a %outz% myname.bat
+erase myname.bat
+
+echo ;!@Install@!UTF-8!                                              > tmp.cfg
+echo Title="Reg3"                                                    >> tmp.cfg
+echo BeginPrompt="Do you want to install Reg3 for a new convention?" >> tmp.cfg
+echo RunProgram="Program\lib\Setup.bat"                              >> tmp.cfg
+echo ;!@InstallEnd@!                                                 >> tmp.cfg
+
+copy /b Program\imported\7zSD-noadmin.sfx + tmp.cfg + %outz% %outexe%
+erase tmp.cfg
 erase %outz%
+
+echo %outexe% is ready.

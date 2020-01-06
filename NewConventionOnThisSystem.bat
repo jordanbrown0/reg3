@@ -1,5 +1,6 @@
 :: Make a new convention on this system, and changes directory to it.
 :: NewConventionOnThisSystem <name>
+@echo off
 
 if "%1" == "" (
 	echo "Usage:  NewConventionOnThisSystem name"
@@ -7,7 +8,7 @@ if "%1" == "" (
 )
 
 if exist "%~dp0\..\%1" (
-	echo "%1 already exists"
+	echo %1 already exists
 	goto :EOF
 )
 
@@ -31,3 +32,4 @@ erase new.7z
 endlocal
 
 cd ..\%1
+echo %CD% is ready.
