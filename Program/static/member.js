@@ -230,7 +230,7 @@ NewMemberEditor.prototype.activate = function () {
 
 var Member = {};
 
-init.push(function () {
+init.push(function memberInit() {
 	table.members = new DBTable(db.reg, 'members',
 		{ defaults: Editor.defaults(memberSchema) }
 	);

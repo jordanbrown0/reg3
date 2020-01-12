@@ -85,7 +85,7 @@ Server.id = function (cb) {
 	}
 };
 
-init.push(function () {
+init.push(function serversInit() {
 	table.servers = new DBTable(db.reg, 'servers',
 		{ defaults: Editor.defaults(serverSchema) }
 	);

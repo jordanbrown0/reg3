@@ -12,3 +12,10 @@ function Modal(contents, params) {
 }
 
 extend(DElement, Modal);
+
+// What's the division of labor between this and Modal?
+// Who is responsible for keyboard handling?
+function modal(contents) {
+	var m = new Modal(contents, { ok: function () {base.removeChild(m);}});
+	base.appendChild(m);
+}

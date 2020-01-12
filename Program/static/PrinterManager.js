@@ -79,7 +79,7 @@ function getPrinter(id, cb) {
 	table.printers.get(id, function (r) { cb(r); });
 }
 
-init.push(function () {
+init.push(function printerInit() {
 	table.printers = new DBTable(db.reg, 'printers',
 		{ defaults: Editor.defaults(printerSchema) }
 	);

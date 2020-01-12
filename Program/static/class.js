@@ -135,7 +135,7 @@ function getClass(id, cb, err) {
 	);
 }
 
-init.push(function () {
+init.push(function classInit() {
 	table.classes = new DBTable(db.reg, 'classes',
 		{ defaults: Editor.defaults(classSchema) }
 	);

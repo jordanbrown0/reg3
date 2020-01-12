@@ -91,7 +91,15 @@ input.Disabled {
 }
 
 .NavBar {
-	height: 20%;
+	height: 15%;
+}
+
+html, body {
+	height: 100%;
+}
+
+.Base {
+	height: 100%;
 }
 
 .Body {
@@ -190,4 +198,23 @@ body {
 .ErrorMessage {
 	color: red;
 	width: 20em;
+}
+
+.Base .Header {
+	width: 100%;
+	height: 5%;
+}
+
+.Base .Header #headerClock {
+	display: inline-block;
+	width: 50%;
+	text-align: right;
+}
+
+.Base .Header #headerTitle {
+	display: inline-block;
+	width: 50%;
+	text-align: left;
+	font-size: larger;
+	font-weight: bolder;
 }

@@ -41,27 +41,39 @@ ReportsSummary.prototype.activate = function () {
 				]}
 			},
 			function (ret) {
-				ret.grand = ret.warm + ret.noShow;
-				log('results', ret);
+				ret.grand = (ret.warm||0) + (ret.noShow||0);
 				base.addNav([
-					{ key: 'P', msg: 'Print', func: function () { o.print(); } }
+					{ key: 'L', msg: 'Label', func: function () { o.label(); } },
+					{ key: 'Enter', msg: 'Done', func: home },
+					{ key: 'Escape', func: home }
 				]);
-				var editor = new Editor(ret, {
-					readonly: true,
-					schema: ReportsSummary.schema,
-					cancel: home,
-					cancelButton: null,
-					done: home,
-					doneButton: 'Done'
-				});
-				o.appendChild(editor);
-				editor.activate();
+				o.appendChild(
+					new DElement('table',
+						new DElement('thead',
+							new DElement('th',
+								'Membership Statistics',
+								{ colSpan: 2 }
+							)
+						)
+					)
+				).appendChild(
+					tr(td('Warm Bodies'), td(ret.warm||0)),
+					tr(td('No show'), td(ret.noShow||0)),
+					tr(td('Preregistered'), td(ret.prereg||0)),
+					tr(td('At the door'), td(ret.atTheDoor||0)),
+					tr(td('Grand total'), td(ret.grand)),
+					tr(td('Void'), td(ret.void||0))
+				);
 			}
 		);
 	});
+	
+	function v(val) {
+		return (val || 0);
+	}
 };
 
-ReportsSummary.prototype.print = function () {
+ReportsSummary.prototype.label = function () {
 	getReportPrinterInfo(gotInfo, function () {});
 	function gotInfo(ret) {
 		log('printer', ret.printer);
@@ -72,15 +84,3 @@ ReportsSummary.prototype.print = function () {
 
 	}
 };
-
-ReportsSummary.schema = [
-	[
-		{ title: 'Membership Statistics' },
-		{ field: 'warm', label: 'Warm bodies', input: InputInt },
-		{ field: 'noShow', label: 'No show', input: InputInt },
-		{ field: 'prereg', label: 'Preregistered', input: InputInt },
-		{ field: 'atTheDoor', label: 'At the door', input: InputInt },
-		{ field: 'grand', label: 'Grand total', input: InputInt },
-		{ field: 'void', label: 'Void', input: InputInt }
-	]
-];

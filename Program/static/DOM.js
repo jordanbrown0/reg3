@@ -62,8 +62,8 @@ DElement.Node = function (node) {
 // Is there really value to adding attributes here?  Would it be more useful to set
 // properties?  When do you need attributes and properties can't do the job?
 DElement.type = function(type /* , [attrs | child | string ] ... */) {
-    DNode.call(this, document.createElement(type));
     DNode.log('DElement '+type);
+    DNode.call(this, document.createElement(type));
 
     for (var i=1; i < arguments.length; i++) {
         if (arguments[i] instanceof DNode
@@ -221,3 +221,14 @@ DElement.prototype.replaceChild = function (newNode, oldNode) {
 	var o = this;
 	return (o.n.replaceChild(newNode.n, oldNode.n));
 }
+
+function DOMFunction(t) {
+	window[t] = function () {
+		var args = Array.prototype.slice.call(arguments);
+		args.unshift(t);
+		return newApply(DElement, args);
+	}
+}
+
+DOMFunction('td');
+DOMFunction('tr');

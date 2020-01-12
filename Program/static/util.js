@@ -117,6 +117,38 @@ function assertParams(params) {
 	}
 }
 
+// This creates a new object using the constructor specified and the argument
+// array specified.  It works around the fact that there's no way to combine
+// the "new" operator and the "apply" method.
+function newApply(Cls, args) {
+	if (!(args instanceof Array)) {
+		args = Array.prototype.slice.call(args);
+	}
+	var a = [Cls].concat(args);
+	var f = Function.prototype.bind.apply(Cls, a);
+	return (new f());
+}
+
+// NEEDSWORK this depends on the client's time zone.
+// We probably don't want to do that.  We probably want to
+// do the TZ offset ourselves and retrieve the "UTC" time.
+function displayDateTime(d, seconds) {
+	var ds = d.toDateString();
+	var hh = d.getHours();
+	var ampm = hh < 12 ? 'AM' : 'PM';
+	hh %= 12;
+	if (hh == 0) {
+		hh = 12;
+	}
+	var ts = hh.toString();
+	ts += ':' + d.getMinutes().toString().padStart(2, '0');
+	if (seconds) {
+		ts += ':' + d.getSeconds().toString().padStart(2, '0');
+	}
+	ts += ' ' + ampm;
+	return (ds + ' ' + ts);
+}
+
 var getClassName = function (obj) {
 	if (obj.constructor.name) {
 		return obj.constructor.name;

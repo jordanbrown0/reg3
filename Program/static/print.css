@@ -1,0 +1,14 @@
+* {
+	color: red;
+}
+.NavBar {
+	display: none;
+}
+
+th {
+	text-align: left;
+}
+
+.Base .Header {
+	display: none;
+}

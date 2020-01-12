@@ -1,8 +1,8 @@
 var rpc = {};
-var rpcVerbose = true;
+var rpcVerbose = false;
 var rpcActive = {};
 
-init.push(function (cb) {
+init.push(function rpcInit(cb) {
 	if (rpcVerbose) {
 		log('Initializing RPC');
 	}
@@ -43,7 +43,7 @@ init.push(function (cb) {
 
 	function addmethod(m) {
 		rpc[m] = function() {
-			var args = Array.apply(null, arguments);
+			var args = Array.prototype.slice.call(arguments);
 			var success = null;
 			var failure = null;
 			while (!failure) {

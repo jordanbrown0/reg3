@@ -2,7 +2,7 @@
 // before the various tables get initialized.
 var db = {};
 
-init.push(function (cb) {
+init.push(function dbInit (cb) {
 	db.reg = new DB('reg', { onload: cb });
 	return (true);
 });

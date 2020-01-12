@@ -102,7 +102,6 @@ Editor.prototype.done = function () {
 	
 	var errors = o.validate();
 
-	log('Errors', errors);
 	if (errors.length > 0) {
 		// If there's an error on the current page, then stay on this page.
 		var selectedError = errors.find(function (err) {

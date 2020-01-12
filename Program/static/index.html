@@ -1,13 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<link rel="stylesheet" type="text/css" href="reg.css">
+	<link rel="stylesheet" type="text/css" href="reg.css" media="screen">
+	<!--
+		NEEDSWORK Perhaps print.css should be set up conditionally, only for those pages intended to be printed.  Might need speciality per-report
+		CSS for page header/footers.
+	-->
+	<link rel="stylesheet" type="text/css" href="print.css" media="print">
 	<!-- <script src="Log.js"></script> -->
 	<script src="head.js"></script>
 	<script src="util.js"></script>
 	<script src="DOM.js"></script>
 	<script src="rpc.js"></script>
 	<script src="dbinit.js"></script>
+	<script src="Base.js"></script>
 	<script src="DB.js"></script>
 	<script src="labels.js"></script>
 	<script src="DBManager.js"></script>
@@ -19,6 +25,7 @@
 	<script src="ConflictResolver.js"></script>
 	<script src="NavBar.js"></script>
 	<script src="NavKey.js"></script>
+	<script src="PageTitle.js"></script>
 	<script src="member.js"></script>
 	<script src="class.js"></script>
 	<script src="GlobalConfig.js"></script>
@@ -29,12 +36,13 @@
 	<script src="Reports.js"></script>
 	<script src="ReportsSummary.js"></script>
 	<script src="ReportsByClass.js"></script>
+	<script src="ReportsList.js"></script>
 	<script src="Button.js"></script>
 	<script src="Modal.js"></script>
 	<script src="Admin.js"></script>
 	<script src="Menu.js"></script>
 	<script src="List.js"></script>
-	<script src="index.js"></script>
+	<script src="Home.js"></script>
 	<script src="tail.js"></script>
 </head>
 <body>

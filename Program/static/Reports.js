@@ -10,6 +10,9 @@ function Reports()
 		{ key: 'c', label: 'by (C)lass', func: function () {
 			base.switchTo(new ReportsByClass());
 		}},
+		{ key: 'l', label: '(L)ist', func: function () {
+			base.switchTo(new ReportsList());
+		}}
 	]});
 	o.appendChild(o.menu);
 }

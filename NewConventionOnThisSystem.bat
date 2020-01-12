@@ -21,6 +21,11 @@ set z=%CD%\Program\imported\7za
 call Program\lib\mkwad %myname%.7z program
 
 mkdir %dest%
+if errorlevel 1 (
+	echo Bad directory name %myname%, aborting.
+	goto :EOF
+)
+
 %z% x -o%dest% %myname%.7z
 erase %myname%.7z
 call Program\lib\mkbat %dest% %myname%

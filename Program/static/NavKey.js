@@ -1,21 +1,20 @@
-var key_verbose = false;
+var keyVerbose = false;
 
 function NavKey()
 {
     var o = this;
-	document.body.onkeydown = function (e) {
-		if (key_verbose) {
-			log('keydown', e.key);
-		}
+	document.documentElement.onkeydown = function (e) {
+		keyLog('keydown', e.key);
 		if (isRPCActive()) {
+			// For now, this is interesting enough to always log it.
 			log('ignore because of pending RPC');
 			e.preventDefault();
 			return;
 		}
-		o.onbodykeydown(e);
+		o.onkeydown(e);
 	};
-	// document.body.onkeypress = function (e) { log('keypress', e.key); o.onbodykeypress(e); };
-	// document.body.onkeyup = function (e) { log('keyup', e.key); o.onbodykeyup(e); };
+	// document.body.onkeypress = function (e) { log('keypress', e.key); o.onkeypress(e); };
+	// document.body.onkeyup = function (e) { log('keyup', e.key); o.onkeyup(e); };
 }
 
 NavKey.prototype.set = function (a) {
@@ -45,53 +44,40 @@ NavKey.prototype.getKeyHandler = function (e) {
 	var o = this;
 	var key = o.getKeyName(e);
 
-	if (key_verbose) {
-		log(e.key + ' => ' + key + ', ' + e.keyCode);
-	}
+	keyLog(e.key + ' => ' + key + ', ' + e.keyCode);
 	return (o.keyHandlers[key]);
 };
 
-NavKey.prototype.onbodykeydown = function (e) {
+// NEEDSWORK is there a potential problem with using these names?
+NavKey.prototype.onkeydown = function (e) {
 	var o = this;
 	var h = o.getKeyHandler(e)
 	if (h) {
-		if (key_verbose) {
-			log('handle keydown', e.key);
-		}
+		keyLog('handle keydown', e.key);
 		e.preventDefault();
 		h();
 	} else {
 		if (o.shouldIgnore(e)) {
-			if (key_verbose) {
-				log('ignore', e.key);
-			}
+			keyLog('ignore', e.key);
 			e.preventDefault();
 		}
 	}
 };
 
-NavKey.prototype.onbodykeypress = function (e) {
+NavKey.prototype.onkeypress = function (e) {
 	var o = this;
-	if (key_verbose) {
-		console.log('keypress', e);
-	}
+	keyLog('keypress', e);
 	if (o.getKeyHandler(e)) {
-		if (key_verbose) {
-			log('ignore keypress', e.key);
-		}
+		keyLog('ignore keypress', e.key);
 		e.preventDefault();
 	}
 };
 
-NavKey.prototype.onbodykeyup = function (e) {
+NavKey.prototype.onkeyup = function (e) {
 	var o = this;
-	if (key_verbose) {
-		log('keyup', e);
-	}
+	keyLog('keyup', e);
 	if (o.getKeyHandler(e)) {
-		if (key_verbose) {
-			log('ignore keyup', e.key);
-		}
+		keyLog('ignore keyup', e.key);
 		e.preventDefault();
 	}
 };
@@ -222,3 +208,9 @@ NavKey.prototype.getKeyName = function (e) {
 
 	return (kn);
 };
+
+function keyLog() {
+	if (keyVerbose) {
+		log.apply(null, arguments);
+	}
+}

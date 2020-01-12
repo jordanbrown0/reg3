@@ -40,7 +40,7 @@ Global.get = function (cb) {
 	table.global.getOrAdd("", null, cb);
 };
 
-init.push(function () {
+init.push(function globalConfigInit() {
 	table.global = new DBTable(db.reg, 'global',
 		{ defaults: Editor.defaults(globalSchema) }
 	);

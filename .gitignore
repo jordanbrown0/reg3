@@ -1,7 +1,8 @@
 .hg
-data
-node_modules
-temp
+SampleData
+Program/Data
+Program/node_modules
+Program/Temp
 *~
 *.exe
 *.sfx

@@ -102,7 +102,7 @@ Station.get = function (cb) {
 	Station.getX(station_id, cb);
 };
 
-init.push(function () {
+init.push(function stationsInit() {
 	table.stations = new DBTable(db.reg, 'stations',
 		{ defaults: Editor.defaults(stationSchema) }
 	);

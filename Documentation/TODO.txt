@@ -1,3 +1,86 @@
+Login/logout
+PESO
+Master integration
+"same" for address entry
+Number of memberships remaining on this server
+Fix previous membership
+Upgrades
+	Canned
+	ad hoc
+Transfers
+Other transaction
+Reports
+	To display, printer, file.  Maybe these are all the same here, all going to a browser page for view/print/save.
+	New memberships
+		By Day and class
+		By class and day
+		by day
+		by hour
+	Memberships picked up
+		by day and class
+		by day
+		by hour
+	Memberships by class (done?  needs print.)
+		free vs paid
+		bad class
+		use full description
+	Possible duplicates
+		same last/first
+		same last / left(first,1)
+		same left(last,3) / left(first, 3)
+		same last, city
+		same last, left(first, 3)
+		custom filtering
+	Membership lists
+		class, number, and name, by name
+		number and name, by name
+		one line class, nujmber, name, and address, by name
+		multiline class, number, name, and address, by name
+		one line class, number, name, and address, by name, with check box
+		class, number, and name, by class and name
+		class, number, and name, by class and number
+		one line number, class, name, and address, by number
+	Miniature reports on labels
+		summary
+		picked up by day
+		new by day
+		new by day and class
+	Classes
+	Upgrades
+Administration
+	page size for reports
+	search interface vs last/first/number interface
+	user-specified fields (field name and description)
+	print membership numbers yes/no
+	# of copies of label
+	print a real-name label too?
+	justify l/c/r
+	print city?
+	offline / as-of
+	permissions
+		metaclasses
+		prereg?
+		new reg?
+		upgrades?
+		unlisted upgrades?
+		transfers?
+		search?
+		fix last?
+		other transactions?
+		administration?
+		reports?
+		log complimentary memberships?
+		log reprints?
+	housekeeping
+		fix country name variants
+		delete
+		un-pick-up
+		hotel audit (search membership and master)
+		time fixer
+	transaction log
+		import/export
+
+
 NewConventionOnThisSystem needs error checking on the mkdir.
 
 All of the setup stuff could probably use more checking on the new directory name.
@@ -232,3 +315,5 @@ New merged database is a PITA to edit.  Need general-purpose DBMS tools.
 Drive member schema largely or completely from a table.
 
 Credit card integration
+
+Receipts.  Note that receipt might need to cover multiple memberships and perhaps upgrades.
