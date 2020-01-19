@@ -49,6 +49,10 @@ methods.DBgetOrAdd = async function(dbName, tName, k, expr) {
 	return ((await getTable(dbName, tName)).getOrAdd(k, expr));
 };
 
+methods.DBgetOrNull = async function(dbName, tName, k) {
+	return ((await getTable(dbName, tName)).getOrNull(k));
+};
+
 methods.DBput = async function (dbName, tName, k, r, expr) {
 	return ((await getTable(dbName, tName)).put(k, r, expr));
 };

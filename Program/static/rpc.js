@@ -46,16 +46,14 @@ init.push(function rpcInit(cb) {
 			var args = Array.prototype.slice.call(arguments);
 			var success = null;
 			var failure = null;
-			while (!failure) {
+			while (args.length > 0 && !failure) {
 				var cb = args.pop();
 				if (cb instanceof Function) {
 					failure = success;
 					success = cb;
 					continue;
 				}
-				if (cb !== undefined) {
-					args.push(cb);
-				}
+				args.push(cb);
 				break;
 			}
 			call({name: m, params: args}, function (r) {

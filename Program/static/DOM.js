@@ -222,6 +222,12 @@ DElement.prototype.replaceChild = function (newNode, oldNode) {
 	return (o.n.replaceChild(newNode.n, oldNode.n));
 }
 
+DElement.prototype.replaceChildren = function (/* args */) {
+	var o = this;
+	o.removeChildren();
+	return (o.appendChild.apply(o, arguments));
+};
+
 function DOMFunction(t) {
 	window[t] = function () {
 		var args = Array.prototype.slice.call(arguments);

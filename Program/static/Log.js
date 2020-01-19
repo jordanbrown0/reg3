@@ -46,9 +46,9 @@ Log.prototype.setVisibility = function (visible) {
 		}
 	}
 
-	for (var i = 0; i < o.visibilityCallbacks.length; i++) {
-		o.visibilityCallbacks[i](visible);
-	}
+	o.visibilityCallbacks.forEach(function (cb) {
+		cb(visible);
+	});
 };
 
 Log.prototype.show = function (msg) {

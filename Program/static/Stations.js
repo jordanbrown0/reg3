@@ -1,6 +1,6 @@
 var stationSchema = [
 	[
-		{ title: 'Station Configuration' },
+		{ title: 'General' },
 		{ field: 'name', label: 'Station name', default: 'Unconfigured', required: true },
 		{ field: 'label', label: 'Label Printer', input: InputDBPicker,
 			table: 'printers',
@@ -45,6 +45,8 @@ function StationManager() {
 }
 extend(DBManager, StationManager);
 
+StationManager.prototype.title = 'Administer all stations...';
+
 StationManager.prototype.summarize = function (k, r) {
 	var printerName = new DElement('td', { id: 'printerName' });
 	// NEEDSWORK what if printer no longer exists?
@@ -84,6 +86,8 @@ StationEdit.prototype.activate = function () {
 		StationEdit.sup.activate.call(o);
 	});
 };
+
+StationEdit.prototype.title = 'Configure station...';
 
 // NEEDSWORK list/delete/pick conflict will recreate record.
 // StationManager -> StationEdit really shouldn't use getOrAdd.

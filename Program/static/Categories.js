@@ -1,6 +1,5 @@
 var categoriesSchema = [
 	[
-		{ title: 'Categories Configuration' },
 		{ field: 'name', label: 'Category name', default: '', required: true },
 		{ field: 'description', label: 'Description', default: '', required: true },
 	],
@@ -12,7 +11,10 @@ function CategoriesManager() {
 		table: table.categories,
 		schema: categoriesSchema,
 		canAdd: true,
-		canDelete: true
+		canDelete: true,
+		titleManager: 'Categories',
+		titleEdit: 'Edit category',
+		titleAdd: 'New category'
 	};
 	CategoriesManager.sup.constructor.call(o, params);
 }

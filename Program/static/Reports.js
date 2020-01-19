@@ -3,12 +3,8 @@ function Reports()
 	var o = this;
     DElement.call(o, 'div');
 	o.menu = new Menu({ items: [
-		{ title: 'Reports menu' },
-		{ key: 's', label: '(S)ummary', func: function () {
-			base.switchTo(new ReportsSummary());
-		}},
-		{ key: 'c', label: 'by (C)lass', func: function () {
-			base.switchTo(new ReportsByClass());
+		{ key: 't', label: '(T)allies of members', func: function () {
+			base.switchTo(new ReportTallies());
 		}},
 		{ key: 'l', label: '(L)ist', func: function () {
 			base.switchTo(new ReportsList());
@@ -26,6 +22,7 @@ Reports.prototype.activate = function () {
 	]);
 };
 
+Reports.prototype.title = 'Reports';
 
 // This needs to be refactored a bit and recombined with the one in labels.js.
 // NEEDSWORK

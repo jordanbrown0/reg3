@@ -28,6 +28,15 @@ Home.prototype.activate = function () {
 	o.menu.activate();
 };
 
+Home.prototype.title = function () {
+	var o = this;
+	var span = new DElement('span');
+	Global.get(function (cfg) {
+		span.replaceChildren(cfg.convention);
+	});
+	return span;
+};
+
 function home()
 {
 	base.switchTo(new Home());

@@ -104,6 +104,7 @@ html, body {
 
 .Body {
 	height: 80%;
+	overflow-y: auto;
 }
 
 .Printers .List #type {

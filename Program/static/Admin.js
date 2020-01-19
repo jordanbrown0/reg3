@@ -3,7 +3,6 @@ function Admin()
 	var o = this;
     DElement.call(o, 'div');
 	o.menu = new Menu({ items: [
-		{ title: 'Administration menu' },
 		{ key: 'c', label: '(C)lasses', func: function () {
 			base.switchTo(new ClassManager());
 		}},
@@ -19,6 +18,9 @@ function Admin()
 		{ key: 'q', label: '(Q) station manager', func: function () {
 			base.switchTo(new StationManager());
 		}},
+		{ key: 'u', label: '(U)pgrades', func: function () {
+			base.switchTo(new UpgradesManager());
+		}},
 		{           label: 'Categories', func: function () {
 			base.switchTo(new CategoriesManager());
 		}},
@@ -31,9 +33,6 @@ function Admin()
 		}},
 		{ key: 'e', label: '(E)xport', func: function () {
 			base.switchTo(new Export());
-		}},
-		{           label: 'Selected import/export', func: function () {
-			base.switchTo(new SelectedImportExport());
 		}}
 	]});
 	o.appendChild(o.menu);
@@ -47,3 +46,5 @@ Admin.prototype.activate = function () {
 		{ key: 'Escape', msg: 'Cancel', func: function () { home(); } }
 	]);
 };
+
+Admin.prototype.title = 'Administration';

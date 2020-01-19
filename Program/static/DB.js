@@ -21,6 +21,11 @@ DB.prototype.getName = function () {
 	return (o.dbName);
 };
 
+DB.prototype.listTables = function (cb) {
+	var o = this;
+	rpc.DBlistTables(o.dbName, cb);
+};
+
 // Params:
 // defaults:  a prototypical record supplying defaults for any fields that
 // are undefined in the DB.
@@ -78,6 +83,16 @@ DBTable.prototype.getOrAdd = function (k, expr, cb) {
 	var o = this;
 	rpc.DBgetOrAdd(o.dbName, o.tName, k, expr, function (r) {
 		o.applyDefaults(r);
+		cb(r);
+	});
+};
+
+DBTable.prototype.getOrNull = function (k, cb) {
+	var o = this;
+	rpc.DBgetOrNull(o.dbName, o.tName, k, function (r) {
+		if (r) {
+			o.applyDefaults(r);
+		}
 		cb(r);
 	});
 };

@@ -2,7 +2,7 @@ var classSchema = [
 	[
 		{ field: 'code', label: 'Code', required: true },
 		{ field: 'description', label: 'Description', required: true },
-		{ field: 'amount', label: 'Amount', input: InputInt },	// Float?  Does anybody need pennies?
+		{ field: 'amount', label: 'Amount', input: InputInt, required: true },	// Float?  Does anybody need pennies?
 		{ field: 'badgeOK', label: 'OK for badging?', input: InputBool },
 		{ field: 'metaclass', label: 'Metaclass' },
 		{ field: 'onBadge', label: 'Print on badge' },
@@ -20,8 +20,12 @@ function ClassManager()
 		table: table.classes,
 		schema: classSchema,
 		canAdd: true,
-		canDelete: true
+		canDelete: true,
+		keyField: 'code'
 	});
+	ClassManager.prototype.Edit = ClassEdit;
+	ClassManager.prototype.Add = ClassAdd;
+
 }
 extend(DBManager, ClassManager);
 
@@ -48,6 +52,8 @@ ClassManager.prototype.activate = function () {
 	});
 };
 
+ClassManager.prototype.title = 'Class administration';
+
 ClassManager.prototype.header = function () {
 	return (new DElement('tr',
 		new DElement('th', 'Order'),
@@ -58,6 +64,29 @@ ClassManager.prototype.header = function () {
 		new DElement('th', 'Start'),
 		new DElement('th', 'End')
 	));
+};
+
+function ClassEdit(/*args*/)
+{
+	ClassEdit.sup.constructor.apply(this, arguments);
+}
+
+extend(DBEdit, ClassEdit);
+
+ClassEdit.prototype.title = function () {
+	// NEEDSWORK this should probably include the class code and description.
+	return ('Edit class...');
+};
+
+function ClassAdd(/*args*/)
+{
+	ClassAdd.sup.constructor.apply(this, arguments);
+}
+
+extend(DBAdd, ClassAdd);
+
+ClassAdd.prototype.title = function () {
+	return ('New class...');
 };
 
 // NEEDSWORK ClassManager and ClassPicker should perhaps be the same,
@@ -119,21 +148,18 @@ ClassPicker.prototype.pick = function (k, r) {
 
 ClassPicker.prototype.sort = [ 'order' ];
 
-// NEEDSWORK I really need to move to using the class code as the key for
-// the class table.
-function getClass(id, cb, err) {
-	table.classes.list({filter: {eq: [id, {f: 'code'}]}, limit: 1},
-		function (recs) {
-			onlyArrayObject(recs, function (k, r) {
-				if (k) {
-					cb(r);
-				} else {
-					err();
-				}
-			});
-		}
-	);
-}
+var Class = {};
+
+// NEEDSWORK:  Something bad will happen if the get fails.
+Class.get = function (id, cb) {
+	table.classes.getOrNull(id, cb);
+};
+
+Class.getDescription = function (id, cb) {
+	Class.get(id, function (c) {
+		cb(c ? c.description : 'Bad class "' + id + '"');
+	});
+};
 
 init.push(function classInit() {
 	table.classes = new DBTable(db.reg, 'classes',

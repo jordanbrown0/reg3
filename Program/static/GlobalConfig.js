@@ -1,6 +1,5 @@
 var globalSchema = [
 	[
-		{ title: 'Global Configuration' },
 		{ field: 'convention', label: 'Convention name', default: 'My Convention', required: true },
 		{ field: 'startDate', label: 'Convention start date',
 			input: InputDate },
@@ -29,6 +28,8 @@ function GlobalEdit()
 	});
 }
 extend(DBEdit, GlobalEdit);
+
+GlobalEdit.prototype.title = 'Global configuration';
 
 GlobalEdit.prototype.get = function (cb) {
 	Global.get(cb);

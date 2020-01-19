@@ -19,13 +19,16 @@ Base.prototype.activate = function () {
 	var o = this;
 	o.tick();
 	setInterval(function () { o.tick(); }, 60*1000);
+	Global.get(function (cfg) {
+		pageTitle.set(cfg.convention);
+	});
 };
 
 Base.prototype.switchTo = function (n) {
 	var o = this;
-	o.body.removeChildren();
-	o.body.appendChild(n);
+	o.body.replaceChildren(n);
 	o.setNav([]);
+	o.title.replaceChildren(n.title instanceof Function ? n.title() : n.title);
 	n.activate();
 };
 
@@ -46,11 +49,6 @@ Base.prototype.tick = function () {
 	rpc.eval(null, {date: []}, function (d) {
 		o.clock.removeChildren();
 		o.clock.appendChild(displayDateTime(new Date(d), false));
-	});
-	Global.get(function (cfg) {
-		o.title.removeChildren();
-		o.title.appendChild(cfg.convention + ' Registration');
-		pageTitle.set(cfg.convention);
 	});
 };
 

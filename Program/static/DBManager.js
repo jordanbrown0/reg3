@@ -51,6 +51,11 @@ DBManager.prototype.activate = function () {
 	list.activate();
 };
 
+DBManager.prototype.title = function () {
+	var o = this;
+	return (o.params.titleManager);
+};
+
 DBManager.prototype.getFilter = function () {
 	var o = this;
 	return (o.filter);
@@ -62,7 +67,6 @@ DBManager.prototype.summarize = function (k, r) {
 
 DBManager.prototype.pick = function (k, r) {
 	var o = this;
-	log('DBManager.pick', k, r);
 	base.switchTo(new o.Edit(k, o.params));
 };
 
@@ -96,6 +100,9 @@ DBEdit.prototype.activate = function () {
 
 	o.get(function (r) {
 		o.r = r;
+		if (o.params.keyField) {
+			Editor.setReadOnly(o.params.schema, o.params.keyField, true);
+		}
 		var editor = new Editor(r, {
 			schema: o.params.schema,
 			doneButton: 'Save',
@@ -140,6 +147,11 @@ DBEdit.prototype.delete = function () {
 	o.params.table.delete(o.k, o.r, function () { o.done(); });
 };
 
+DBEdit.prototype.title = function () {
+	var o = this;
+	return (o.params.titleEdit);
+};
+
 // Perhaps this should be a subclass of DBEdit.
 function DBAdd(params) {
 	var o = this;
@@ -152,6 +164,9 @@ DBAdd.prototype.activate = function () {
 	var o = this;
 
 	o.r = {};
+	if (o.params.keyField) {
+		Editor.setReadOnly(o.params.schema, o.params.keyField, false);
+	}
 	var editor = new Editor(o.r, {
 		schema: o.params.schema,
 		doneButton: 'Add',
@@ -160,11 +175,13 @@ DBAdd.prototype.activate = function () {
 	});
 	o.appendChild(editor);
 	editor.activate();
+	base.setTitle(o.params.title);
 };
 
 DBAdd.prototype.add = function (cb) {
 	var o = this;
-	o.params.table.add(null, o.r, null, cb);
+	var key = o.params.keyField ? o.r[o.params.keyField] : null;
+	o.params.table.add(key, o.r, null, cb);
 };
 
 DBAdd.prototype.done = function () {
@@ -173,4 +190,9 @@ DBAdd.prototype.done = function () {
 
 DBAdd.prototype.cancel = function () {
 	home();
+};
+
+DBAdd.prototype.title = function () {
+	var o = this;
+	return (o.params.titleAdd);
 };

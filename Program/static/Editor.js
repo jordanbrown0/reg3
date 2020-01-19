@@ -143,20 +143,30 @@ Editor.defaults = function (schema) {
 	return (ret);
 };
 
+Editor.setReadOnly = function (schema, f, ro) {
+	schema.forEach(function (page) {
+		page.forEach(function (ent) {
+			if (ent.field == f) {
+				ent.readonly = ro;
+			}
+		});
+	});
+};
+
 function EditorPage(schema, params) {
 	var o = this;
 	EditorPage.sup.constructor.call(o, 'table');
 	o.entries = [];
-	for (var i = 0; i < schema.length; i++) {
+	schema.forEach(function (schemaEntry) {
 		var e;
-		if (schema[i].field) {
-			e = new EditorEntry(schema[i], params);
+		if (schemaEntry.field) {
+			e = new EditorEntry(schemaEntry, params);
 			o.entries.push(e);
-		} else if (schema[i].title) {
-			e = new EditorTitle(schema[i]);
+		} else if (schemaEntry.title) {
+			e = new EditorTitle(schemaEntry);
 		}
 		o.appendChild(e);
-	}
+	});
 }
 extend(DElement, EditorPage);
 

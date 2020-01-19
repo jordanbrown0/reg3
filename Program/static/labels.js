@@ -36,11 +36,7 @@ function label_badge(r, done, err) {
 	var list;
 	var t0 = Date.now();
 
-	alert('printing disabled');
-	done();
-	return;
-	
-	getClass(r.class, gotClass,
+	Class.get(r.class, gotClass,
 		function () {
 			// NEEDSWORK modal
 			alert('Unknown class');
@@ -59,6 +55,10 @@ function label_badge(r, done, err) {
 	}
 	
 	function gotInfo(res) {
+		// Check for printing disabled.
+		if (!res) {
+			done();
+		}
 		caps = res.caps;
 		cfg = res.cfg;
 		printer = res.printer;
@@ -355,7 +355,7 @@ function getPrinterInfo(cb, abort) {
 	function gotConfig(res) {
 		if (res.noPrint) {
 			alert('Would print label now');
-			abort();
+			cb(null);
 			return;
 		}
 		cfg = res;

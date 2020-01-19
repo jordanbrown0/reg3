@@ -1,6 +1,5 @@
 var serverSchema = [
 	[
-		{ title: 'Server Configuration' },
 		{ field: 'name', label: 'Server name', default: 'Unconfigured', required: true },
 		{ field: 'noPrint', label: 'Disable printing?', input: InputBool, default: false },
 		{ field: 'nextNumber', label: 'Next membership number to assign', input: InputInt,
@@ -26,6 +25,8 @@ function ServerManager() {
 	ServerManager.prototype.Edit = ServerEdit;
 }
 extend(DBManager, ServerManager);
+
+ServerManager.prototype.title = 'Administer servers...';
 
 ServerManager.prototype.summarize = function (k, r) {
 	return (new DElement('tr',
@@ -56,6 +57,8 @@ extend(DBEdit, ServerEdit);
 ServerEdit.prototype.get = function (cb) {
 	Server.get(cb);
 };
+
+ServerEdit.prototype.title = 'Server configuration...';
 
 var Server = {};
 

@@ -134,8 +134,7 @@ Style
 UI
 	Non-buttons in NavBar?  E.g. for All checkbox in class picker.
 	NavBar layout?  Multiple lines, ordering?
-	NavBar positioning?  IE doesn't put it at bottom of window.  Maybe always
-	put it at the top?
+	NavBar positioning?  I haven't been able to get it to align at the bottom of the page, and at the bottom of the page is inconvenient if the page is a multi-screen report.  Maybe always put it at the top?  Maybe put reports in a frame with its own scrolling, with NavBar below that frame?
 	Put page-flip controls somewhere else?  Note we arguably only need page flip on touch devices, so maybe we don't care.
 	Do we want Esc/Enter/</> buttons on PCs?
 	* How to detect tablets?

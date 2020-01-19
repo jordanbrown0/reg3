@@ -11,8 +11,7 @@ Menu.prototype.activate = function () {
 	var o = this;
 	var keys = [];
 	
-	for (var i = 0; i < o.params.items.length; i++) {
-		var item = o.params.items[i];
+	o.params.items.forEach(function (item) {
 		var tr = new DElement('tr');
 		o.appendChild(tr);
 		if (item.title) {
@@ -35,6 +34,6 @@ Menu.prototype.activate = function () {
 				keys.push({key: item.key, func: item.func});
 			}
 		}
-	}
+	});
 	base.addNav(keys);
 };

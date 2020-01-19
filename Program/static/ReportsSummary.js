@@ -44,6 +44,9 @@ ReportsSummary.prototype.activate = function () {
 				ret.grand = (ret.warm||0) + (ret.noShow||0);
 				base.addNav([
 					{ key: 'L', msg: 'Label', func: function () { o.label(); } },
+					{ key: 'P', msg: 'Print', func: function () {
+						window.print();
+					} },
 					{ key: 'Enter', msg: 'Done', func: home },
 					{ key: 'Escape', func: home }
 				]);
@@ -57,12 +60,14 @@ ReportsSummary.prototype.activate = function () {
 						)
 					)
 				).appendChild(
-					tr(td('Warm Bodies'), td(ret.warm||0)),
-					tr(td('No show'), td(ret.noShow||0)),
-					tr(td('Preregistered'), td(ret.prereg||0)),
-					tr(td('At the door'), td(ret.atTheDoor||0)),
-					tr(td('Grand total'), td(ret.grand)),
-					tr(td('Void'), td(ret.void||0))
+					new DElement('tbody',
+						tr(td(ret.warm||0), td('Warm Bodies')),
+						tr(td(ret.noShow||0), td('No show')),
+						tr(td(ret.prereg||0), td('Preregistered')),
+						tr(td(ret.atTheDoor||0), td('At the door')),
+						tr(td(ret.grand), td('Grand total')),
+						tr(td(ret.void||0), td('Void'))
+					)
 				);
 			}
 		);
@@ -72,6 +77,8 @@ ReportsSummary.prototype.activate = function () {
 		return (val || 0);
 	}
 };
+
+ReportsSummary.prototype.title = 'Reports';
 
 ReportsSummary.prototype.label = function () {
 	getReportPrinterInfo(gotInfo, function () {});

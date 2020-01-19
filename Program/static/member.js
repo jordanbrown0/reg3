@@ -1,3 +1,15 @@
+var Member = {};
+
+// Shared between MemberEdit and MemberDisplay
+// Maybe should be part of a superclass.
+Member.setTitle = function () {
+	var o = this;
+	Class.getDescription(o.r.class, function (d) {
+		o.titleSpan.replaceChildren(joinTruthy([o.r.first, o.r.last], ' ') +
+			' - ' + d);
+	});
+};
+
 function MemberManager() {
     var o = this;
 	DElement.call(o, 'div', {className: 'MemberManager' });
@@ -34,6 +46,8 @@ MemberManager.prototype.activate = function () {
 	o.list.activate();
 };
 
+MemberManager.prototype.title = 'Look up previously registered member...';
+
 var memberSchema = [
 	[
 		{ title: 'Page 1' },
@@ -68,6 +82,7 @@ function MemberDisplay(key)
 	var o = this;
 	MemberDisplay.sup.constructor.call(o,'div');
 	o.key = key;
+	o.titleSpan = new DElement('span');
 }
 extend(DElement, MemberDisplay);
 
@@ -84,6 +99,9 @@ MemberDisplay.prototype.activate = function () {
 	
 	function gotRec(r) {
 		o.r = r;
+
+		o.setTitle();
+
 		if (o.conf.offlinePrint) {
 			base.addNav([
 				{ key: 'P', msg: 'Print', func: function () {
@@ -101,13 +119,16 @@ MemberDisplay.prototype.activate = function () {
 		}
 		if (r.pickedup) {
 			base.addNav([
-				{ key: 'U', msg: 'Unmark', func: function () { o.unmark(); } }
+				{ msg: 'Unmark', func: function () { o.unmark(); } }
 			]);
 		}
 		base.addNav([
 			{ key: 'C', msg: 'Change', func: function () {
 				base.switchTo(new MemberEdit(o.key));
 			} },
+			{ key: 'U', msg: 'Upgrade', func: function () {
+				base.switchTo(new MemberUpgrade(o.key));
+			} }
 		]);
 
 		var editor = new Editor(r, {
@@ -121,6 +142,13 @@ MemberDisplay.prototype.activate = function () {
 		o.appendChild(editor);
 		editor.activate();
 	}
+};
+
+MemberDisplay.prototype.setTitle = Member.setTitle;
+
+MemberDisplay.prototype.title = function () {
+	var o = this;
+	return (o.titleSpan);
 };
 
 MemberDisplay.prototype.print = function (cb) {
@@ -154,6 +182,7 @@ function MemberEdit(key)
 	var o = this;
 	DElement.call(o,'div');
 	o.key = key;
+	o.titleSpan = new DElement('span');
 }
 extend(DElement, MemberEdit);
 
@@ -161,6 +190,8 @@ MemberEdit.prototype.activate = function () {
 	var o = this;
 
 	table.members.get(o.key, function (r) {
+		o.r = r;
+		o.setTitle();
 		o.editor = new Editor(r, {
 			schema: memberSchema,
 			doneButton: 'Save',
@@ -176,6 +207,13 @@ MemberEdit.prototype.activate = function () {
 	});
 };
 
+MemberEdit.prototype.setTitle = Member.setTitle;
+
+MemberEdit.prototype.title = function () {
+	var o = this;
+	return (o.titleSpan);
+};
+
 function NewMember()
 {
 	var o = this;
@@ -188,6 +226,7 @@ NewMember.prototype.activate = function () {
 	var r = {};
 
 	base.switchTo(new ClassPicker({
+		titleManager: 'Class for new member...',
 		pick: function (k, classrec) {
 			r.class = classrec.code;
 			base.switchTo(new NewMemberEditor(r));
@@ -224,11 +263,40 @@ NewMemberEditor.prototype.activate = function () {
 		},
 		cancel: home
 	});
+
 	o.appendChild(editor);
 	editor.activate();
 };
 
-var Member = {};
+NewMemberEditor.prototype.title = 	'New member...';
+
+function MemberUpgrade(k) {
+	var o = this;
+	o.k = k;
+	MemberUpgrade.sup.constructor.call(o,'div');
+}
+
+extend(DElement, MemberUpgrade);
+
+MemberUpgrade.prototype.activate = function () {
+	var o = this;
+	table.members.get(o.k, function (r) {
+		base.switchTo(
+			new UpgradePicker({
+				from: r.class,
+				pick: function (newClass) {
+					r.class = newClass;
+					table.members.put(o.k, r, null, function () {
+						base.switchTo(new MemberDisplay(o.k));
+					});
+				},
+				cancel: function () {
+					base.switchTo(new MemberDisplay(o.k));
+				}
+			})
+		)
+	});
+};
 
 init.push(function memberInit() {
 	table.members = new DBTable(db.reg, 'members',

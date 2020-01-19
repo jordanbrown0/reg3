@@ -137,12 +137,12 @@ InputIntList.prototype.get = function () {
 	var o = this;
 	var svals = InputIntList.sup.get.call(o).split(',');
 	var ivals = [];
-	for (var i = 0; i < svals.length; i++) {
-		var v = parseInt(svals[i], 10);
+	svals.forEach(function (s) {
+		var v = parseInt(s, 10);
 		if (!isNaN(v)) {
 			ivals.push(v);
 		}
-	}
+	});
 	return (ivals);
 };
 
@@ -155,12 +155,12 @@ InputIntList.prototype.set = function (ivals) {
 InputIntList.prototype.validate = function () {
 	var o = this;
 	var svals = InputIntList.sup.get.call(o).split(',');
-	if (svals) {
-		for (var i = 0; i < svals.length; i++) {
-			if (isNaN(parseInt(svals[i], 10))) {
-				return (["Invalid number"]);
-			}
-		}
+	if (svals &&
+		svals.some(function (s) {
+			return (isNaN(parseInt(s, 10)));
+		})
+	) {
+		return (["Invalid number"]);
 	}
 	return (InputIntList.sup.validate.call(o));
 };
@@ -250,32 +250,6 @@ InputDateTime.prototype.set = function (value) {
 	InputDateTime.sup.set.call(o, s);
 };
 
-function InputClass(params)
-{
-	var o = this;
-	params.readonly = true;
-	InputClass.sup.constructor.call(o, params);
-}
-extend(InputText, InputClass);
-
-InputClass.prototype.get = function () {
-	var o = this;
-	return (o.classrec.code);
-};
-
-InputClass.prototype.set = function (value) {
-	var o = this;
-	table.classes.list({filter: {eq: [value, {f: 'code'}]}, limit: 1},
-		function (recs) {
-			onlyArrayObject(recs, function (k, r) {
-				o.classrec = r || {};
-				InputClass.sup.set.call(o,
-					o.classrec.description || '(undefined class '+value+')' );
-			});
-		}
-	);
-};
-
 // <select> object aren't willing to accept values that don't
 // match any of their options.  We may get our existing value
 // before we get the options, so save away the existing value
@@ -331,8 +305,8 @@ InputSelect.prototype.setOptions = function (opts) {
 // Params:
 // table:  Either a DBTable object, or the name of a table.
 // keyField:  The field to be used as the key; the value to return.
-// textField:  Either a string to display, or a function to evaluate to
-//     yield a string to display
+// textField:  Either the name of a field to display, or a function to evaluate
+// to yield a string to display.
 //
 function InputDBPicker(params)
 {
@@ -358,6 +332,18 @@ function InputDBPicker(params)
 }
 extend(InputSelect, InputDBPicker);
 
+function InputClass(params)
+{
+	var o = this;
+	params = Object.assign({}, params, {
+		table: table.classes,
+		keyField: 'code',
+		textField: 'description'
+	});
+	InputClass.sup.constructor.call(o, params);
+}
+extend(InputDBPicker, InputClass);
+
 // One might think that <select multiple> would do what we want, but I don't
 // like the Ctrl/Shift-click UI at all.
 function InputSelectMulti(params)
@@ -369,10 +355,10 @@ function InputSelectMulti(params)
 			id: params.id,
 		}
 	]);
+	o.children = {};
 	if (params.options) {
 		o.setOptions(params.options);
 	}
-	o.children = {};
 }
 extend(Input, InputSelectMulti);
 
@@ -383,13 +369,12 @@ InputSelectMulti.prototype.set = function (listVal) {
 	}
 	o.value = {};
 	if (listVal) {
-		for (var i = 0; i < listVal.length; i++) {
-			var name = listVal[i];
+		listVal.forEach(function (name) {
 			if (o.children[name]) {
 				o.children[name].set(true);
 			}
 			o.value[name] = true;
-		}
+		});
 	}
 };
 
@@ -427,8 +412,12 @@ InputSelectMulti.prototype.setOptions = function (opts) {
 	o.removeChildren();
 	o.children = {};
 	opts.forEach(function (opt) {
-		for (var key in opt) {
-			o.addOption(key, opt[key]);
+		if (opt instanceof Object) {
+			for (var key in opt) {
+				o.addOption(key, opt[key]);
+			}
+		} else {
+			o.addOption(opt, opt);
 		}
 	});
 	for (key in o.value) {

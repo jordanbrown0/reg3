@@ -3,8 +3,6 @@ function Import()
 	var o = this;
     DElement.call(o, 'div');
 
-	o.appendChild(new DElement('div', 'Import', { className: 'Title' }));
-
 	var fileInput = new DElement('input', {
 		type: 'file',
 		onchange: function () {
@@ -29,3 +27,4 @@ Import.prototype.activate = function () {
 	]);
 };
 
+Import.prototype.title = 'Import';

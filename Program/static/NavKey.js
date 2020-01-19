@@ -140,12 +140,9 @@ NavKey.prototype.shouldIgnore = function (e) {
 	
 	var NO=-1, MAYBE=0, YES=1;
 	var ignore = NO;
-	
-	for (var i = 0; i < navModifiers.length; i++) {
-		if (e.getModifierState(navModifiers[i])) {
-			ignore = YES;
-			break;
-		}
+
+	if (navModifiers.some(e.getModifierState, e)) {
+		ignore = YES;
 	}
 
 	if (alwaysNavKeys.indexOf(kn) >= 0) {

@@ -16,6 +16,8 @@ function PrinterManager() {
 		schema: printerSchema,
 		canShowAll: true
 	};
+	PrinterManager.prototype.Edit = PrinterEdit;
+
 	PrinterManager.sup.constructor.call(o, params);
 }
 extend(DBManager, PrinterManager);
@@ -37,6 +39,21 @@ PrinterManager.prototype.summarize = function (k, r) {
 		new DElement('td', r.windows, { id: 'windows' })
 	));
 };
+
+PrinterManager.prototype.title = 'Printer management';
+
+function PrinterEdit(/*args*/)
+{
+	PrinterEdit.sup.constructor.apply(this, arguments);
+}
+
+extend(DBEdit, PrinterEdit);
+
+PrinterEdit.prototype.title = function () {
+	// NEEDSWORK should probably be the Windows printer name
+	return ('Configure printer...');
+};
+
 
 var Printers = {};
 

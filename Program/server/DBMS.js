@@ -208,7 +208,8 @@ Table.prototype.check_version = function(k, r) {
 		return;
 	case 2:	// Existing is newer
 	case 3:	// Conflict
-		throw new Error('Record has been changed');
+		throw new Error('Record has been changed - ' +
+			[ o.db.name, o.name, k ].join(' / '));
 	}
 };
 
