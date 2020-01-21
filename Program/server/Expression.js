@@ -330,23 +330,51 @@ verbs.array = function (r, args) {
 	return (ret);
 };
 
-// { date: [] }
+// { dateTime: [] }
 // Returns the current date and time.
 // This returns a string rather than a Date, because the JSON-RPC and
 // JSON-DBMS values are strings.
-verbs.date = function (r, vals) {
-	return ((new Date()).toJSON());
+// Format is an ISO 8601 "extended" date and time, to seconds, without
+// a time zone designator.  That is, "yyyy-mm-ddThh:mm:ss" with zero padding.
+verbs.dateTime = function (r, vals) {
+	var o = this;
+	var d = new Date();
+	return (
+		d.getFullYear().toString().padStart(4, '0')
+		+ '-'
+		+ (d.getMonth()+1).toString().padStart(2, '0')
+		+ '-'
+		+ d.getDate().toString().padStart(2, '0')
+		+ 'T'
+		+ d.getHours().toString().padStart(2, '0')
+		+ ':'
+		+ d.getMinutes().toString().padStart(2, '0')
+		+ ':'
+		+ d.getSeconds().toString().padStart(2, '0')
+	);
 };
 
-// { dateOnly: [] }
-// Returns the current date as a JSON string.  Includes time, at 00:00:00 local.
-verbs.dateOnly = function (r, args) {
+// { date: [] }
+// Returns the current date as a string.
+// Format is an ISO 8601 "extended" date, without a time zone designator.
+// That is, "yyyy-mm-dd" with zero padding.
+verbs.date = function (r, args) {
 	var o = this;
-	var now = new Date();
-	var y = now.getFullYear();
-	var m = now.getMonth();
-	var d = now.getDate();
-	return ((new Date(y, m, d)).toJSON());
+	var d = new Date();
+	return (
+		d.getFullYear().toString().padStart(4, '0')
+		+ '-'
+		+ (d.getMonth()+1).toString().padStart(2, '0')
+		+ '-'
+		+ d.getDate().toString().padStart(2, '0')
+	);
+};
+
+verbs.left = function (r, args) {
+	var o = this;
+	var s = o.exec(r, args[0]) || '';
+	var n = o.exec(r, args[1]);
+	return (s.slice(0, n));
 };
 
 module.exports = exports = Expression;

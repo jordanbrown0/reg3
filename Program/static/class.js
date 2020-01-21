@@ -39,8 +39,8 @@ ClassManager.prototype.summarize = function (k, r) {
 		new DElement('td', r.code, { id: 'code' }),
 		new DElement('td', r.description, { id: 'description' }),
 		new DElement('td', r.metaclass || '', { id: 'metaclass' }),
-		new DElement('td', r.start || '', { id: 'start' }),
-		new DElement('td', r.end || '', { id: 'end' })
+		new DElement('td', displayDate(r.start), { id: 'start' }),
+		new DElement('td', displayDate(r.end), { id: 'end' })
 	));
 };
 
@@ -120,13 +120,13 @@ ClassPicker.prototype.activate = function () {
 		o.filter.and.push(
 			{ or: [
 				{ not: { f: 'start' } },
-				{ ge: [ { dateOnly: [] }, { f: 'start' } ] }
+				{ ge: [ { date: [] }, { f: 'start' } ] }
 			] }
 		);
 		o.filter.and.push(
 			{ or: [
 				{ not: { f: 'end' } },
-				{ le: [ { dateOnly: [] }, { f: 'end' } ] }
+				{ le: [ { date: [] }, { f: 'end' } ] }
 			] }
 		);
 		ClassPicker.sup.activate.call(o);

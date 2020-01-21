@@ -129,10 +129,30 @@ function newApply(Cls, args) {
 	return (new f());
 }
 
-// NEEDSWORK this depends on the client's time zone.
-// We probably don't want to do that.  We probably want to
-// do the TZ offset ourselves and retrieve the "UTC" time.
-function displayDateTime(d, seconds) {
+// Given a date in ISO 8601 format, reformat it into presentation
+// format. Note that by convention our 8601-format strings do not have time zone
+// indicators.  The conversion here is thus from local time to UTC to local
+// time, which produces the right results even if the TZ is wrong.
+// It's acceptable for the argument to include a time, but it will not be
+// included in the result.
+function displayDate(d8601) {
+	if (!d8601) {
+		return ('');
+	}
+	var d = new Date(d8601);
+	return (d.toDateString());
+}
+
+// Given a date and time in ISO 8601 format, reformat it into presentation
+// format. Note that by convention our 8601-format strings do not have time zone
+// indicators.  The conversion here is thus from local time to UTC to local
+// time, which produces the right results even if the TZ is wrong.
+// NEEDSWORK configuration option for 24-hour time.
+function displayDateTime(d8601, seconds) {
+	if (!d8601) {
+		return ('');
+	}
+	var d = new Date(d8601);
 	var ds = d.toDateString();
 	var hh = d.getHours();
 	var ampm = hh < 12 ? 'AM' : 'PM';

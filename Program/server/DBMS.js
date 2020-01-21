@@ -104,6 +104,8 @@ DB.prototype.write = function() {
 	}
 	
 	// NEEDSWORK atomic replace
+	console.log('\nwriting', o.filename);
+	var nrec = 0;
 	var fd = fs.openSync(o.filename, 'w', 0o600);
 	for (var tName in o.tables) {
 		var t = o.tables[tName];
@@ -115,9 +117,11 @@ DB.prototype.write = function() {
 			};
 			fs.writeSync(fd, JSON.stringify(rec));
 			fs.writeSync(fd, '\n');
+			nrec++;
 		});
 	}
 	fs.closeSync(fd);
+	console.log('wrote',nrec,'records');
 };
 
 DB.prototype.writeStream = function (stream, tables) {
@@ -196,7 +200,8 @@ Table.prototype.check_exists = function(k) {
 	var o = this;
 	var r = o.records[k];
 	if (!r || r._deleted) {
-		throw new Error('no such record '+k);
+		throw new Error('no such record - '
+			[ o.db.name, o.name, k ].join(' / '));
 	}
 };
 
@@ -437,7 +442,8 @@ Table.prototype.add = function (k, r, expr) {
 		assert(!o.records[k], 'automatically allocated record id reused!');
 	} else if (rOld = o.records[k]) {
 		if (!rOld._deleted) {
-			throw new Error('record already exists '+k);
+			throw new Error('record already exists - '
+				[ o.db.name, o.name, k ].join(' / '));
 		}
 		r._version = rOld._version;
 	}

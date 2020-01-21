@@ -46,9 +46,8 @@ Base.prototype.setNav = function (a) {
 
 Base.prototype.tick = function () {
 	var o = this;
-	rpc.eval(null, {date: []}, function (d) {
-		o.clock.removeChildren();
-		o.clock.appendChild(displayDateTime(new Date(d), false));
+	rpc.eval(null, {dateTime: []}, function (d8601) {
+		o.clock.replaceChildren(displayDateTime(d8601, false));
 	});
 };
 

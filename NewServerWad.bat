@@ -23,11 +23,11 @@ if exist %outexe% (
 	erase %outexe%
 )
 
-set z=Program\imported\7za
+set z=Program\imported\7za -bsp2
 
 call Program\lib\mkwad %outz% program data node
 echo set myname=%myname% > myname.bat
-%z% a %outz% myname.bat
+%z% a %outz% myname.bat > nul
 erase myname.bat
 
 echo ;!@Install@!UTF-8!                                              > tmp.cfg

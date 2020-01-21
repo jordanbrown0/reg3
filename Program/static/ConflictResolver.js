@@ -54,44 +54,77 @@ ConflictResolver.prototype.activate = function () {
 	var right = c.import;
 	var f;
 	o.unresolved = {};
+	
+	function equalObject(a, b) {
+		var e;
+		// Quick short-circuit for arrays.
+		if (a.length !== b.length) {
+			return (false);
+		}
+		// Next look for properties on one but not the other.
+		for (e in a) {
+			if (!(e in b)) {
+				return (false);
+			}
+		}
+		for (e in b) {
+			if (!(e in a)) {
+				return (false);
+			}
+		}
+		// Now compare the actual elements.
+		for (e in a) {
+			if (!equal(a[e], b[e])) {
+				return (false);
+			}
+		}
+	}
+	function equal(a, b) {
+		if (typeof (a) !== typeof (b)) {
+			return (false);
+		}
+		// Note that Object includes Array.
+		if (a instanceof Object && b instanceof Object) {
+			return (equalObject(a, b));
+		}
+		return (a === b);
+	}
+	
 	function emit(f) {
 		if (f.startsWith('_')) {
 			return;
 		}
-		var tr = new DElement('tr');
+		var row = tr();
 
-		tr.appendChild(new DElement('td', f));
-
-		var lf = left[f] || new EntityNode('nbsp');
-		var rf = right[f] || new EntityNode('nbsp');
+		row.appendChild(td(f));
 		
-		if (left[f] === right[f]) {
-			tr.appendChild(new DElement('td'));
-			tr.appendChild(new DElement('td', lf));
-			tr.appendChild(new DElement('td'));
-			tr.appendChild(new DElement('td', rf));
+		if (equal(left[f], right[f])) {
+			row.appendChild(td());
+			row.appendChild(td(left[f] || new EntityNode('nbsp')));
+			row.appendChild(td());
+			row.appendChild(td(right[f] || new EntityNode('nbsp')));
 			c.result[f] = left[f];
 		} else {
-			function emitRadio(r, f, side, label) {
+			function emitRadio(rec, f, side, label) {
 				var radio = new DElement('input',
 					{type: 'radio', name: f, id: side+f, onchange: function () {
-						c.result[f] = r[f];
+						c.result[f] = rec[f];
 						delete o.unresolved[f];
-						tr.removeClass('Difference');
+						row.removeClass('Difference');
 					}});
-				tr.appendChild(new DElement('td', radio));
+				row.appendChild(td(radio));
 
-				tr.appendChild(new DElement('td', 
-					new DElement('label', label, { htmlFor: side+f })
-				));
+				row.appendChild(
+					td(new DElement('label', label, { htmlFor: side+f }))
+				);
 			}
 			
-			emitRadio(left, f, 'l', lf);
-			emitRadio(right, f, 'r', rf);
+			emitRadio(left, f, 'l', left[f] || new EntityNode('nbsp'));
+			emitRadio(right, f, 'r', right[f] || new EntityNode('nbsp'));
 			o.unresolved[f] = true;
-			tr.addClass('Difference');
+			row.addClass('Difference');
 		}
-		table.appendChild(tr);
+		table.appendChild(row);
 	}
 	for (f in left) {
 		if (f in right) {
@@ -112,6 +145,9 @@ ConflictResolver.prototype.activate = function () {
 
 ConflictResolver.prototype.resolve = function () {
 	var o = this;
+	// NEEDSWORK better would be if we could disable the button until all of the
+	// fields are resolved.  NavBar doesn't have a "disable" concept, nor does
+	// it have a way to index its contents.
 	for (var f in o.unresolved) {
 		return;
 	}
@@ -131,3 +167,8 @@ ConflictResolver.prototype.skip = function () {
 	var o = this;
 	o.params.skipped();
 };
+
+ConflictResolver.prototype.title = function () {
+	var o = this;
+	return ('Resolve ' + o.c.t + ' conflict...');
+}

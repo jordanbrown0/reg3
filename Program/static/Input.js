@@ -195,26 +195,80 @@ extend(InputText, InputDate);
 
 InputDate.prototype.get = function () {
 	var o = this;
-	var mmddyy = InputDate.sup.get.call(o).split('/');
-	var m = parseInt(mmddyy[0], 10);
-	var d = parseInt(mmddyy[1], 10);
-	var y = parseInt(mmddyy[2], 10);
-	if (y < 100) {
-		y += 2000;
+	var s = InputDate.sup.get.call(o);
+	if (!s) {
+		return (s);
 	}
-	return (new Date(y, m-1, d));
+	var mmddyy = s.split('/');
+	var mm = parseInt(mmddyy[0], 10);
+	var dd = parseInt(mmddyy[1], 10);
+	var yyyy = parseInt(mmddyy[2], 10);
+	if (yyyy < 100) {
+		yyyy += 2000;
+	}
+	// Normalize the date.  We probably don't really need to, because validation
+	// shouldn't allow a date that normalizes to different values.
+	var d = new Date(yyyy, mm-1, dd);
+	mm = d.getMonth()+1;
+	dd = d.getDate();
+	yyyy = d.getFullYear();
+	
+	return (
+		yyyy.toString().padStart(4, '0')
+		+ '-'
+		+ mm.toString().padStart(2, '0')
+		+ '-'
+		+ dd.toString().padStart(2, '0')
+	);
+};
+
+InputDate.prototype.validate = function () {
+	var o = this;
+	var s = InputDate.sup.get.call(o);
+	if (s) {
+		var mmddyy = s.split('/');
+		var mm = parseInt(mmddyy[0], 10);
+		var dd = parseInt(mmddyy[1], 10);
+		var yyyy = parseInt(mmddyy[2], 10);
+		if (isNaN(mm) || isNaN(dd) || isNaN(yyyy)) {
+			return (["Invalid date"]);
+		}
+		if (yyyy < 100) {
+			yyyy += 2000;
+		}
+		// Normalize the date.
+		var d = new Date(yyyy, mm-1, dd);
+		var mm2 = d.getMonth()+1;
+		var dd2 = d.getDate();
+		var yyyy2 = d.getFullYear();
+		if (mm != mm2 || dd != dd2 || yyyy != yyyy2) {
+			return (["Invalid date"]);
+		}
+	}
+	return (InputDate.sup.validate.call(o));
 };
 
 InputDate.prototype.set = function (value) {
 	var o = this;
 	var s;
-	if (value && typeof (value) == 'string') {
-		value = new Date(value);
-	}
-	if (value instanceof Date) {
-		s = (value.getMonth()+1).toString().padStart(2, '0') + '/' +
-		    value.getDate().toString().padStart(2, '0') + '/' +
-			value.getFullYear().toString().padStart(4, '0');
+	assert(!(value instanceof Date), 'Not supposed to be using Date');
+	if (value) {
+		if (o.params.readonly) {
+			s = displayDate(value);
+		} else {
+			// ECMAScript specifies that date-only strings are interpreted
+			// as UTC, while date+time strings without time zone specifiers
+			// are interpreted as local time.  We want to force local time.
+			if (value.indexOf('T') < 0) {
+				value += 'T00:00';
+			}
+			var d = new Date(value);
+			s =	(d.getMonth()+1).toString().padStart(2, '0')
+				+ '/'
+				+ d.getDate().toString().padStart(2, '0')
+				+ '/'
+				+ d.getFullYear().toString().padStart(4, '0');
+		}
 	} else {
 		s = '';
 	}
@@ -240,10 +294,13 @@ InputDateTime.prototype.get = function () {
 InputDateTime.prototype.set = function (value) {
 	var o = this;
 	var s;
-	if (value instanceof Date) {
-		s = value.toString();
-	} else if (value && typeof (value) == 'string') {
-		s = (new Date(value)).toString();
+	assert(!(value instanceof Date), 'Not supposed to be using Date');
+	if (value) {
+		if (o.params.readonly) {
+			s = displayDateTime(value, false);
+		} else {
+			s = value;
+		}
 	} else {
 		s = '';
 	}

@@ -75,13 +75,13 @@ UpgradePicker.prototype.activate = function () {
 		o.filter.and.push(
 			{ or: [
 				{ not: { f: 'start' } },
-				{ ge: [ { dateOnly: [] }, { f: 'start' } ] }
+				{ ge: [ { date: [] }, { f: 'start' } ] }
 			] }
 		);
 		o.filter.and.push(
 			{ or: [
 				{ not: { f: 'end' } },
-				{ le: [ { dateOnly: [] }, { f: 'end' } ] }
+				{ le: [ { date: [] }, { f: 'end' } ] }
 			] }
 		);
 		UpgradePicker.sup.activate.call(o);

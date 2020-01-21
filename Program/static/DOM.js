@@ -238,3 +238,4 @@ function DOMFunction(t) {
 
 DOMFunction('td');
 DOMFunction('tr');
+DOMFunction('th');

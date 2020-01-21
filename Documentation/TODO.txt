@@ -1,3 +1,5 @@
+P1:  Something is zapping the database.
+
 Login/logout
 PESO
 Master integration
@@ -5,25 +7,23 @@ Master integration
 Number of memberships remaining on this server
 Fix previous membership
 Upgrades
-	Canned
 	ad hoc
 Transfers
 Other transaction
 Reports
 	To display, printer, file.  Maybe these are all the same here, all going to a browser page for view/print/save.
+		but browser save-as-text is pretty weak
 	New memberships
-		By Day and class
+		By Day and class *
 		By class and day
 		by day
 		by hour
 	Memberships picked up
-		by day and class
+		by day and class  *
 		by day
 		by hour
 	Memberships by class (done?  needs print.)
 		free vs paid
-		bad class
-		use full description
 	Possible duplicates
 		same last/first
 		same last / left(first,1)
@@ -41,7 +41,7 @@ Reports
 		class, number, and name, by class and number
 		one line number, class, name, and address, by number
 	Miniature reports on labels
-		summary
+		summary *
 		picked up by day
 		new by day
 		new by day and class
@@ -51,11 +51,8 @@ Administration
 	page size for reports
 	search interface vs last/first/number interface
 	user-specified fields (field name and description)
-	print membership numbers yes/no
-	# of copies of label
 	print a real-name label too?
 	justify l/c/r
-	print city?
 	offline / as-of
 	permissions
 		metaclasses
@@ -73,27 +70,51 @@ Administration
 		log reprints?
 	housekeeping
 		fix country name variants
-		delete
-		un-pick-up
+		delete (move to primary member UI)
 		hotel audit (search membership and master)
 		time fixer
 	transaction log
 		import/export
 
 
+List yields "o.rows[o.selected] undefined" error when you continue to search after selecting a row.
+
+Option for 24-hour time vs 12-hour time in displays
+
+search should dive into lists
+
+NewConventionWad (and others?) save Mercurial and GIT history, and shouldn't.
+NewConventionWad shouldn't save SampleData (and others?)
+NewServerWad - maybe CloneThisConventionWad or something like that?
+Need an "update the program" wad.  For this convention, or for a selected convention?
+
 NewConventionOnThisSystem needs error checking on the mkdir.
 
 All of the setup stuff could probably use more checking on the new directory name.
 
-Time zones.  We need to display and accept input in local time.  Do we trust the system's TZ, or do we make it be a convention parameter?  Probably a convention parameter, since then it's easy to set and hard to get out of sync.  But can we trust the system to have accurate UTC?  (That is, can we trust that the time has been set to match the time zone setting?)  Remember that breakdown-by-time reports want to use the local TZ.  A:  Don't trust the system's TZ.  Do trust that it has accurate UTC.  Use only server time, not client time.
 
-Support as-of time.  As-of is a station parameter and "now" is a server-side value, so this is a little tricky.  Probably need to have a pre-scan expression that initializes a variable with either the current date/time or the as-of date/time.  Or maybe have the client retrieve the current time and then pass it back.
+New member entry needs membership class in title
 
-Display date/time.  Use server time.  Can calculate an offset and offset from server time, so we're not hitting the server all the time.  OTOH, hitting the server once a minute is probably no big deal, and we don't need more precise than that.
+Page title is wrong when you change the convention name.
 
-Stock "framework" UI stuff, like PESO (and clock?).
+Conflict resolver title
+Conflict resolver global name sizes misdisplay
 
-Login / logout.  Logged-in user is presumably a station configuration parameter.
+Acknowledge note field
+
+bulk edit - e.g. for all Saturday, set note
+
+New member show price on display / edit pages.
+Store amount paid in record.
+Reports for total money in.
+
+Show whether or not picked up on the first page.
+
+Export only marked records?  Perhaps by category?
+
+Support as-of time.
+
+Stock "framework" UI stuff, like PESO.
 
 Vanity membership numbers.  Maybe less necessary as a distinct concept now that the actual key is artificial.  Maybe they're just a matter of having strings instead of numbers.
 
@@ -106,8 +127,6 @@ Print performance (~500ms to print long name requiring several shrink steps)
 
 We suppress keystrokes while RPC requests are outstanding, which fixes the problem of receiving keystrokes while in the middle of an RPC request (and, e.g., saving the record twice), but means that keystrokes might be dropped - during a search, for instance.  Also, there may be some RPC calls that are OK to allow keystrokes during - class lookup in member records, content lookups in lists, et cetera.
 
-IE focuses search box on AC but not on P.  Fixed?
-
 Station list if printer no longer exists.
 Station list row when station is not initialized.  (Maybe just one or more &nbsp;.)
 
@@ -117,12 +136,13 @@ Force landscape on label printers
 Alert when attempting to print and configured printer no longer exists.
 Human name of new printer is "undefined".
 
-Should station configuration gain a server field and be global?
-Make the server ID be configurable, so that you can preconfigure servers and then (re)assign them to existing IDs.  Probably this would take the form of demanding a server ID if one has not been assigned.
+Station configuration needs a server ID.
+
+Make the server ID be configurable, so that you can preconfigure servers and then (re)assign them to existing IDs.  Probably this would take the form of demanding a server ID if one has not been assigned.  (probably not)
 
 Use Windows computer name as server ID?  It's in global.process.env.COMPUTERNAME.
 
-Maybe get config less frequently.
+Get config less frequently.  Maybe at return to Home.  Maybe when departing from Home.
 
 Style
 	Breakdown of responsibility for constructor and .activate() method.
@@ -145,9 +165,6 @@ Note that import / merge will need to be something of a three-way merge:  the tw
 Membership number allocation causes the DB to be rewritten.  Even if we do incremental writes, we end up with a record written for each number allocated.
 
 Maybe rethink List "summarize" to take a schema.
-
-Classes
-	* Format of start/end in AC - more generally, date input and display
 
 Permissions
 
@@ -189,14 +206,20 @@ Heck, buttons should look more button-y.
 Conflict resolver should use edit schema, at least to get order and labels.  Multi-page conflict resolver would be confusing, but we might have to go there.
 
 Import from DBF - schema translation.  Ideally, admin-controlled schema translation.
-
 Import from Member Solutions
-
+Import from Eventbrite
 Import from CSV
 
 Export (DBF?  CSV?)
 
-Specialty operations during add / put - e.g., timestamp, increment.  Maybe execute an arbitrary program.  The special increment method could be replaced by this, maybe even to the point of automatically incrementing a field in *another* table. That would let an add-member be a single atomic-ish operation.
+Developer wads
+
+Bulk ops
+	Delete
+	Modify?
+	report
+
+Can add/put eval operations replace the special increment method, to let add-member be a signle-atomic-ish operation?
 
 Turn the expression language into a full-ish programming language.
 
@@ -220,8 +243,6 @@ Keyboard commands are still kind of iffy.  See comments in Base.
 
 IE has focus problems (maybe fixed)
 
-Fix previous record
-
 Printer in either real units or % of label, not pixels.
 
 reports
@@ -231,12 +252,11 @@ reports
 	* Report by pushing a reporting expression (or expressions) that are executed server-side and print?  Or by pushing a query expression that does connection and tallying and returns the data to the client for the client to format and send back a print request?  Probably both.
 	* How to do reports to files?  Tally reports might not be too bad, but what about member lists?  Maybe a half-REST where we push a report expression using JSON-RPC and it streams back a report?  That would be plain text only, but maybe that's OK.
 	* Note Node.js PDFkit could generate PDF reports.  Maybe that's the only kind of report; leave the actual printing to AcroRead.  But plain text can be useful for other purposes.
+	* So far just pulling across the data and formating into DOM for display and alternate CSS for printing.
 
 Classes
 	* Do we need single-keystroke selection?
-	* Should class records use code as the key?  Probably, to prevent duplication.
 
-upgrades
 
 transfers - UI, and how to track.  Since membership number is no longer the key, maybe that's the answer.  The transfer-history records would all have the same membership number, but different keys.  This might require specialized search support - or maybe not; maybe you'd be able to look up a transfer-from record just like a normal record.  Special marking in the List and in the Editor, though.
 
@@ -244,7 +264,11 @@ Incrementally write DB, rather than rewriting the entire thing.  Note that you c
 
 Editor:
 	Don't write record if no change.  (Or is this part of DB.put?)
-	General validators.  (Have I already got this?)
+	General validators.
+		We have per-field validation.
+		Need form-global validation.
+
+Conflict resolver should detect case where there are no differences.
 	
 Log:
 	parentelem is not implemented
@@ -266,41 +290,36 @@ Force station configuration when not configured.
 Should printers use an artificial key, or should they use the Windows name as
 their key?
 
-Support multiple conventions.
-
 Full screen.  Might need to prompt user to click to approve.  If we have full screen, we might also want a QUIT button that closes the window, so that people don't have to figure out how to de-full-screen.  Or maybe just maximize.  (Can we maximize from JS?)
 
 Push the printer support work upstream.
 
-Put the whole thing on GitHub.
-
-Receipts
-
 Installation
-* Server installation
-** Include Node.js, or require separate installation?  Prefer to include it.
-** Include the various npm modules, or require separate installation?  FAR prefer to include them.  OH SO VERY MUCH.  An npm install can require a C compiler installation!  This probably drives the other things backwards:  we don't want to rebuild the modules, so they need to be distributed in binary form, so they need(?) to be matched with the particular Node.js build, so the whole wad needs to be private to each instance.
-** Share one installation between conventions, or just keep with the current scheme where each convention is totally self-contained and lives in its own directory.  Note that sharing introduces version skew problems.
-** Maybe a hybrid:  a particular Node.js / software installation could support multiple conventions, but you could have multiple installations.  Probably don't want to support running multiple conventions out of the same server at the same time(!).  Hybrid would need a way to migrate convention data to a new instance of the software.
-** Server installation comes in three-ish steps:  (1) get the software onto your system (2) create a convention (3) replicate that convention to a second server.  Use the existing ooze / setup / clone model?  Note that as things like DBF import schema mapping are added it will be more and more desirable to clone some of them.  (And see note below about selective exports.)
 ** Install label printer driver?  Or maybe just short cut to vendor's download page.
 * Client installation
 ** Join network.
 ** Shortcuts/autostarts to server web page.  (Note that if the network config stays constant, a single shortcut can work forever.)
+** Browser "print" configuration
 ** Something to point upload/download at an appropriate device?
-** Maybe some of that can be semi-self-configuring, by having the server application serve a batch file (or whatever) that will tweak the client config.
+** Maybe some of that can be semi-self-configuring, by having the server application serve a batch file (or whatever) that will tweak the client config.  Might need/want to configure multiple browsers.
 
-REST operations don't have a way to return errors.
+REST operations don't have a way to return errors.  (REST upload could.  Rest download would be hard.)
 
-Member types (booleans:  artist, staff, concom, guest, dealer, gamer, masquerade, ...).  Probably need a table describing the options available.
+REST upload could maybe use MIME multi-part instead of a separate URL, and that would allow mixing an RPC request with a file upload.
 
 Import/Export user interface.  Do we need a minimal-keystroke variant, given that import/export is expected to be far less frequent than it is today?
 
 Memory usage statistics, perhaps on the busy% line.
 
+Consider disabling autocomplete.
+
+In conflict resolver, it would be nice if we could disable the [Resolve] button until all of the fields are resolved.  The missing piece is that NavBar doesn't have a "disable" concept.
+
 --------------
 
 Blue Sky
+
+Support multiple conventions.
 
 Maybe TLS and certificate authentication for clients?  But then you have to import the server cert on the clients, and you have to somehow get a client cert to the clients.
 

@@ -20,7 +20,7 @@ if exist %out% (
 	erase %out%
 )
 
-set z=Program\imported\7za
+set z=Program\imported\7za -bsp2
 
 :loop
 
@@ -35,29 +35,29 @@ goto done
 
 :program
 
-%z% a %out% Program\imported Program\static Program\server Program\src
+%z% a %out% Program\imported Program\static Program\server Program\src > nul
 :: OK, so I'm obsessing.  But these build artifacts total to
 :: more than 7MB.
 
 set rel=Program\node_modules\myclinic-drawer-printer\build\Release
-%z% a %out% Program\node_modules -x!%rel%\*.pdb -x!%rel%\obj\drawer\*.obj -x!%rel%\*.iobj -x!%rel%\*.map
+%z% a %out% Program\node_modules -x!%rel%\*.pdb -x!%rel%\obj\drawer\*.obj -x!%rel%\*.iobj -x!%rel%\*.map > nul
 
-%z% a %out% *.bat Program\lib Program\*.bat
-%z% a %out% README.txt Documentation
-%z% a %out% Program\package.json Program\package-lock.json
-%z% a %out% Program\data -x!Program\data\*
+%z% a %out% *.bat Program\lib Program\*.bat > nul
+%z% a %out% README.txt Documentation > nul
+%z% a %out% Program\package.json Program\package-lock.json > nul
+%z% a %out% Program\data -x!Program\data\* > nul
 goto next
 
 :data
 
 : Note that we do not want to pick up data\serverID.json because we are
 : presumably making this wad to install another server.
-%z% a %out% Program\data -x!Program\data\serverID.json
+%z% a %out% Program\data -x!Program\data\serverID.json > nul
 goto next
 
 :node
 
-call Program\lib\nodevar
+call Program\lib\NodeVer
 
 if exist %NODE%.7z (
     erase %NODE%.7z
@@ -66,9 +66,9 @@ if exist %NODE%.7z (
 :: The only thing in the default global node_modules is npm, and
 :: that totals to nearly 20MB.  A developer wad would need it, but
 :: a production wad doesn't.
-%z% a %NODE%.7z %NODEDIR% -x!%NODE%\node_modules -x!%NODE%\npm -x!%NODE%\npm.cmd -x!%NODE%\npx -x!%NODE%\npx.cmd
+%z% a %NODE%.7z %NODEDIR% -x!%NODE%\node_modules -x!%NODE%\npm -x!%NODE%\npm.cmd -x!%NODE%\npx -x!%NODE%\npx.cmd > nul
 
-%z% a %out% %NODE%.7z
+%z% a %out% %NODE%.7z > nul
 
 erase %NODE%.7z
 

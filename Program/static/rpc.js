@@ -1,6 +1,7 @@
 var rpc = {};
 var rpcVerbose = false;
 var rpcActive = {};
+var rpcFailed = false;
 
 init.push(function rpcInit(cb) {
 	if (rpcVerbose) {
@@ -18,20 +19,7 @@ init.push(function rpcInit(cb) {
 			}
 			runcallback(function () { callback(response); })
 		};
-		x.onerror = function (e) {
-			log('RPC error', e);
-			// Abort all active RPC requests.
-			for (var ser in rpcActive) {
-				rpcActive[ser].abort();
-				delete rpcActive[ser];
-			}
-			// This is kind of un-generic.  Perhaps the application
-			// should tell us a handler to call.  But then the application
-			// would need to have a way to ping, preferably without
-			// triggering the logging and whatnot associated with a real
-			// request.
-			base.switchTo(new WaitServer());
-		};
+		x.onerror = rpcError;
 		x.open('PUT', '/Call');
 		x.setRequestHeader('Content-Type', 'application/json');
 		if (rpcVerbose) {
@@ -43,6 +31,9 @@ init.push(function rpcInit(cb) {
 
 	function addmethod(m) {
 		rpc[m] = function() {
+			if (rpcFailed) {
+				return;
+			}
 			var args = Array.prototype.slice.call(arguments);
 			var success = null;
 			var failure = null;
@@ -88,6 +79,29 @@ init.push(function rpcInit(cb) {
 	return (true);
 });
 
+function rpcError(e) {
+	log('RPC error', e);
+	// Abort all active RPC requests.
+	for (var ser in rpcActive) {
+		rpcActive[ser].abort();
+		delete rpcActive[ser];
+	}
+	
+	rpcFailed = true;
+
+	// This is kind of un-generic.  Perhaps the application
+	// should tell us a handler to call.  But then the application
+	// would need to have a way to ping, preferably without
+	// triggering the logging and whatnot associated with a real
+	// request.
+	base.switchTo(new WaitServer());
+}
+
+function rpcRestored() {
+	rpcFailed = false;
+	home();
+}
+
 function isRPCActive() {
 	for (ser in rpcActive) {
 		return (true);
@@ -118,7 +132,7 @@ WaitServer.prototype.activate = function () {
 			// a new Date.now().
 			log('RPC service restored after', Math.round((Date.now()-t0)/1000),
 				'seconds');
-			home();
+			rpcRestored();
 		};
 		x.onerror = function (e) {
 			var now2 = Date.now();
@@ -134,6 +148,8 @@ WaitServer.prototype.activate = function () {
 	}
 	ping();
 };
+
+WaitServer.prototype.title = "Uh oh...";
 
 // Pseudo-REST support
 //
@@ -159,9 +175,7 @@ REST.upload = function (url, file, cb) {
 		}
 		cb(res);
 	};
-	x.onerror = function (e) {
-		log(e);
-	};
+	x.onerror = rpcError;
 	if (rpcVerbose) {
 		log('REST ==>', file.name);
 	}
@@ -185,6 +199,7 @@ REST.download = function (method, params) {
 	}));
 	document.body.appendChild(form.n);
 	setTimeout(function () {
+		// NEEDSWORK:  I don't know of any way to detect an error here.
 		form.n.submit();
 		document.body.removeChild(form.n);
 	});

@@ -3,6 +3,12 @@ function ReportTallies()
 	var o = this;
     DElement.call(o, 'div');
 	o.menu = new Menu({ items: [
+		{ key: 'p', label: '(P)icked up by date', func: function () {
+			base.switchTo(new ReportsPickedUpByDate());
+		}},
+		{ key: 'n', label: '(N)ew by date', func: function () {
+			base.switchTo(new ReportsNewByDate());
+		}},
 		{ key: 's', label: '(S)ummary', func: function () {
 			base.switchTo(new ReportsSummary());
 		}},

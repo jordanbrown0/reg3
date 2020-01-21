@@ -61,7 +61,9 @@ var memberSchema = [
 		{ field: 'state', label: 'State' },
 		{ field: 'postcode', label: 'Postcode' },
 		{ field: 'country', label: 'Country' },
-		{ field: 'phone', label: 'Phone' }
+		{ field: 'phone', label: 'Phone' },
+		{ field: 'position', label: 'Position' },
+		{ field: 'notes', label: 'Notes' }
 	],
 	[
 		{ title: 'Page 2' },
@@ -159,7 +161,8 @@ MemberDisplay.prototype.print = function (cb) {
 MemberDisplay.prototype.markPickedUp = function (cb) {
 	var o = this;
 	if (o.conf.offlineMarkPickedUp && !o.r.pickedup) {
-		var serverDate = { setf: [ 'pickedup', { date: [] } ] };
+		// NEEDSWORK:  as-of date.
+		var serverDate = { setf: [ 'pickedup', { dateTime: [] } ] };
 		table.members.put(o.key, o.r, serverDate, cb);
 		return;
 	}
@@ -255,7 +258,7 @@ NewMemberEditor.prototype.activate = function () {
 				}
 				o.r.number = n;
 				// NEEDSWORK:  Use as-of date if set.
-				var serverDate = { setf: [ 'entered', { date: [] } ] };
+				var serverDate = { setf: [ 'entered', { dateTime: [] } ] };
 				table.members.add(null, o.r, serverDate, function (k) {
 					base.switchTo(new MemberDisplay(k));
 				});
@@ -268,7 +271,14 @@ NewMemberEditor.prototype.activate = function () {
 	editor.activate();
 };
 
-NewMemberEditor.prototype.title = 	'New member...';
+NewMemberEditor.prototype.title = function () {
+	var o = this;
+	var span = new DElement('span');
+	Class.getDescription(o.r.class, function (d) {
+		span.replaceChildren('New member - ' + d);
+	});
+	return (span);
+};
 
 function MemberUpgrade(k) {
 	var o = this;

@@ -7,6 +7,11 @@
 	color: red;
 }
 
+.Editor #notes {
+	color: red;
+	font-weight: bolder;
+}
+
 .Editor .Value {
 	width: 30em;
 	text-align: left;
@@ -38,7 +43,11 @@ table.Editor {
 	width: 100%;
 }
 .Editor .InputDate {
-	width: 30em;
+	width: 9em;
+}
+
+.Editor .InputDateTime {
+	width: 12em;
 }
 
 .Title {
