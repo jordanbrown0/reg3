@@ -186,6 +186,10 @@ AQ list has funky rendering in Firefox.  Probably related to dynamically changin
 
 If writing the DB (either to persist or for export) is asynchronous, it might interleave with changes.  That's OK for most things, but we might write the server membership number and then later write a record created *after* that point.  Perhaps it needs to stay synchronous, or perhaps we need to ensure that we write the server table last, or perhaps we need to decide that it's OK since after all only this server should care and *it* has the current data.
 
+Must ensure that writing isn't interrupted by quitting!
+
+Make writing use rename so that it's not overwriting the old file.
+
 If writing the DB for persistence is asynchronous, we need to ensure that we restart the write if changes occur during it.  For extra credit, abort a write-in-progress and restart.  Or maybe not; a completed write still gets us a snapshot, versus (in theory) maybe never getting it all written out.
 
 If writing the DB for persistence is asynchronous, we need to make sure we don't do it twice at the same time(!).

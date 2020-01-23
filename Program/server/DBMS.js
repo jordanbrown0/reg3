@@ -5,6 +5,7 @@ const fs = require('fs');
 const Version = require('./version');
 const Expression = require('./Expression');
 const { assert } = require('./utils.js');
+const Concurrency = require('./Concurrency.js');
 
 var versionVerbose = false;
 
@@ -21,6 +22,9 @@ function DB(name) {
 // NEEDSWORK:  this should be single-threaded.
 DB.prototype.load = async function() {
 	var o = this;
+	console.log('starting load', o.name);
+	assert(!o.loadInProgress, 'DB.load entered reentrantly!');
+    o.loadInProgress = true;
 	var pipeline = new Chain([
 		fs.createReadStream(o.filename),
 		new Parser({jsonStreaming:true}),
@@ -32,14 +36,22 @@ DB.prototype.load = async function() {
 	});
 	
 	return (new Promise(function (resolve, reject) {
-		pipeline.on('end', resolve);
+		pipeline.on('end', function () {
+			o.loadInProgress = false;
+			console.log('finished load', o.name);
+			resolve();
+		});
 		// Ignore pipeline errors so that nonexistent
 		// databases are effectively empty.
 		// NEEDSWORK:  this error catch is broader than
 		// is desirable; it will presumably cause corrupt
 		// files to be effectively truncated rather than
 		// reported.
-		pipeline.on('error', resolve);
+		pipeline.on('error',  function (e) {
+			o.loadInProgress = false;
+			console.log('load encountered error', o.name, e);
+			resolve();
+		});
 	}));
 };
 
@@ -62,6 +74,7 @@ DB.prototype.import = async function(stream) {
 	
 	return (new Promise(function (resolve, reject) {
 		pipeline.on('end', function () {
+            console.log('pipeline end');
 			o.write();
 			resolve(conflicts);
 		});
@@ -71,7 +84,10 @@ DB.prototype.import = async function(stream) {
 		// is desirable; it will presumably cause corrupt
 		// files to be effectively truncated rather than
 		// reported.
-		pipeline.on('error', resolve);
+		pipeline.on('error', function () {
+            console.log('pipeline error');
+            resolve();
+        });
 	}));
 };
 
@@ -533,9 +549,15 @@ DBMS.getDB = async function (name) {
 	if (!db) {
 		db = new DB(name);
 		databases[name] = db;
-		await db.load();
+		db.once = new Concurrency.Once();
+		await db.once.do(async function () {
+			await db.load();
+		});
+	} else {
+		await db.once.wait();
 	}
-	return (db);
+	assert(!db.loadInProgress, 'still loading!');
+    return (db);
 };
 
 var serverID = undefined;

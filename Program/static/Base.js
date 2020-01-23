@@ -18,7 +18,8 @@ extend(DElement, Base);
 Base.prototype.activate = function () {
 	var o = this;
 	o.tick();
-	setInterval(function () { o.tick(); }, 60*1000);
+    // NEEDSWORK fast tick for testing purposes.
+	setInterval(function () { o.tick(); }, 1*1000);
 	Global.get(function (cfg) {
 		pageTitle.set(cfg.convention);
 	});
@@ -47,7 +48,7 @@ Base.prototype.setNav = function (a) {
 Base.prototype.tick = function () {
 	var o = this;
 	rpc.eval(null, {dateTime: []}, function (d8601) {
-		o.clock.replaceChildren(displayDateTime(d8601, false));
+		o.clock.replaceChildren(displayDateTime(d8601, true));
 	});
 };
 
