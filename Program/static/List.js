@@ -81,6 +81,7 @@ List.prototype.refresh = function () {
         };
 		
 		o.rows = [];
+        o.selected = null;
 		forEachArrayObject(recs, function (k, r) {
 			var rowObj = row(k, r);
 			o.rows.push(rowObj);
@@ -104,8 +105,6 @@ List.prototype.refresh = function () {
 		}
 		if (o.rows.length == 1) {
 			o.select(0);
-		} else {
-			o.select(null);
 		}
     });
 };

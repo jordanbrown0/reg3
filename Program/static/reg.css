@@ -1,6 +1,11 @@
 /* Reg CSS */
 * {
 	font-family: serif;
+    /*
+     * This makes the specified size of the elements include the padding; the
+     * actual content size is the specified size minus the padding.
+     */
+    box-sizing: border-box;
 }
 
 .Editor #first, .Editor #last {
@@ -105,10 +110,12 @@ input.Disabled {
 
 html, body {
 	height: 100%;
+    margin: 0;
 }
 
 .Base {
 	height: 100%;
+    padding: 8px;
 }
 
 .Body {
