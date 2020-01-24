@@ -35,7 +35,7 @@ table.Editor {
 	background: red;
 }
 
-.Editor .InputInt {
+.InputInt, .InputCurrency {
 	text-align: right;
 	width: 5em;
 }
@@ -106,6 +106,22 @@ input.Disabled {
 
 .NavBar {
 	height: 15%;
+}
+
+/*
+ * About vertical-align...
+ * vertical-align has two modes, and they are fundamentally different.
+ * When applied to inline and inline-block elements, it aligns the
+ * element *itself* relative to the baseline and other text metrics
+ * of the rest of the line.
+ * When applied to table cells, as here, it aligns the *contents* of the
+ * cell relative to the cell.  That "align content relative to parent"
+ * semantic does not appear to be available using any other construct; in
+ * particular, it does not appear to be possible to use CSS to align the
+ * contents of a <div> relative to the <div>.
+ */
+.NavBar td {
+    vertical-align: bottom;
 }
 
 html, body {

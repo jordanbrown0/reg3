@@ -1,13 +1,22 @@
-function Input(params, args)
+function Input(content, params)
 {
 	var o = this;
 	o.params = params;
 
-	Input.sup.constructor.apply(o, args);
+    Input.sup.constructor.call(o, 'span');
+    o.content = content;
 
-	o.setClass(getClassName(o));
+    if (params.prefix) {
+        o.appendChild(params.prefix);
+    }
+    o.appendChild(content);
+    if (params.suffix) {
+        o.appendChild(params.suffix);
+    }
+
+	o.content.setClass(getClassName(o));
 	if (params.readOnly) {
-		o.addClass('Disabled');
+		o.content.addClass('Disabled');
 	}
 }
 extend(DElement, Input);
@@ -15,13 +24,13 @@ extend(DElement, Input);
 Input.prototype.get = function () {
 	var o = this;
 	assert(!o.params.readOnly, 'get of read-only input ' + o.params.id);
-	return (o.n.value);
+	return (o.content.n.value);
 };
 
 Input.prototype.set = function (value) {
 	var o = this;
 	assert(value !== null, o.params.id + ':  no value')
-	this.n.value = value;
+	this.content.n.value = value;
 };
 
 Input.prototype.validate = function () {
@@ -30,47 +39,42 @@ Input.prototype.validate = function () {
 
 Input.prototype.setError = function () {
 	var o = this;
-	o.addClass('ErrorValue');
+	o.content.addClass('ErrorValue');
 };
 Input.prototype.clearError = function () {
 	var o = this;
-	o.removeClass('ErrorValue');
+	o.content.removeClass('ErrorValue');
 };
 
 
-function InputInput(params) {
+function InputInput(type, params) {
 	var o = this;
-	assert(params.type,
-		getClassName(o) + '#' + params.id + ':  no type specified');
 
-	InputInput.sup.constructor.call(o, params, [
-		'input',
-		{
-			type: params.type,
-			id: params.id,
-			oninput: function () {
-				if (o.params.oninput) {
-					o.params.oninput();
-				}
-			}
-		}
-	]);
+    var content = new DElement('input', {
+        type: type,
+        id: params.id,
+        oninput: function () {
+            if (o.params.oninput) {
+                o.params.oninput();
+            }
+        }
+    });
+
+	InputInput.sup.constructor.call(o, content, params);
 	
 	if (params.readOnly) {
-		o.setAttribute('readOnly', '');
+		o.content.setAttribute('readOnly', '');
 	}
 	if (params.disabled) {
-		o.setAttribute('disabled', '');
+		o.content.setAttribute('disabled', '');
 	}
 }
 
 extend(Input, InputInput);
 
-
 function InputText(params) {
 	var o = this;
-	params.type = 'text';
-	InputText.sup.constructor.call(o, params);
+	InputText.sup.constructor.call(o, 'text', params);
 }
 extend(InputInput, InputText);
 
@@ -81,7 +85,10 @@ InputText.prototype.set = function (value) {
 
 InputText.prototype.validate = function () {
 	var o = this;
-	if (o.params.required && !o.n.value) {
+    // Perhaps this should call sup.get() rather than directly peeking
+    // at o.content.n, but the definition of get() is that it returns
+    // internal form, and here we want to inspect the as-edited form.
+	if (o.params.required && !o.content.n.value) {
 		// NEEDSWORK this should really be concatenated with the
 		// results from the superclass.
 		return (["Field is required"]);
@@ -89,7 +96,6 @@ InputText.prototype.validate = function () {
 	return (InputText.sup.validate.call(o));
 };
 
-// NEEDSWORK:  this undoubtedly needs some NaN support
 function InputInt(params)
 {
 	var o = this;
@@ -113,10 +119,12 @@ InputInt.prototype.set = function (value) {
 	InputInt.sup.set.call(this, v);
 };
 
+// NEEDSWORK:  this detects errors of the form "xxx" and "xxx123",
+// but not "123xxx"; the xxx is silently ignored.
 InputInt.prototype.validate = function () {
 	var o = this;
-	if (o.n.value) {
-		var val = parseInt(o.n.value, 10);
+	if (o.content.n.value) {
+		var val = parseInt(o.content.n.value, 10);
 		if (isNaN(val)) {
 			return (["Invalid number"]);
 		}
@@ -126,24 +134,20 @@ InputInt.prototype.validate = function () {
 
 function InputCurrency(params) {
     var o = this;
+    params = Object.assign({}, params);
+
+    params.prefix = new DElement('span');
+    params.suffix = new DElement('span');
+    getAllConfig(function (conf) {
+        params.prefix.appendChild(conf.currencyPrefix);
+        params.suffix.appendChild(conf.currencySuffix);
+    });
+        
     InputCurrency.sup.constructor.call(o, params);
 }
 
 extend(InputInt, InputCurrency);
 
-InputCurrency.prototype.set = function (value) {
-    var o = this;
-    if (value != undefined && o.params.readOnly) {
-        getAllConfig(function (conf) {
-            InputCurrency.sup.set.call(o,
-                conf.currency_prefix + value + conf.currency_suffix);
-        });
-    } else {
-        InputCurrency.sup.set.call(o, value);
-    }
-};
-
-// NEEDSWORK:  this undoubtedly needs some NaN support
 function InputIntList(params)
 {
 	var o = this;
@@ -171,6 +175,8 @@ InputIntList.prototype.set = function (ivals) {
 	InputIntList.sup.set.call(o, ivals.join(','));
 };
 
+// NEEDSWORK:  this detects errors of the form "xxx" and "xxx123",
+// but not "123xxx"; the xxx is silently ignored.
 InputIntList.prototype.validate = function () {
 	var o = this;
 	var svals = InputIntList.sup.get.call(o).split(',');
@@ -187,22 +193,22 @@ InputIntList.prototype.validate = function () {
 function InputBool(params)
 {
 	var o = this;
-	params = Object.assign({}, params, { type: 'checkbox' });
+	params = Object.assign({}, params);
 	if (params.readOnly) {
 		params.disabled = true;
 	}
-	InputBool.sup.constructor.call(o, params);
+	InputBool.sup.constructor.call(o, 'checkbox', params);
 }
 extend(InputInput, InputBool);
 
 InputBool.prototype.get = function () {
 	var o = this;
-	return (o.n.checked);
+	return (o.content.n.checked);
 };
 
 InputBool.prototype.set = function (value) {
 	var o = this;
-	o.n.checked = value;
+	o.content.n.checked = value;
 };
 
 function InputDate(params)
@@ -333,26 +339,24 @@ InputDateTime.prototype.set = function (value) {
 function InputSelect(params)
 {
 	var o = this;
-	InputSelect.sup.constructor.call(o, params, [
-		'select',
-		{
-			id: params.id,
-			oninput: function () {
-				if (o.params.oninput) {
-					o.params.oninput();
-				}
-			},
-			onchange: function () {
-				o.value = o.n.value;
-			}
-		}
-	]);
+    var content = new DElement('select', {
+        id: params.id,
+        oninput: function () {
+            if (o.params.oninput) {
+                o.params.oninput();
+            }
+        },
+        onchange: function () {
+            o.value = o.n.value;
+        }
+    });
+    InputSelect.sup.constructor.call(o, content, params);
 	if (params.options) {
 		o.setOptions(params.options);
 	}		
 	
 	if (params.readOnly) {
-		o.setAttribute('disabled', '');
+		o.content.setAttribute('disabled', '');
 	}
 }
 extend(Input, InputSelect);
@@ -365,24 +369,22 @@ InputSelect.prototype.set = function (val) {
 
 InputSelect.prototype.setOptions = function (opts) {
 	var o = this;
-	o.removeChildren();
+	o.content.removeChildren();
 	opts.forEach(function (opt) {
 		for (var val in opt) {
-			o.appendChild(new DElement('option', { value: val }, opt[val]));
+			o.content.appendChild(new DElement('option', { value: val }, opt[val]));
 		}
 	});
-	o.n.value = o.value;
+	o.content.n.value = o.value;
 };
-
-// NEEDSWORK should the filter be a parameter?  Should this just know that
-// the record has a "hide" field?  The obvious answers are "yes" and "no",
-// respectively.
 
 // Params:
 // table:  Either a DBTable object, or the name of a table.
 // keyField:  The field to be used as the key; the value to return.
 // textField:  Either the name of a field to display, or a function to evaluate
 // to yield a string to display.
+// filter: Either an expression object, or a function that returns an expression
+// object.
 //
 function InputDBPicker(params)
 {
@@ -462,12 +464,11 @@ InputDBLookup.prototype.set = function (value) {
 function InputSelectMulti(params)
 {
 	var o = this;
-	InputSelectMulti.sup.constructor.call(o, params, [
-		'table',
-		{
-			id: params.id,
-		}
-	]);
+    var content = new DElement('table', {
+        id: params.id,
+    });
+    
+    InputSelectMulti.sup.constructor.call(o, content, params);
 	o.children = {};
 	if (params.options) {
 		o.setOptions(params.options);
@@ -512,17 +513,17 @@ InputSelectMulti.prototype.addOption = function (key, text) {
 	
 	var input = new InputBool(boolParams);
 	o.children[key] = input;
-	o.appendChild(
-		new DElement('tr',
-			new DElement('td', input),
-			new DElement('td', text)
+	o.content.appendChild(
+		tr(
+			td(input),
+			td(text)
 		)
 	);	
 };
 
 InputSelectMulti.prototype.setOptions = function (opts) {
 	var o = this;
-	o.removeChildren();
+	o.content.removeChildren();
 	o.children = {};
 	opts.forEach(function (opt) {
 		if (opt instanceof Object) {
@@ -541,6 +542,8 @@ InputSelectMulti.prototype.setOptions = function (opts) {
 	}
 };
 
+// NEEDSWORK Should this accept a params.filter rather than
+// assuming that !hide is the right filter?
 function InputSelectMultiDB(params) {
 	var o = this;
 	InputSelectMultiDB.sup.constructor.call(o, params);

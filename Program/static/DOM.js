@@ -98,7 +98,7 @@ DElement.prototype.getProperty = function (p) {
 // Return last child is like base, but what about the other children?
 // Could return array if passed array, but is that useful?
 // Flattens arrays (adding all elements).  Automatically insert <span>?  <div>?
-DElement.prototype.appendChild = function () {
+DElement.prototype.appendChild = function (/*args*/) {
     var ret;
     for (var i = 0; i < arguments.length; i++) {
         DNode.log(this.toString()+' appending '+arguments[i]);
@@ -108,7 +108,8 @@ DElement.prototype.appendChild = function () {
             this.n.appendChild(arguments[i].n);
             ret = arguments[i];
 		} else {
-			this.appendChild(new DText(arguments[i]));
+            ret = new DText(arguments[i]);
+            this.n.appendChild(ret.n);
         }
     }
     return (ret);

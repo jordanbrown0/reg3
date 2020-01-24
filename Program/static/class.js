@@ -37,7 +37,7 @@ ClassManager.prototype.summarize = function (k, r) {
 	var o = this;
 	return (new DElement('tr',
 		new DElement('td', r.order, { id: 'order' }),
-		new DElement('td', o.conf.currency_prefix + r.amount + o.conf.currency_suffix, {id: 'amount'}),
+		new DElement('td', o.conf.currencyPrefix + r.amount + o.conf.currencySuffix, {id: 'amount'}),
 		new DElement('td', r.code, { id: 'code' }),
 		new DElement('td', r.description, { id: 'description' }),
 		new DElement('td', r.metaclass || '', { id: 'metaclass' }),
@@ -144,7 +144,7 @@ ClassPicker.prototype.getFilter = function () {
 ClassPicker.prototype.summarize = function (k, r) {
 	var o = this;
 	return (new DElement('tr',
-		new DElement('td', o.conf.currency_prefix + r.amount + o.conf.currency_suffix, {id: 'amount'}),
+		new DElement('td', o.conf.currencyPrefix + r.amount + o.conf.currencySuffix, {id: 'amount'}),
 		new DElement('td', r.description, { id: 'description' })
 	));
 };

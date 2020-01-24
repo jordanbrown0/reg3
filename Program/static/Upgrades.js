@@ -3,7 +3,8 @@ var upgradesSchema = [
 		{ field: 'from', label: 'From class', required: true,
 			input: InputClass },
 		{ field: 'to', label: 'To class', required: true, input: InputClass },
-		{ field: 'amount', label: 'Amount', required: true, input: InputInt },
+		{ field: 'amount', label: 'Amount', required: true,
+            input: InputCurrency },
 		{ field: 'metaclass', label: 'Metaclass' },
 		{ field: 'description', label: 'Description' },
 		{ field: 'start', label: 'Start date', input: InputDate },
@@ -80,7 +81,7 @@ UpgradePicker.prototype.summarize = function (k, r) {
 		});
 	}
 	return (new DElement('tr',
-		new DElement('td', o.conf.currency_prefix + r.amount + o.conf.currency_suffix, {id: 'amount'}),
+		new DElement('td', o.conf.currencyPrefix + r.amount + o.conf.currencySuffix, {id: 'amount'}),
 		description
 	));
 };

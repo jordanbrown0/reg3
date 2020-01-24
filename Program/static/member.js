@@ -16,7 +16,7 @@ Member.setTitle = function () {
     function gotDesc(d) {
         var s = joinTruthy([o.r.first, o.r.last], ' ') + ' - ' + d;
         if (o.r.amount != undefined) {
-            s += ' - ' + conf.currency_prefix + o.r.amount + conf.currency_suffix;
+            s += ' - ' + conf.currencyPrefix + o.r.amount + conf.currencySuffix;
         }
         o.titleSpan.replaceChildren(s);
     }
@@ -303,7 +303,7 @@ NewMemberEditor.prototype.title = function () {
     function gotDesc(d) {
         var s = 'New member - ' + d;
         if (o.r.amount != undefined) {
-            s += ' - ' + conf.currency_prefix + o.r.amount + conf.currency_suffix;
+            s += ' - ' + conf.currencyPrefix + o.r.amount + conf.currencySuffix;
         }
 		span.replaceChildren(s);
 	}
