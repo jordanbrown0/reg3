@@ -217,7 +217,7 @@ Table.prototype.check_exists = function(k) {
 	var r = o.records[k];
 	if (!r || r._deleted) {
 		throw new Error('no such record - '
-			[ o.db.name, o.name, k ].join(' / '));
+			+ [ o.db.name, o.name, k ].join(' / '));
 	}
 };
 
@@ -362,13 +362,13 @@ Table.prototype.get = function(k) {
 // that.
 //
 // If adding a record, execute the expression on the new record.
-Table.prototype.getOrAdd = function(k, expr) {
+Table.prototype.getOrAdd = function(k, rDef, expr) {
 	var o = this;
 	var r = o.records[k];
 	if (r && !r._deleted) {
 		return (r);
 	} else {
-		o.add(k, {}, expr);
+		o.add(k, rDef, expr);
 		return (o.records[k]);
 	}
 };
@@ -399,6 +399,7 @@ Table.prototype.delete = function(k, r) {
 	o.records[k] = {_version: r._version, _deleted: true};
 	o.write();
 	o.cachedSort = null;
+    return (o.records[k]);
 };
 
 // Replace the specified record with the specified contents.

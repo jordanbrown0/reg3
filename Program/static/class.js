@@ -2,12 +2,14 @@ var classSchema = [
 	[
 		{ field: 'code', label: 'Code', required: true },
 		{ field: 'description', label: 'Description', required: true },
-		{ field: 'amount', label: 'Amount', input: InputInt, required: true },	// Float?  Does anybody need pennies?
+		{ field: 'amount', label: 'Amount', input: InputCurrency,
+            required: true },	// Float?  Does anybody need pennies?
 		{ field: 'badgeOK', label: 'OK for badging?', input: InputBool },
 		{ field: 'metaclass', label: 'Metaclass' },
 		{ field: 'onBadge', label: 'Print on badge' },
-		{ field: 'phoneLabel', label: 'Print phone number on second label', input: InputBool },
-		{ field: 'order', label: 'Order', required: true },
+		{ field: 'phoneLabel', label: 'Print phone number on second label',
+            input: InputBool },
+		{ field: 'order', label: 'Order', input: InputInt, required: true },
 		{ field: 'start', label: 'Start date', input: InputDate },
 		{ field: 'end', label: 'End date', input: InputDate },
 	],
@@ -110,27 +112,33 @@ ClassPicker.prototype.activate = function () {
 
 	getAllConfig(function (conf) {
 		o.conf = conf;
-		o.filter = { and: [] };
-		var mcf;
-		if (conf.metaclasses) {
-			o.filter.and.push(
-				{ includes: [ conf.metaclasses, { f: 'metaclass' } ] }
-			);
-		}
-		o.filter.and.push(
-			{ or: [
-				{ not: { f: 'start' } },
-				{ ge: [ { date: [] }, { f: 'start' } ] }
-			] }
-		);
-		o.filter.and.push(
-			{ or: [
-				{ not: { f: 'end' } },
-				{ le: [ { date: [] }, { f: 'end' } ] }
-			] }
-		);
 		ClassPicker.sup.activate.call(o);
 	});
+};
+
+ClassPicker.prototype.getFilter = function () {
+    var o = this;
+    
+    var f = { and: [] };
+    if (o.conf.metaclasses) {
+        f.and.push(
+            { includes: [ o.conf.metaclasses, { f: 'metaclass' } ] }
+        );
+    }
+    // NEEDSWORK:  as-of date
+    f.and.push(
+        { or: [
+            { not: { f: 'start' } },
+            { ge: [ { date: [] }, { f: 'start' } ] }
+        ] }
+    );
+    f.and.push(
+        { or: [
+            { not: { f: 'end' } },
+            { le: [ { date: [] }, { f: 'end' } ] }
+        ] }
+    );
+    return (f);
 };
 
 ClassPicker.prototype.summarize = function (k, r) {

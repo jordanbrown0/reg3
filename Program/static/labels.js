@@ -364,7 +364,7 @@ function getPrinterInfo(cb, abort) {
 			abort();
 			return;
 		}
-		getPrinter(cfg.label, gotPrinter);
+		Printers.get(cfg.label, gotPrinter);
 	}
 	function gotPrinter(p) {
 		printer = p.windows;

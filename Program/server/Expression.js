@@ -164,13 +164,21 @@ verbs.match = function (r, args) {
 			if (f.startsWith('_')) {
 				continue;
 			}
-			if (typeof(r[f]) != 'string') {
-				continue;
-			}
-			if (r[f].toLowerCase().includes(pat)) {
-				found = true;
-				break;
-			}
+            var v = r[f];
+			if (typeof(v) == 'string') {
+                if (v.toLowerCase().includes(pat)) {
+                    found = true;
+                    break;
+                }
+			} else if (v instanceof Array) {
+                if (v.some(function (av) {
+                    return (typeof (av) == 'string'
+                        && av.toLowerCase().includes(pat));
+                })) {
+                    found = true;
+                    break;
+                }
+            }
 		}
 		if (!found) {
 			return (false);

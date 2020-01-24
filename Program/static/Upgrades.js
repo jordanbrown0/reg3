@@ -63,27 +63,6 @@ UpgradePicker.prototype.activate = function () {
 	
 	getAllConfig(function (conf) {
 		o.conf = conf;
-		o.filter = { and: [
-			{ eq: [ {f: 'from' }, o.params.from ] }
-		] };
-		var mcf;
-		if (conf.metaclasses) {
-			o.filter.and.push(
-				{ includes: [ conf.metaclasses, { f: 'metaclass' } ] }
-			);
-		}
-		o.filter.and.push(
-			{ or: [
-				{ not: { f: 'start' } },
-				{ ge: [ { date: [] }, { f: 'start' } ] }
-			] }
-		);
-		o.filter.and.push(
-			{ or: [
-				{ not: { f: 'end' } },
-				{ le: [ { date: [] }, { f: 'end' } ] }
-			] }
-		);
 		UpgradePicker.sup.activate.call(o);
 	});
 };
@@ -106,9 +85,37 @@ UpgradePicker.prototype.summarize = function (k, r) {
 	));
 };
 
+UpgradePicker.prototype.getFilter = function () {
+    var o = this;
+    
+    var f = { and: [
+        { eq: [ {f: 'from' }, o.params.from ] }
+    ] };
+
+    if (o.conf.metaclasses) {
+        f.and.push(
+            { includes: [ o.conf.metaclasses, { f: 'metaclass' } ] }
+        );
+    }
+    // NEEDSWORK:  as-of date
+    f.and.push(
+        { or: [
+            { not: { f: 'start' } },
+            { ge: [ { date: [] }, { f: 'start' } ] }
+        ] }
+    );
+    f.and.push(
+        { or: [
+            { not: { f: 'end' } },
+            { le: [ { date: [] }, { f: 'end' } ] }
+        ] }
+    );
+    return (f);
+};
+
 UpgradePicker.prototype.pick = function (k, r) {
 	var o = this;
-	o.params.pick(r.to);
+	o.params.pick(k, r);
 };
 
 UpgradePicker.prototype.cancel = function () {

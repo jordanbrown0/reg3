@@ -79,9 +79,9 @@ DBTable.prototype.get = function(k, cb) {
 //
 // Net:  Best to atomically create the record, and create it empty so that the
 // same logic can be used for new records and new fields.
-DBTable.prototype.getOrAdd = function (k, expr, cb) {
+DBTable.prototype.getOrAdd = function (k, rDef, expr, cb) {
 	var o = this;
-	rpc.DBgetOrAdd(o.dbName, o.tName, k, expr, function (r) {
+	rpc.DBgetOrAdd(o.dbName, o.tName, k, rDef, expr, function (r) {
 		o.applyDefaults(r);
 		cb(r);
 	});
@@ -99,8 +99,8 @@ DBTable.prototype.getOrNull = function (k, cb) {
 
 DBTable.prototype.put = function (k, r, expr, cb) {
 	var o = this;
-	rpc.DBput(o.dbName, o.tName, k, r, expr, function () {
-		cb();
+	rpc.DBput(o.dbName, o.tName, k, r, expr, function (rNew) {
+		cb(rNew);
 	});
 };
 

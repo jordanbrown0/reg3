@@ -76,7 +76,18 @@ Administration
 
 Option for 24-hour time vs 12-hour time in displays
 
-search should dive into lists
+server manager says 'null' for membership number range when it hasn't been configured.
+
+search looks for what's in the record, which means that category matching is on the category code, not the category full text.  Perhaps the member-edit list should include both.
+
+Startup with no serverID file (and presumably with no main file) gets message
+    load encountered error serverID { [Error: ENOENT: no such file or directory, open 'C:\Users\Jordan\Documents\Reg3\ooze\Program\data\serverID.json']
+      errno: -4058,
+      code: 'ENOENT',
+      syscall: 'open',
+      path:
+       'C:\\Users\\Jordan\\Documents\\Reg3\\ooze\\Program\\data\\serverID.json' }
+... which isn't really a problem, but it should only dump unexpected errors.
 
 NewConventionWad (and others?) save Mercurial and GIT history, and shouldn't.
 NewConventionWad shouldn't save SampleData (and others?)
@@ -89,8 +100,7 @@ All of the setup stuff could probably use more checking on the new directory nam
 
 Page title is wrong when you change the convention name.
 
-Conflict resolver title
-Conflict resolver global name sizes misdisplay
+Conflict resolver shows record keys for cross-references (e.g. printer IDs)
 
 Acknowledge note field
 
@@ -122,17 +132,19 @@ We suppress keystrokes while RPC requests are outstanding, which fixes the probl
 Station list if printer no longer exists.
 Station list row when station is not initialized.  (Maybe just one or more &nbsp;.)
 
+It would be nice if a subclassed Input widget got CSS classes for both the superclass and the subclass.  (But would have to ensure that rules for the subclass dominated.)
+
 Printer ID - print a label on each printer giving its Windows and human names (and any stations assigned to it?)
+
+If I ever expand the use of expressions, one of the first things that's going to have to happen is for all of the functions to become async.
 
 Force landscape on label printers
 Alert when attempting to print and configured printer no longer exists.
 Human name of new printer is "undefined".
 
-Station configuration needs a server ID.
-
 Use Windows computer name as server ID?  It's in global.process.env.COMPUTERNAME.
 
-Get config less frequently.  Maybe at return to Home.  Maybe when departing from Home.
+Get config less frequently.  Maybe at return to Home.  Maybe when departing from Home.  One big win would be being able to retrieve the config synchronously.
 
 Style
 	Breakdown of responsibility for constructor and .activate() method.

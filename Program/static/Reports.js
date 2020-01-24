@@ -39,7 +39,7 @@ function getReportPrinterInfo(cb, abort) {
 			abort();
 			return;
 		}
-		getPrinter(cfg.reportPrinter, gotPrinter);
+		Printers.get(cfg.reportPrinter, gotPrinter);
 	}
 	function gotPrinter(p) {
 		printer = p.windows;

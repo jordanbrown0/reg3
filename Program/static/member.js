@@ -4,10 +4,22 @@ var Member = {};
 // Maybe should be part of a superclass.
 Member.setTitle = function () {
 	var o = this;
-	Class.getDescription(o.r.class, function (d) {
-		o.titleSpan.replaceChildren(joinTruthy([o.r.first, o.r.last], ' ') +
-			' - ' + d);
-	});
+    var conf;
+
+    getAllConfig(gotConfig)
+
+    function gotConfig(conf_) {
+        conf = conf_;
+        Class.getDescription(o.r.class, gotDesc);
+    }
+    
+    function gotDesc(d) {
+        var s = joinTruthy([o.r.first, o.r.last], ' ') + ' - ' + d;
+        if (o.r.amount != undefined) {
+            s += ' - ' + conf.currency_prefix + o.r.amount + conf.currency_suffix;
+        }
+        o.titleSpan.replaceChildren(s);
+    }
 };
 
 function MemberManager() {
@@ -67,10 +79,14 @@ var memberSchema = [
 	],
 	[
 		{ title: 'Page 2' },
-		{ field: 'entered', label: 'Entered', readonly: true, input: InputDateTime },
-		{ field: 'pickedup', label: 'Picked up', readonly: true, input: InputDateTime },
-		{ field: 'class', label: 'Class', readonly: true, input: InputClass },
-		{ field: 'number', label: 'Number', readonly: true, input: InputInt }
+		{ field: 'entered', label: 'Entered', readOnly: true,
+            input: InputDateTime },
+		{ field: 'pickedup', label: 'Picked up', readOnly: true,
+            input: InputDateTime },
+		{ field: 'class', label: 'Class', readOnly: true, input: InputClass },
+		{ field: 'amount', label: 'Amount paid', readOnly: true,
+            input: InputCurrency },
+		{ field: 'number', label: 'Number', readOnly: true, input: InputInt }
 	],
 	[
 		{ title: 'Page 3' },
@@ -135,7 +151,7 @@ MemberDisplay.prototype.activate = function () {
 
 		var editor = new Editor(r, {
 			schema: memberSchema,
-			readonly: true,
+			readOnly: true,
 			cancel: home,
 			done: function () {
 				base.switchTo(new MemberEdit(o.key));
@@ -163,7 +179,7 @@ MemberDisplay.prototype.markPickedUp = function (cb) {
 	if (o.conf.offlineMarkPickedUp && !o.r.pickedup) {
 		// NEEDSWORK:  as-of date.
 		var serverDate = { setf: [ 'pickedup', { dateTime: [] } ] };
-		table.members.put(o.key, o.r, serverDate, cb);
+		table.members.put(o.key, o.r, serverDate, function (rNew) { cb(); });
 		return;
 	}
 	cb();
@@ -174,7 +190,7 @@ MemberDisplay.prototype.unmark = function () {
 	
 	if (o.r.pickedup) {
 		o.r.pickedup = '';
-		table.members.put(o.key, o.r, null, function () {
+		table.members.put(o.key, o.r, null, function (rNew) {
 			base.switchTo(new MemberDisplay(o.key));
 		});
 	}
@@ -200,7 +216,7 @@ MemberEdit.prototype.activate = function () {
 			doneButton: 'Save',
 			done: function () {
 				table.members.put(o.key, r, null,
-					function () { base.switchTo(new MemberDisplay(o.key)); }
+					function (rNew) { base.switchTo(new MemberDisplay(o.key)); }
 				);
 			},
 			cancel: home
@@ -230,8 +246,9 @@ NewMember.prototype.activate = function () {
 
 	base.switchTo(new ClassPicker({
 		titleManager: 'Class for new member...',
-		pick: function (k, classrec) {
-			r.class = classrec.code;
+		pick: function (k, rClass) {
+			r.class = rClass.code;
+            r.amount = rClass.amount;
 			base.switchTo(new NewMemberEditor(r));
 		}
 	}))
@@ -273,11 +290,26 @@ NewMemberEditor.prototype.activate = function () {
 
 NewMemberEditor.prototype.title = function () {
 	var o = this;
+    var conf;
 	var span = new DElement('span');
-	Class.getDescription(o.r.class, function (d) {
-		span.replaceChildren('New member - ' + d);
-	});
+
+    getAllConfig(gotConfig)
+
+    function gotConfig(conf_) {
+        conf = conf_;
+        Class.getDescription(o.r.class, gotDesc);
+    }
+    
+    function gotDesc(d) {
+        var s = 'New member - ' + d;
+        if (o.r.amount != undefined) {
+            s += ' - ' + conf.currency_prefix + o.r.amount + conf.currency_suffix;
+        }
+		span.replaceChildren(s);
+	}
+    
 	return (span);
+
 };
 
 function MemberUpgrade(k) {
@@ -294,9 +326,10 @@ MemberUpgrade.prototype.activate = function () {
 		base.switchTo(
 			new UpgradePicker({
 				from: r.class,
-				pick: function (newClass) {
-					r.class = newClass;
-					table.members.put(o.k, r, null, function () {
+				pick: function (k, rUp) {
+					r.class = rUp.to;
+                    r.amount = (r.amount||0) + rUp.amount;
+					table.members.put(o.k, r, null, function (rNew) {
 						base.switchTo(new MemberDisplay(o.k));
 					});
 				},

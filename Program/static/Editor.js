@@ -13,10 +13,11 @@ function Editor(r, params)
 	});
 	o.r = r;
 	o.params = Object.assign({
-		cancelButton: 'Cancel'
+		cancelButton: 'Cancel',
+        r: r
 	}, params);
 
-	if (o.params.readonly) {
+	if (o.params.readOnly) {
 		o.addClass('Disabled');
 	}
 
@@ -95,7 +96,7 @@ Editor.prototype.switchEditPage = function(page) {
 Editor.prototype.done = function () {
 	var o = this;
 
-	if (o.params.readonly) {
+	if (o.params.readOnly) {
 		o.params.done();
 		return;
 	}
@@ -147,7 +148,7 @@ Editor.setReadOnly = function (schema, f, ro) {
 	schema.forEach(function (page) {
 		page.forEach(function (ent) {
 			if (ent.field == f) {
-				ent.readonly = ro;
+				ent.readOnly = ro;
 			}
 		});
 	});
@@ -238,7 +239,7 @@ function EditorEntry(schemaEntry, params)
 		schemaEntry
 	);
 
-	if (o.params.readonly) {
+	if (o.params.readOnly) {
 		o.addClass('Disabled');
 	}
 	
@@ -264,7 +265,7 @@ EditorEntry.prototype.get = function (r) {
 	var o = this;
 	// Perversely, "get" is prohibited for read-only entries because
 	// "get" is the operation that writes to the record.
-	if (!o.params.readonly) {
+	if (!o.params.readOnly) {
 		r[o.schemaEntry.field] = o.input.get();
 	}
 };

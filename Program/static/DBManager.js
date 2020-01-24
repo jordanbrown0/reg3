@@ -58,7 +58,7 @@ DBManager.prototype.title = function () {
 
 DBManager.prototype.getFilter = function () {
 	var o = this;
-	return (o.filter);
+	return (undefined);
 };
 
 DBManager.prototype.summarize = function (k, r) {
@@ -106,7 +106,7 @@ DBEdit.prototype.activate = function () {
 		var editor = new Editor(r, {
 			schema: o.params.schema,
 			doneButton: 'Save',
-			done: function () { o.put(function () { o.done(); }); },
+			done: function () { o.put(function (rNew) { o.done(); }); },
 			cancel: function () { o.cancel(); }
 		});
 		o.appendChild(editor);
@@ -126,7 +126,7 @@ DBEdit.prototype.get = function (cb) {
 
 DBEdit.prototype.getOrAdd = function (cb) {
 	var o = this;
-	o.params.table.getOrAdd(o.k, null, cb);
+	o.params.table.getOrAdd(o.k, {}, null, cb);
 };
 
 DBEdit.prototype.put = function (cb) {

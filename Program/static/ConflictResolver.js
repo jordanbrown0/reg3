@@ -57,6 +57,7 @@ ConflictResolver.prototype.activate = function () {
 	
 	function equalObject(a, b) {
 		var e;
+
 		// Quick short-circuit for arrays.
 		if (a.length !== b.length) {
 			return (false);
@@ -78,6 +79,7 @@ ConflictResolver.prototype.activate = function () {
 				return (false);
 			}
 		}
+        return (true);
 	}
 	function equal(a, b) {
 		if (typeof (a) !== typeof (b)) {
@@ -85,7 +87,7 @@ ConflictResolver.prototype.activate = function () {
 		}
 		// Note that Object includes Array.
 		if (a instanceof Object && b instanceof Object) {
-			return (equalObject(a, b));
+            return (equalObject(a, b));
 		}
 		return (a === b);
 	}
@@ -98,11 +100,13 @@ ConflictResolver.prototype.activate = function () {
 
 		row.appendChild(td(f));
 		
-		if (equal(left[f], right[f])) {
+		var lf = left[f] ? left[f].toString() : new EntityNode('nbsp');
+        var rf = right[f] ? right[f].toString() : new EntityNode('nbsp');
+        if (equal(left[f], right[f])) {
 			row.appendChild(td());
-			row.appendChild(td(left[f] || new EntityNode('nbsp')));
+			row.appendChild(td(lf));
 			row.appendChild(td());
-			row.appendChild(td(right[f] || new EntityNode('nbsp')));
+			row.appendChild(td(rf));
 			c.result[f] = left[f];
 		} else {
 			function emitRadio(rec, f, side, label) {
@@ -119,8 +123,8 @@ ConflictResolver.prototype.activate = function () {
 				);
 			}
 			
-			emitRadio(left, f, 'l', left[f] || new EntityNode('nbsp'));
-			emitRadio(right, f, 'r', right[f] || new EntityNode('nbsp'));
+			emitRadio(left, f, 'l', lf);
+			emitRadio(right, f, 'r', rf);
 			o.unresolved[f] = true;
 			row.addClass('Difference');
 		}
@@ -158,7 +162,7 @@ ConflictResolver.prototype.resolve = function () {
 	// incorporate tables.* when we bring in the edit schema for display of the
 	// resolution UI.
 	var table = new DBTable(db.reg, o.c.t);
-	table.put(o.c.k, o.c.result, null, function () {
+	table.put(o.c.k, o.c.result, null, function (rNew) {
 		o.params.resolved();
 	});
 };

@@ -45,8 +45,8 @@ methods.DBget = async function(dbName, tName, k) {
 	return ((await getTable(dbName, tName)).get(k));
 };
 
-methods.DBgetOrAdd = async function(dbName, tName, k, expr) {
-	return ((await getTable(dbName, tName)).getOrAdd(k, expr));
+methods.DBgetOrAdd = async function(dbName, tName, k, rDef, expr) {
+	return ((await getTable(dbName, tName)).getOrAdd(k, rDef, expr));
 };
 
 methods.DBgetOrNull = async function(dbName, tName, k) {

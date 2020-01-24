@@ -44,7 +44,7 @@ table.Editor {
 	width: 30em;
 }
 
-.Editor .InputText {
+.Editor .InputText, .Editor .InputDBLookup {
 	width: 100%;
 }
 .Editor .InputDate {

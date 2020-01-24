@@ -1,12 +1,5 @@
 function Home()
 {
-	// function title() {
-		// var content = new DElement('span');
-		// getAllConfig(function (cfg) {
-			// content.appendChild(cfg.convention + ' Registration');
-		// });
-		// return (content);
-	// }
 	var o = this;
     DElement.call(o, 'div');
 	o.menu = new Menu({ items: [
@@ -31,7 +24,7 @@ Home.prototype.activate = function () {
 Home.prototype.title = function () {
 	var o = this;
 	var span = new DElement('span');
-	Global.get(function (cfg) {
+	getAllConfig(function (cfg) {
 		span.replaceChildren(cfg.convention);
 	});
 	return span;

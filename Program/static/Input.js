@@ -6,7 +6,7 @@ function Input(params, args)
 	Input.sup.constructor.apply(o, args);
 
 	o.setClass(getClassName(o));
-	if (params.readonly) {
+	if (params.readOnly) {
 		o.addClass('Disabled');
 	}
 }
@@ -14,7 +14,7 @@ extend(DElement, Input);
 
 Input.prototype.get = function () {
 	var o = this;
-	assert(!o.params.readonly, 'get of read-only input ' + o.params.id);
+	assert(!o.params.readOnly, 'get of read-only input ' + o.params.id);
 	return (o.n.value);
 };
 
@@ -56,8 +56,8 @@ function InputInput(params) {
 		}
 	]);
 	
-	if (params.readonly) {
-		o.setAttribute('readonly', '');
+	if (params.readOnly) {
+		o.setAttribute('readOnly', '');
 	}
 	if (params.disabled) {
 		o.setAttribute('disabled', '');
@@ -124,6 +124,25 @@ InputInt.prototype.validate = function () {
 	return (InputInt.sup.validate.call(o));
 };
 
+function InputCurrency(params) {
+    var o = this;
+    InputCurrency.sup.constructor.call(o, params);
+}
+
+extend(InputInt, InputCurrency);
+
+InputCurrency.prototype.set = function (value) {
+    var o = this;
+    if (value != undefined && o.params.readOnly) {
+        getAllConfig(function (conf) {
+            InputCurrency.sup.set.call(o,
+                conf.currency_prefix + value + conf.currency_suffix);
+        });
+    } else {
+        InputCurrency.sup.set.call(o, value);
+    }
+};
+
 // NEEDSWORK:  this undoubtedly needs some NaN support
 function InputIntList(params)
 {
@@ -169,7 +188,7 @@ function InputBool(params)
 {
 	var o = this;
 	params = Object.assign({}, params, { type: 'checkbox' });
-	if (params.readonly) {
+	if (params.readOnly) {
 		params.disabled = true;
 	}
 	InputBool.sup.constructor.call(o, params);
@@ -253,7 +272,7 @@ InputDate.prototype.set = function (value) {
 	var s;
 	assert(!(value instanceof Date), 'Not supposed to be using Date');
 	if (value) {
-		if (o.params.readonly) {
+		if (o.params.readOnly) {
 			s = displayDate(value);
 		} else {
 			// ECMAScript specifies that date-only strings are interpreted
@@ -296,7 +315,7 @@ InputDateTime.prototype.set = function (value) {
 	var s;
 	assert(!(value instanceof Date), 'Not supposed to be using Date');
 	if (value) {
-		if (o.params.readonly) {
+		if (o.params.readOnly) {
 			s = displayDateTime(value, false);
 		} else {
 			s = value;
@@ -332,7 +351,7 @@ function InputSelect(params)
 		o.setOptions(params.options);
 	}		
 	
-	if (params.readonly) {
+	if (params.readOnly) {
 		o.setAttribute('disabled', '');
 	}
 }
@@ -373,7 +392,13 @@ function InputDBPicker(params)
 	if (!(t instanceof DBTable)) {
 		t = table[t];
 	}
-	t.list({ filter: { not: { f: 'hide' } } }, function (recs) {
+    var filter;
+    if (params.filter instanceof Function) {
+        filter = params.filter(params);
+    } else {
+        filter = params.filter;
+    }
+	t.list({ filter: filter }, function (recs) {
 		var opts = [];
 		forEachArrayObject(recs, function (k, r) {
 			var opt = {};
@@ -400,6 +425,37 @@ function InputClass(params)
 	InputClass.sup.constructor.call(o, params);
 }
 extend(InputDBPicker, InputClass);
+
+function InputDBLookup(params)
+{
+	var o = this;
+    assert(params.readOnly, 'InputDBLookup must be read-only');
+	InputDBLookup.sup.constructor.call(o, params);
+	o.t = params.table;
+	if (!(o.t instanceof DBTable)) {
+		o.t = table[o.t];
+	}
+}
+extend(InputText, InputDBLookup);
+
+InputDBLookup.prototype.set = function (value) {
+    var o = this;
+    if (!value) {
+        InputDBLookup.sup.set.call(o, '');
+        return;
+    }
+    o.t.getOrNull(value, function (r) {
+        var displayValue;
+        if (!r) {
+            displayValue = '(missing)';
+        } else if (o.params.textField instanceof Function) {
+            displayValue = o.params.textField(r);
+        } else {
+            displayValue = r[o.params.textField];
+        }
+        InputDBLookup.sup.set.call(o, displayValue);
+	});
+};
 
 // One might think that <select multiple> would do what we want, but I don't
 // like the Ctrl/Shift-click UI at all.
