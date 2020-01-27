@@ -90,27 +90,9 @@ UpgradePicker.prototype.getFilter = function () {
     var o = this;
     
     var f = { and: [
-        { eq: [ {f: 'from' }, o.params.from ] }
+        { eq: [ {f: 'from' }, o.params.from ] },
+        Class.getFilter(o.conf)
     ] };
-
-    if (o.conf.metaclasses) {
-        f.and.push(
-            { includes: [ o.conf.metaclasses, { f: 'metaclass' } ] }
-        );
-    }
-    // NEEDSWORK:  as-of date
-    f.and.push(
-        { or: [
-            { not: { f: 'start' } },
-            { ge: [ { date: [] }, { f: 'start' } ] }
-        ] }
-    );
-    f.and.push(
-        { or: [
-            { not: { f: 'end' } },
-            { le: [ { date: [] }, { f: 'end' } ] }
-        ] }
-    );
     return (f);
 };
 

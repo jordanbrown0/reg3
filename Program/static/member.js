@@ -177,8 +177,8 @@ MemberDisplay.prototype.print = function (cb) {
 MemberDisplay.prototype.markPickedUp = function (cb) {
 	var o = this;
 	if (o.conf.offlineMarkPickedUp && !o.r.pickedup) {
-		// NEEDSWORK:  as-of date.
-		var serverDate = { setf: [ 'pickedup', { dateTime: [] } ] };
+        var timestampExpr = o.conf.offlineAsOf || { dateTime: [] };
+		var serverDate = { setf: [ 'pickedup', timestampExpr ] };
 		table.members.put(o.key, o.r, serverDate, function (rNew) { cb(); });
 		return;
 	}
@@ -264,52 +264,51 @@ extend(DElement, NewMemberEditor);
 
 NewMemberEditor.prototype.activate = function () {
 	var o = this;
-	var editor = new Editor(o.r, {
-		schema: memberSchema,
-		doneButton: 'Add',
-		done: function () {
-			Server.newMembershipNumber(function (n) {
-				if (!n) {
-					alert('No membership numbers available!');
-					return;
-				}
-				o.r.number = n;
-				// NEEDSWORK:  Use as-of date if set.
-				var serverDate = { setf: [ 'entered', { dateTime: [] } ] };
-				table.members.add(null, o.r, serverDate, function (k) {
-					base.switchTo(new MemberDisplay(k));
-				});
-			});
-		},
-		cancel: home
-	});
 
-	o.appendChild(editor);
-	editor.activate();
+    getAllConfig(gotConfig)
+
+    function gotConfig(conf) {
+        o.conf = conf;
+        var editor = new Editor(o.r, {
+            schema: memberSchema,
+            doneButton: 'Add',
+            done: function () {
+                Server.newMembershipNumber(function (n) {
+                    if (!n) {
+                        alert('No membership numbers available!');
+                        return;
+                    }
+                    o.r.number = n;
+                    var timestampExpr = o.conf.offlineAsOf || { dateTime: [] };
+                    var serverDate = { setf: [ 'entered', timestampExpr ] };
+                    table.members.add(null, o.r, serverDate, function (k) {
+                        base.switchTo(new MemberDisplay(k));
+                    });
+                });
+            },
+            cancel: home
+        });
+
+        o.appendChild(editor);
+        editor.activate();
+    }
 };
 
 NewMemberEditor.prototype.title = function () {
 	var o = this;
-    var conf;
 	var span = new DElement('span');
 
-    getAllConfig(gotConfig)
+    Class.getDescription(o.r.class, gotDesc);
 
-    function gotConfig(conf_) {
-        conf = conf_;
-        Class.getDescription(o.r.class, gotDesc);
-    }
-    
     function gotDesc(d) {
         var s = 'New member - ' + d;
         if (o.r.amount != undefined) {
-            s += ' - ' + conf.currencyPrefix + o.r.amount + conf.currencySuffix;
+            s += ' - ' + o.conf.currencyPrefix + o.r.amount + o.conf.currencySuffix;
         }
 		span.replaceChildren(s);
 	}
     
 	return (span);
-
 };
 
 function MemberUpgrade(k) {

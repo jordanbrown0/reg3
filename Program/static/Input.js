@@ -313,7 +313,7 @@ extend(InputText, InputDateTime);
 InputDateTime.prototype.get = function () {
 	var o = this;
 	var s = InputDateTime.sup.get.call(o);
-	return (s ? new Date(s) : null);
+	return (s);
 };
 
 InputDateTime.prototype.set = function (value) {

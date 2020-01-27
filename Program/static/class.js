@@ -1,32 +1,32 @@
 var classSchema = [
-	[
-		{ field: 'code', label: 'Code', required: true },
-		{ field: 'description', label: 'Description', required: true },
-		{ field: 'amount', label: 'Amount', input: InputCurrency,
-            required: true },	// Float?  Does anybody need pennies?
-		{ field: 'badgeOK', label: 'OK for badging?', input: InputBool },
-		{ field: 'metaclass', label: 'Metaclass' },
-		{ field: 'onBadge', label: 'Print on badge' },
-		{ field: 'phoneLabel', label: 'Print phone number on second label',
+    [
+        { field: 'code', label: 'Code', required: true },
+        { field: 'description', label: 'Description', required: true },
+        { field: 'amount', label: 'Amount', input: InputCurrency,
+            required: true },   // Float?  Does anybody need pennies?
+        { field: 'badgeOK', label: 'OK for badging?', input: InputBool },
+        { field: 'metaclass', label: 'Metaclass' },
+        { field: 'onBadge', label: 'Print on badge' },
+        { field: 'phoneLabel', label: 'Print phone number on second label',
             input: InputBool },
-		{ field: 'order', label: 'Order', input: InputInt, required: true },
-		{ field: 'start', label: 'Start date', input: InputDate },
-		{ field: 'end', label: 'End date', input: InputDate },
-	],
+        { field: 'order', label: 'Order', input: InputInt, required: true },
+        { field: 'start', label: 'Start date', input: InputDate },
+        { field: 'end', label: 'End date', input: InputDate },
+    ],
 ];
 
 function ClassManager()
 {
-	var o = this;
+    var o = this;
     ClassManager.sup.constructor.call(o, {
-		table: table.classes,
-		schema: classSchema,
-		canAdd: true,
-		canDelete: true,
-		keyField: 'code'
-	});
-	ClassManager.prototype.Edit = ClassEdit;
-	ClassManager.prototype.Add = ClassAdd;
+        table: table.classes,
+        schema: classSchema,
+        canAdd: true,
+        canDelete: true,
+        keyField: 'code'
+    });
+    ClassManager.prototype.Edit = ClassEdit;
+    ClassManager.prototype.Add = ClassAdd;
 
 }
 extend(DBManager, ClassManager);
@@ -34,61 +34,61 @@ extend(DBManager, ClassManager);
 ClassManager.prototype.sort = [ 'order' ];
 
 ClassManager.prototype.summarize = function (k, r) {
-	var o = this;
-	return (new DElement('tr',
-		new DElement('td', r.order, { id: 'order' }),
-		new DElement('td', o.conf.currencyPrefix + r.amount + o.conf.currencySuffix, {id: 'amount'}),
-		new DElement('td', r.code, { id: 'code' }),
-		new DElement('td', r.description, { id: 'description' }),
-		new DElement('td', r.metaclass || '', { id: 'metaclass' }),
-		new DElement('td', displayDate(r.start), { id: 'start' }),
-		new DElement('td', displayDate(r.end), { id: 'end' })
-	));
+    var o = this;
+    return (tr(
+        td(r.order, { id: 'order' }),
+        td(o.conf.currencyPrefix + r.amount + o.conf.currencySuffix, {id: 'amount'}),
+        td(r.code, { id: 'code' }),
+        td(r.description, { id: 'description' }),
+        td(r.metaclass || '', { id: 'metaclass' }),
+        td(displayDate(r.start), { id: 'start' }),
+        td(displayDate(r.end), { id: 'end' })
+    ));
 };
 
 ClassManager.prototype.activate = function () {
-	var o = this;
-	getAllConfig(function (conf) {
-		o.conf = conf;
-		ClassManager.sup.activate.call(o);
-	});
+    var o = this;
+    getAllConfig(function (conf) {
+        o.conf = conf;
+        ClassManager.sup.activate.call(o);
+    });
 };
 
 ClassManager.prototype.title = 'Class administration';
 
 ClassManager.prototype.header = function () {
-	return (new DElement('tr',
-		new DElement('th', 'Order'),
-		new DElement('th', 'Amount'),
-		new DElement('th', 'code'),
-		new DElement('th', 'Description'),
-		new DElement('th', 'MC'),
-		new DElement('th', 'Start'),
-		new DElement('th', 'End')
-	));
+    return (new DElement('tr',
+        new DElement('th', 'Order'),
+        new DElement('th', 'Amount'),
+        new DElement('th', 'code'),
+        new DElement('th', 'Description'),
+        new DElement('th', 'MC'),
+        new DElement('th', 'Start'),
+        new DElement('th', 'End')
+    ));
 };
 
 function ClassEdit(/*args*/)
 {
-	ClassEdit.sup.constructor.apply(this, arguments);
+    ClassEdit.sup.constructor.apply(this, arguments);
 }
 
 extend(DBEdit, ClassEdit);
 
 ClassEdit.prototype.title = function () {
-	// NEEDSWORK this should probably include the class code and description.
-	return ('Edit class...');
+    // NEEDSWORK this should probably include the class code and description.
+    return ('Edit class...');
 };
 
 function ClassAdd(/*args*/)
 {
-	ClassAdd.sup.constructor.apply(this, arguments);
+    ClassAdd.sup.constructor.apply(this, arguments);
 }
 
 extend(DBAdd, ClassAdd);
 
 ClassAdd.prototype.title = function () {
-	return ('New class...');
+    return ('New class...');
 };
 
 // NEEDSWORK ClassManager and ClassPicker should perhaps be the same,
@@ -96,62 +96,43 @@ ClassAdd.prototype.title = function () {
 // show-all, manager needs add.)
 function ClassPicker(params)
 {
-	var o = this;
-	var myparams = {
-		table: table.classes,
-		schema: classSchema,
-		canShowAll: true
-	};
-	Object.assign(myparams, params);
+    var o = this;
+    var myparams = {
+        table: table.classes,
+        schema: classSchema,
+        canShowAll: true
+    };
+    Object.assign(myparams, params);
     ClassManager.sup.constructor.call(o, myparams);
 }
 extend(DBManager, ClassPicker);
 
 ClassPicker.prototype.activate = function () {
-	var o = this;
+    var o = this;
 
-	getAllConfig(function (conf) {
-		o.conf = conf;
-		ClassPicker.sup.activate.call(o);
-	});
+    getAllConfig(function (conf) {
+        o.conf = conf;
+        ClassPicker.sup.activate.call(o);
+    });
 };
 
 ClassPicker.prototype.getFilter = function () {
     var o = this;
-    
-    var f = { and: [] };
-    if (o.conf.metaclasses) {
-        f.and.push(
-            { includes: [ o.conf.metaclasses, { f: 'metaclass' } ] }
-        );
-    }
-    // NEEDSWORK:  as-of date
-    f.and.push(
-        { or: [
-            { not: { f: 'start' } },
-            { ge: [ { date: [] }, { f: 'start' } ] }
-        ] }
-    );
-    f.and.push(
-        { or: [
-            { not: { f: 'end' } },
-            { le: [ { date: [] }, { f: 'end' } ] }
-        ] }
-    );
-    return (f);
+
+    return (Class.getFilter(o.conf));
 };
 
 ClassPicker.prototype.summarize = function (k, r) {
-	var o = this;
-	return (new DElement('tr',
-		new DElement('td', o.conf.currencyPrefix + r.amount + o.conf.currencySuffix, {id: 'amount'}),
-		new DElement('td', r.description, { id: 'description' })
-	));
+    var o = this;
+    return (new DElement('tr',
+        new DElement('td', o.conf.currencyPrefix + r.amount + o.conf.currencySuffix, {id: 'amount'}),
+        new DElement('td', r.description, { id: 'description' })
+    ));
 };
 
 ClassPicker.prototype.pick = function (k, r) {
-	var o = this;
-	o.params.pick(k, r);
+    var o = this;
+    o.params.pick(k, r);
 };
 
 ClassPicker.prototype.sort = [ 'order' ];
@@ -160,17 +141,44 @@ var Class = {};
 
 // NEEDSWORK:  Something bad will happen if the get fails.
 Class.get = function (id, cb) {
-	table.classes.getOrNull(id, cb);
+    table.classes.getOrNull(id, cb);
 };
 
 Class.getDescription = function (id, cb) {
-	Class.get(id, function (c) {
-		cb(c ? c.description : 'Bad class "' + id + '"');
-	});
+    Class.get(id, function (c) {
+        cb(c ? c.description : 'Bad class "' + id + '"');
+    });
+};
+
+// Return a filter expression that checks for metaclass and start/end times.
+// Applicable to both classes and upgrades.
+Class.getFilter = function (conf) {
+    var f = { and: [] };
+    if (conf.metaclasses) {
+        f.and.push(
+            { includes: [ conf.metaclasses, { f: 'metaclass' } ] }
+        );
+    }
+
+    var nowExpr =  conf.offlineAsOf || { date: [] };
+    f.and.push(
+        { or: [
+            { not: { f: 'start' } },
+            { ge: [ nowExpr, { f: 'start' } ] }
+        ] }
+    );
+    f.and.push(
+        { or: [
+            { not: { f: 'end' } },
+            { le: [ nowExpr, { f: 'end' } ] }
+        ] }
+    );
+
+    return (f);
 };
 
 init.push(function classInit() {
-	table.classes = new DBTable(db.reg, 'classes',
-		{ defaults: Editor.defaults(classSchema) }
-	);
+    table.classes = new DBTable(db.reg, 'classes',
+        { defaults: Editor.defaults(classSchema) }
+    );
 });
