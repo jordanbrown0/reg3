@@ -3,89 +3,89 @@ var keyVerbose = false;
 function NavKey()
 {
     var o = this;
-	document.documentElement.onkeydown = function (e) {
-		keyLog('keydown', e.key);
-		if (isRPCActive()) {
-			// For now, this is interesting enough to always log it.
-			log('ignore because of pending RPC');
-			e.preventDefault();
-			return;
-		}
-		o.onkeydown(e);
-	};
-	// document.body.onkeypress = function (e) { log('keypress', e.key); o.onkeypress(e); };
-	// document.body.onkeyup = function (e) { log('keyup', e.key); o.onkeyup(e); };
+    document.documentElement.onkeydown = function (e) {
+        keyLog('keydown', e.key);
+        if (isRPCActive()) {
+            // For now, this is interesting enough to always log it.
+            log('ignore because of pending RPC');
+            e.preventDefault();
+            return;
+        }
+        o.onkeydown(e);
+    };
+    // document.body.onkeypress = function (e) { log('keypress', e.key); o.onkeypress(e); };
+    // document.body.onkeyup = function (e) { log('keyup', e.key); o.onkeyup(e); };
 }
 
 NavKey.prototype.set = function (a) {
-	var o = this;
-	o.keyHandlers = {};
-	o.add(a);
+    var o = this;
+    o.keyHandlers = {};
+    o.add(a);
 };
 
 NavKey.prototype.add = function (a) {
-	var o = this;
-	a.forEach(function (e) {
-		if (e.key) {
-			var kn = e.key.length == 1 ? e.key.toUpperCase() : e.key;
-			o.keyHandlers[kn] = e.func;
-			// Allow Shift+x in addition to x.
-			// NEEDSWORK:  Won't interact properly when kn already includes
-			// a modifier, because the "Shift" won't be added in the right
-			// place.
-			if (kn.indexOf('Shift') < 0) {
-				o.keyHandlers['Shift'+kn] = e.func;
-			}
-		}
-	});
+    var o = this;
+    a.forEach(function (e) {
+        if (e.key) {
+            var kn = e.key.length == 1 ? e.key.toUpperCase() : e.key;
+            o.keyHandlers[kn] = e.func;
+            // Allow Shift+x in addition to x.
+            // NEEDSWORK:  Won't interact properly when kn already includes
+            // a modifier, because the "Shift" won't be added in the right
+            // place.
+            if (kn.indexOf('Shift') < 0) {
+                o.keyHandlers['Shift'+kn] = e.func;
+            }
+        }
+    });
 };
 
 NavKey.prototype.getKeyHandler = function (e) {
-	var o = this;
-	var key = o.getKeyName(e);
+    var o = this;
+    var key = o.getKeyName(e);
 
-	keyLog(e.key + ' => ' + key + ', ' + e.keyCode);
-	return (o.keyHandlers[key]);
+    keyLog(e.key + ' => ' + key + ', ' + e.keyCode);
+    return (o.keyHandlers[key]);
 };
 
 // NEEDSWORK is there a potential problem with using these names?
 NavKey.prototype.onkeydown = function (e) {
-	var o = this;
-	var h = o.getKeyHandler(e)
-	if (h) {
-		keyLog('handle keydown', e.key);
-		e.preventDefault();
-		h();
-	} else {
-		if (o.shouldIgnore(e)) {
-			keyLog('ignore', e.key);
-			e.preventDefault();
-		}
-	}
+    var o = this;
+    var h = o.getKeyHandler(e)
+    if (h) {
+        keyLog('handle keydown', e.key);
+        e.preventDefault();
+        h();
+    } else {
+        if (o.shouldIgnore(e)) {
+            keyLog('ignore', e.key);
+            e.preventDefault();
+        }
+    }
 };
 
 NavKey.prototype.onkeypress = function (e) {
-	var o = this;
-	keyLog('keypress', e);
-	if (o.getKeyHandler(e)) {
-		keyLog('ignore keypress', e.key);
-		e.preventDefault();
-	}
+    var o = this;
+    keyLog('keypress', e);
+    if (o.getKeyHandler(e)) {
+        keyLog('ignore keypress', e.key);
+        e.preventDefault();
+    }
 };
 
 NavKey.prototype.onkeyup = function (e) {
-	var o = this;
-	keyLog('keyup', e);
-	if (o.getKeyHandler(e)) {
-		keyLog('ignore keyup', e.key);
-		e.preventDefault();
-	}
+    var o = this;
+    keyLog('keyup', e);
+    if (o.getKeyHandler(e)) {
+        keyLog('ignore keyup', e.key);
+        e.preventDefault();
+    }
 };
 
 var keyAliases = {
-	Esc:	'Escape',
-	Up:		'ArrowUp',
-	Down:	'ArrowDown'
+    Esc:    'Escape',
+    Up:     'ArrowUp',
+    Down:   'ArrowDown'
 };
 
 // These are keys that we can't suppress, or at least that I haven't
@@ -110,23 +110,23 @@ var navModifiers = [ 'Alt', 'Control' ];
 // keys that would normally be ignored because of modifiers but that are OK
 // when editing.
 var sometimesNavKeys = [
-	'Backspace',
-	'ControlBackspace',
-	'ControlDelete',
-	'/',
-	'\'',
-	'ControlY',
-	'ControlA',
-	'ControlZ',
-	'ControlX',
-	'ControlC',
-	'ControlV',
-	'ControlArrowLeft',
-	'ControlArrowRight',
-	'ControlArrowUp',
-	'ControlArrowDown',
-	'ControlHome',
-	'ControlEnd'
+    'Backspace',
+    'ControlBackspace',
+    'ControlDelete',
+    '/',
+    '\'',
+    'ControlY',
+    'ControlA',
+    'ControlZ',
+    'ControlX',
+    'ControlC',
+    'ControlV',
+    'ControlArrowLeft',
+    'ControlArrowRight',
+    'ControlArrowUp',
+    'ControlArrowDown',
+    'ControlHome',
+    'ControlEnd'
 ];
 
 // Which types of <input> involve editing text?
@@ -135,79 +135,79 @@ var inputTypes = [ 'text', 'password', 'date' ];
 
 // Return true if a key event is one that we want to ignore.
 NavKey.prototype.shouldIgnore = function (e) {
-	var o = this;
-	var kn = o.getKeyName(e);
-	
-	var NO=-1, MAYBE=0, YES=1;
-	var ignore = NO;
+    var o = this;
+    var kn = o.getKeyName(e);
+    
+    var NO=-1, MAYBE=0, YES=1;
+    var ignore = NO;
 
-	if (navModifiers.some(e.getModifierState, e)) {
-		ignore = YES;
-	}
+    if (navModifiers.some(e.getModifierState, e)) {
+        ignore = YES;
+    }
 
-	if (alwaysNavKeys.indexOf(kn) >= 0) {
-		ignore = YES;
-	}
-	if (sometimesNavKeys.indexOf(kn) >= 0) {
-		ignore = MAYBE;
-	}
+    if (alwaysNavKeys.indexOf(kn) >= 0) {
+        ignore = YES;
+    }
+    if (sometimesNavKeys.indexOf(kn) >= 0) {
+        ignore = MAYBE;
+    }
 
-	if (ignore != MAYBE) {
-		return (ignore == YES);
-	}
-	
-	// Now comes the hard part.  We need to suppress the rest, *unless*
-	// we're in a text editing field.  But note:  simply being in an input
-	// isn't enough, because checkboxes and radio buttons don't eat these
-	// keys.  Even being in an input-text isn't enough, because
-	// read-only and disabled fields don't eat them.
-	var t = e.target;
-	if (t.readOnly || t.disabled) {
-		return (true);
-	}
-	if (!t.tagName) {
-		return (true);
-	}
-	switch (t.tagName.toLowerCase()) {
-	case 'input':
-		return (inputTypes.indexOf(t.attributes.type.value.toLowerCase()) < 0);
+    if (ignore != MAYBE) {
+        return (ignore == YES);
+    }
+    
+    // Now comes the hard part.  We need to suppress the rest, *unless*
+    // we're in a text editing field.  But note:  simply being in an input
+    // isn't enough, because checkboxes and radio buttons don't eat these
+    // keys.  Even being in an input-text isn't enough, because
+    // read-only and disabled fields don't eat them.
+    var t = e.target;
+    if (t.readOnly || t.disabled) {
+        return (true);
+    }
+    if (!t.tagName) {
+        return (true);
+    }
+    switch (t.tagName.toLowerCase()) {
+    case 'input':
+        return (inputTypes.indexOf(t.attributes.type.value.toLowerCase()) < 0);
 
-	case 'textarea':
-		return (false);
+    case 'textarea':
+        return (false);
 
-	default:
-		return (true);
-	}
+    default:
+        return (true);
+    }
 };
 
 NavKey.prototype.getKeyName = function (e) {
-	var kn = keyAliases[e.key] || e.key;
+    var kn = keyAliases[e.key] || e.key;
 
-	// Map all letters to upper case, but leave names like Enter
-	// in mixed case.
-	if (kn.length == 1) {
-		kn = kn.toUpperCase();
-	}
+    // Map all letters to upper case, but leave names like Enter
+    // in mixed case.
+    if (kn.length == 1) {
+        kn = kn.toUpperCase();
+    }
 
-	// Alphabetical order
-	var mods = [ 'Alt', 'Control', 'OS', 'Shift' ];
-	
-	// Don't add modifiers to modifiers.
-	if (mods.indexOf(kn) >= 0) {
-		return (kn);
-	}
+    // Alphabetical order
+    var mods = [ 'Alt', 'Control', 'OS', 'Shift' ];
+    
+    // Don't add modifiers to modifiers.
+    if (mods.indexOf(kn) >= 0) {
+        return (kn);
+    }
 
-	mods.reverse().forEach(function (m) {
-		if (e.getModifierState(m)) {
-			kn = m + kn;
-		}
-	});
+    mods.reverse().forEach(function (m) {
+        if (e.getModifierState(m)) {
+            kn = m + kn;
+        }
+    });
 
-	return (kn);
+    return (kn);
 };
 
 function keyLog() {
-	if (keyVerbose) {
-		log.apply(null, arguments);
-	}
+    if (keyVerbose) {
+        log.apply(null, arguments);
+    }
 }

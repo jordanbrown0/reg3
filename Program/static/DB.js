@@ -5,25 +5,25 @@
 // Params:
 // onload:  callback function for when the DB is ready for use.
 function DB(dbName, params) {
-	var o = this;
-	o.dbName = dbName;
-	o.loaded = false;
-	rpc.DBload(o.dbName, function () {
-		if (params.onload) {
-			params.onload();
-		}
-		o.loaded = true;
-	});
+    var o = this;
+    o.dbName = dbName;
+    o.loaded = false;
+    rpc.DBload(o.dbName, function () {
+        if (params.onload) {
+            params.onload();
+        }
+        o.loaded = true;
+    });
 }
 
 DB.prototype.getName = function () {
-	var o = this;
-	return (o.dbName);
+    var o = this;
+    return (o.dbName);
 };
 
 DB.prototype.listTables = function (cb) {
-	var o = this;
-	rpc.DBlistTables(o.dbName, cb);
+    var o = this;
+    rpc.DBlistTables(o.dbName, cb);
 };
 
 // Params:
@@ -35,11 +35,11 @@ DB.prototype.listTables = function (cb) {
 // same results each time, and *not* actually adding to them to the record keeps
 // the size of the DB down.
 function DBTable(db, tName, params) {
-	var o = this;
-	o.db = db;
-	o.dbName = db.getName(); // Cache so we don't have to call repeatedly.
-	o.tName = tName;
-	o.params = params;
+    var o = this;
+    o.db = db;
+    o.dbName = db.getName(); // Cache so we don't have to call repeatedly.
+    o.tName = tName;
+    o.params = params;
 }
 
 // Gets the specified record.  Calls the callback with the record as an
@@ -47,11 +47,11 @@ function DBTable(db, tName, params) {
 // from the DBTable object.
 //
 DBTable.prototype.get = function(k, cb) {
-	var o = this;
-	rpc.DBget(o.dbName, o.tName, k, function (r) {
-		o.applyDefaults(r);
-		cb(r);
-	});
+    var o = this;
+    rpc.DBget(o.dbName, o.tName, k, function (r) {
+        o.applyDefaults(r);
+        cb(r);
+    });
 };
 
 // Gets the specified record or, if it doesn't exist, adds it with no
@@ -80,67 +80,67 @@ DBTable.prototype.get = function(k, cb) {
 // Net:  Best to atomically create the record, and create it empty so that the
 // same logic can be used for new records and new fields.
 DBTable.prototype.getOrAdd = function (k, rDef, expr, cb) {
-	var o = this;
-	rpc.DBgetOrAdd(o.dbName, o.tName, k, rDef, expr, function (r) {
-		o.applyDefaults(r);
-		cb(r);
-	});
+    var o = this;
+    rpc.DBgetOrAdd(o.dbName, o.tName, k, rDef, expr, function (r) {
+        o.applyDefaults(r);
+        cb(r);
+    });
 };
 
 DBTable.prototype.getOrNull = function (k, cb) {
-	var o = this;
-	rpc.DBgetOrNull(o.dbName, o.tName, k, function (r) {
-		if (r) {
-			o.applyDefaults(r);
-		}
-		cb(r);
-	});
+    var o = this;
+    rpc.DBgetOrNull(o.dbName, o.tName, k, function (r) {
+        if (r) {
+            o.applyDefaults(r);
+        }
+        cb(r);
+    });
 };
 
 DBTable.prototype.put = function (k, r, expr, cb) {
-	var o = this;
-	rpc.DBput(o.dbName, o.tName, k, r, expr, function (rNew) {
-		cb(rNew);
-	});
+    var o = this;
+    rpc.DBput(o.dbName, o.tName, k, r, expr, function (rNew) {
+        cb(rNew);
+    });
 };
 
 DBTable.prototype.add = function (k, r, expr, cb) {
-	var o = this;
-	rpc.DBadd(o.dbName, o.tName, k, r, expr, cb);
+    var o = this;
+    rpc.DBadd(o.dbName, o.tName, k, r, expr, cb);
 };
 
 DBTable.prototype.delete = function (k, r, cb) {
-	var o = this;
-	rpc.DBdelete(o.dbName, o.tName, k, r, cb);
+    var o = this;
+    rpc.DBdelete(o.dbName, o.tName, k, r, cb);
 };
 
 DBTable.prototype.list = function (params, cb) {
-	var o = this;
-	rpc.DBlist(o.dbName, o.tName, params, function (recs) {
-		forEachArrayObject(recs, function (k, r) {
-			o.applyDefaults(r);
-		});
-		cb(recs);
-	});
+    var o = this;
+    rpc.DBlist(o.dbName, o.tName, params, function (recs) {
+        forEachArrayObject(recs, function (k, r) {
+            o.applyDefaults(r);
+        });
+        cb(recs);
+    });
 };
 
 DBTable.prototype.reduce = function (params, cb) {
-	var o = this;
-	rpc.DBreduce(o.dbName, o.tName, params, cb);
+    var o = this;
+    rpc.DBreduce(o.dbName, o.tName, params, cb);
 };
 
 DBTable.prototype.inc = function (k, field, limitField, cb) {
-	var o = this;
-	rpc.DBinc(o.dbName, o.tName, k, field, limitField, cb);
+    var o = this;
+    rpc.DBinc(o.dbName, o.tName, k, field, limitField, cb);
 };
 
 DBTable.prototype.applyDefaults = function (r) {
-	var o = this;
-	if (o.params.defaults) {
-		for (var f in o.params.defaults) {
-			if (r[f] === undefined) {
-				r[f] = o.params.defaults[f];
-			}
-		}
-	}
+    var o = this;
+    if (o.params.defaults) {
+        for (var f in o.params.defaults) {
+            if (r[f] === undefined) {
+                r[f] = o.params.defaults[f];
+            }
+        }
+    }
 };

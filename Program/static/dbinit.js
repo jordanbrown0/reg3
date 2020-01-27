@@ -3,8 +3,8 @@
 var db = {};
 
 init.push(function dbInit (cb) {
-	db.reg = new DB('reg', { onload: cb });
-	return (true);
+    db.reg = new DB('reg', { onload: cb });
+    return (true);
 });
 
 var table = {};

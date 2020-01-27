@@ -13,9 +13,9 @@ DNode.prototype.activate = function () {
 
 DNode.verbose = false;
 DNode.log = function () {
-	if (DNode.verbose) {
-		log.apply(undefined, arguments);
-	}
+    if (DNode.verbose) {
+        log.apply(undefined, arguments);
+    }
 }
 
 function DText(s)
@@ -35,8 +35,8 @@ DText.prototype.toString = function () {
 function EntityNode(s)
 {
     var o = this;
-	DNode.call(this, document.createElement('span'));
-	this.n.innerHTML = '&' + s + ';';
+    DNode.call(this, document.createElement('span'));
+    this.n.innerHTML = '&' + s + ';';
 }
 extend(DNode, EntityNode);
 
@@ -67,11 +67,11 @@ DElement.type = function(type /* , [attrs | child | string ] ... */) {
 
     for (var i=1; i < arguments.length; i++) {
         if (arguments[i] instanceof DNode
-			|| arguments[i] instanceof Array
-			|| ! (arguments[i] instanceof Object)) {
+            || arguments[i] instanceof Array
+            || ! (arguments[i] instanceof Object)) {
             this.appendChild(arguments[i]);
         } else {
-			DNode.log('DElement setprops');
+            DNode.log('DElement setprops');
             this.setProperties(arguments[i]);
         }
     }
@@ -81,17 +81,17 @@ DElement.type = function(type /* , [attrs | child | string ] ... */) {
 // I don't *think* that text elements have properties.  If they do,
 // then this should move to DNode.
 DElement.prototype.setProperties = function(props) {
-	for (var i in props) {
-		this.n[i] = props[i];
-	}
+    for (var i in props) {
+        this.n[i] = props[i];
+    }
 };
 
 DElement.prototype.setProperty = function (p, v) {
-	this.n[p] = v;
+    this.n[p] = v;
 };
 
 DElement.prototype.getProperty = function (p) {
-	return (this.n[p]);
+    return (this.n[p]);
 };
 
 // What to return for multi-child input?
@@ -107,7 +107,7 @@ DElement.prototype.appendChild = function (/*args*/) {
         } else if (arguments[i] instanceof DNode) {
             this.n.appendChild(arguments[i].n);
             ret = arguments[i];
-		} else {
+        } else {
             ret = new DText(arguments[i]);
             this.n.appendChild(ret.n);
         }
@@ -117,7 +117,7 @@ DElement.prototype.appendChild = function (/*args*/) {
 
 // Merge with setAttributes?
 DElement.prototype.setAttribute = function (name, val) {
-	DNode.log('setAttribute('+name+', '+val+')');
+    DNode.log('setAttribute('+name+', '+val+')');
     this.n.setAttribute(name, val);
 };
 
@@ -158,83 +158,83 @@ DElement.prototype.toString = function () {
 };
 
 DElement.prototype.focus = function () {
-	this.n.focus();
+    this.n.focus();
 };
 
 // Set the class(es) of the element.
 // arguments:  strings or  arrays of strings
 DElement.prototype.setClass = function () {
-	var tmp = {};
-	for (var i = 0; i < arguments.length; i++) {
-		var arg = arguments[i];
-		if (arg instanceof Array) {
-			arg.forEach(function (c) { tmp[c] = null; });
-		} else {
-			tmp[arg] = null;
-		}
-	}
-	this.setProperty('className', Object.keys(tmp).join(' '));
+    var tmp = {};
+    for (var i = 0; i < arguments.length; i++) {
+        var arg = arguments[i];
+        if (arg instanceof Array) {
+            arg.forEach(function (c) { tmp[c] = null; });
+        } else {
+            tmp[arg] = null;
+        }
+    }
+    this.setProperty('className', Object.keys(tmp).join(' '));
 };
 
 // Add the specified class(es) to the classes of the element
 // arguments:  strings or arrays of strings
 DElement.prototype.addClass = function () {
-	var tmp = {};
-	this.getClass().forEach(function (c) { tmp[c] = null; });
-	for (var i = 0; i < arguments.length; i++) {
-		var arg = arguments[i];
-		if (arg instanceof Array) {
-			arg.forEach(function (c) { tmp[c] = null; });
-		} else {
-			tmp[arg] = null;
-		}
-	}
-	this.setProperty('className', Object.keys(tmp).join(' '));
+    var tmp = {};
+    this.getClass().forEach(function (c) { tmp[c] = null; });
+    for (var i = 0; i < arguments.length; i++) {
+        var arg = arguments[i];
+        if (arg instanceof Array) {
+            arg.forEach(function (c) { tmp[c] = null; });
+        } else {
+            tmp[arg] = null;
+        }
+    }
+    this.setProperty('className', Object.keys(tmp).join(' '));
 };
 
 // Remove the specified class(es) from the classes of the element
 // arguments:  strings or arrays of strings
 DElement.prototype.removeClass = function (c) {
-	var tmp = {};
-	this.getClass().forEach(function (c) { tmp[c] = null; });
-	for (var i = 0; i < arguments.length; i++) {
-		var arg = arguments[i];
-		if (arg instanceof Array) {
-			arg.forEach(function (c) { delete tmp[c]; });
-		} else {
-			delete tmp[arg];
-		}
-	}
-	this.setProperty('className', Object.keys(tmp).join(' '));
+    var tmp = {};
+    this.getClass().forEach(function (c) { tmp[c] = null; });
+    for (var i = 0; i < arguments.length; i++) {
+        var arg = arguments[i];
+        if (arg instanceof Array) {
+            arg.forEach(function (c) { delete tmp[c]; });
+        } else {
+            delete tmp[arg];
+        }
+    }
+    this.setProperty('className', Object.keys(tmp).join(' '));
 };
 
 // Return the class(es) of the element as an array of strings.
 DElement.prototype.getClass = function () {
-	var c = this.getProperty('className');
-	if (c) {
-		return (c.split(' '));
-	} else {
-		return ([]);
-	}
+    var c = this.getProperty('className');
+    if (c) {
+        return (c.split(' '));
+    } else {
+        return ([]);
+    }
 };
 
 DElement.prototype.replaceChild = function (newNode, oldNode) {
-	var o = this;
-	return (o.n.replaceChild(newNode.n, oldNode.n));
+    var o = this;
+    return (o.n.replaceChild(newNode.n, oldNode.n));
 }
 
 DElement.prototype.replaceChildren = function (/* args */) {
-	var o = this;
-	o.removeChildren();
-	return (o.appendChild.apply(o, arguments));
+    var o = this;
+    o.removeChildren();
+    return (o.appendChild.apply(o, arguments));
 };
 
 function DOMFunction(t) {
-	window[t] = function () {
-		var args = Array.prototype.slice.call(arguments);
-		args.unshift(t);
-		return newApply(DElement, args);
-	}
+    window[t] = function () {
+        var args = Array.prototype.slice.call(arguments);
+        args.unshift(t);
+        return newApply(DElement, args);
+    }
 }
 
 DOMFunction('td');

@@ -1,6 +1,6 @@
 /* Reg CSS */
 * {
-	font-family: serif;
+    font-family: serif;
     /*
      * This makes the specified size of the elements include the padding; the
      * actual content size is the specified size minus the padding.
@@ -9,103 +9,103 @@
 }
 
 .Editor #first, .Editor #last {
-	color: red;
+    color: red;
 }
 
 .Editor #notes {
-	color: red;
-	font-weight: bolder;
+    color: red;
+    font-weight: bolder;
 }
 
 .Editor .Value {
-	width: 30em;
-	text-align: left;
+    width: 30em;
+    text-align: left;
 }
 
 .Editor .Label {
-	text-align: right;
+    text-align: right;
 }
 
 table.Editor {
-	border-style: solid;
-	border: solid;
+    border-style: solid;
+    border: solid;
 }
 
 .Selected {
-	background: red;
+    background: red;
 }
 
 .InputInt, .InputCurrency {
-	text-align: right;
-	width: 5em;
+    text-align: right;
+    width: 5em;
 }
 
 .Editor .InputIntList {
-	width: 30em;
+    width: 30em;
 }
 
 .Editor .InputText, .Editor .InputDBLookup {
-	width: 100%;
+    width: 100%;
 }
 .Editor .InputDate {
-	width: 9em;
+    width: 9em;
 }
 
 .Editor .InputDateTime {
-	width: 12em;
+    width: 12em;
 }
 
 .Title {
-	font-size: larger;
-	font-weight: bolder;
+    font-size: larger;
+    font-weight: bolder;
 }
 
 input.Disabled {
-	background-color: #ddd;
+    background-color: #ddd;
 }
 
 .Editor {
-	height: 60%;
+    height: 60%;
 }
 
 .MemberManager .List #pickupFlag {
-	width: 1em;
-	text-align: center;
+    width: 1em;
+    text-align: center;
 }
 
 .MemberManager .List #footer {
-	color: gray;
-	text-align: center;
+    color: gray;
+    text-align: center;
 }
 
 .List table {
-	width: 100%;
+    width: 100%;
 }
 
 .ClassManager .List #amount, .ClassPicker .List #amount {
-	width: 3em;
-	text-align: right;
+    width: 3em;
+    text-align: right;
 }
 .ClassManager .List #order {
-	text-align: right;
+    text-align: right;
 }
 
 .ClassManager .List #metaclass {
-	width: 3em;
-	text-align: center;
+    width: 3em;
+    text-align: center;
 }
 
 .ClassManager .List #description {
-	/* width: 100%; */
+    /* width: 100%; */
 }
 
 .Class .Editor #amount {
-	width: 3em;
-	text-align: right;
+    width: 3em;
+    text-align: right;
 }
 
 .NavBar {
-	height: 15%;
+    height: 15%;
 }
 
 /*
@@ -125,129 +125,129 @@ input.Disabled {
 }
 
 html, body {
-	height: 100%;
+    height: 100%;
     margin: 0;
 }
 
 .Base {
-	height: 100%;
+    height: 100%;
     padding: 8px;
 }
 
 .Body {
-	height: 80%;
-	overflow-y: auto;
+    height: 80%;
+    overflow-y: auto;
 }
 
 .Printers .List #type {
-	width: 2em;
-	text-align: center;
+    width: 2em;
+    text-align: center;
 }
 
 .Printers .List #name {
-	width: 30%;
+    width: 30%;
 }
 
 .StationManager .List #metaclasses {
-	width: 10em;
-	text-align: center;
+    width: 10em;
+    text-align: center;
 }
 
 .ReportsByClass #grand {
-	font-size: larger;
-	font-weight: bolder;
+    font-size: larger;
+    font-weight: bolder;
 }
 
 .ConflictResolver .Difference {
-	background-color: yellow;
+    background-color: yellow;
 }
 
 .ConflictResolver label {
-	width: 100%;
-	display: inline-block;
+    width: 100%;
+    display: inline-block;
 }
 
 /* html, body {
-	height: 100%;
-	width: 100%;
-	margin: 0;
-	padding: 0;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-	display: table;
+    display: table;
 }
 
 .Log, .Base {
-	display: table-row;
-	width: 100%;
+    display: table-row;
+    width: 100%;
 }
 .Log {
-	height: 30%;
-	max-height: 30%;
-	overflow: scroll;
-	border: 1px;
-	background: lime;
+    height: 30%;
+    max-height: 30%;
+    overflow: scroll;
+    border: 1px;
+    background: lime;
 }
 
 .Base {
-	height: 100%;
-	background: pink;
+    height: 100%;
+    background: pink;
 } */
 
 .ModalBackground {
-	position: fixed; /* Stay in place */
-	z-index: 1; /* Sit on top */
-	left: 0;
-	top: 0;
-	width: 100%; /* Full width */
-	height: 100%; /* Full height */
-	overflow: auto; /* Enable scroll if needed */
-	background-color: rgb(0,0,0); /* Fallback color */
-	background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 }
 
 .Modal {
-	background-color: #fefefe;
-	margin: 15% auto; /* 15% from the top and centered */
-	padding: 20px;
-	border: 1px solid #888;
-	width: 80%; /* Could be more or less, depending on screen size */
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
 }
 
 .ModalButtons {
-	background-color: #fefefe;
-	margin: 15% auto; /* 15% from the top and centered */
-	padding: 20px;
-	border: 1px solid #888;
-	width: 80%; /* Could be more or less, depending on screen size */
-	text-align: center;
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+    text-align: center;
 }
 
 .ErrorValue {
-	background-color: pink;
+    background-color: pink;
 }
 
 .ErrorMessage {
-	color: red;
-	width: 20em;
+    color: red;
+    width: 20em;
 }
 
 .Base .Header {
-	width: 100%;
-	height: 5%;
+    width: 100%;
+    height: 5%;
 }
 
 .Base .Header #headerClock {
-	display: inline-block;
-	width: 50%;
-	text-align: right;
+    display: inline-block;
+    width: 50%;
+    text-align: right;
 }
 
 .Base .Header #headerTitle {
-	display: inline-block;
-	width: 50%;
-	text-align: left;
-	font-size: larger;
-	font-weight: bolder;
+    display: inline-block;
+    width: 50%;
+    text-align: left;
+    font-size: larger;
+    font-weight: bolder;
 }
