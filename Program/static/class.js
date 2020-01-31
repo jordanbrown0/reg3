@@ -41,8 +41,8 @@ ClassManager.prototype.summarize = function (k, r) {
         td(r.code, { id: 'code' }),
         td(r.description, { id: 'description' }),
         td(r.metaclass || '', { id: 'metaclass' }),
-        td(displayDate(r.start), { id: 'start' }),
-        td(displayDate(r.end), { id: 'end' })
+        td(LDate.fromJSON(r.start).toDisplayDate(), { id: 'start' }),
+        td(LDate.fromJSON(r.end).toDisplayDate(), { id: 'end' })
     ));
 };
 
@@ -57,14 +57,14 @@ ClassManager.prototype.activate = function () {
 ClassManager.prototype.title = 'Class administration';
 
 ClassManager.prototype.header = function () {
-    return (new DElement('tr',
-        new DElement('th', 'Order'),
-        new DElement('th', 'Amount'),
-        new DElement('th', 'code'),
-        new DElement('th', 'Description'),
-        new DElement('th', 'MC'),
-        new DElement('th', 'Start'),
-        new DElement('th', 'End')
+    return (tr(
+        th('Order'),
+        th('Amount'),
+        th('code'),
+        th('Description'),
+        th('MC'),
+        th('Start'),
+        th('End')
     ));
 };
 
@@ -160,7 +160,9 @@ Class.getFilter = function (conf) {
         );
     }
 
-    var nowExpr =  conf.offlineAsOf || { date: [] };
+    var nowExpr =  conf.offlineRealTime
+        ? { date: [] }
+        : LDate.fromJSON(conf.offlineAsOf).toJSONDate();
     f.and.push(
         { or: [
             { not: { f: 'start' } },

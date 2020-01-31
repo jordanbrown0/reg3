@@ -3,181 +3,151 @@
 
 // function log(msg)
 // {
-    // masterlog.log(msg);
+	// masterlog.log(msg);
 // }
 
 // function error(msg)
 // {
-    // masterlog.log(msg);
-    // masterlog.show();
+	// masterlog.log(msg);
+	// masterlog.show();
 // }
 
-var masterlog = null;   // dummy
+var masterlog = null;	// dummy
 function log() {
-    console.log.apply(console, arguments);
+	console.log.apply(console, arguments);
 }
 
 function error() {
-    log.apply(undefined, arguments);
+	log.apply(undefined, arguments);
 }
 
 function LogButton() {
-    this.n = document.createElement('span');
+	this.n = document.createElement('span');
 }
 
 function runcallback(func)
 {
-    // try {
-        func(Array.prototype.slice.call(arguments, 1));
-    // } catch (e) {
-        // error('Exception while processing callback: '+e);
-    // }
+	// try {
+		func(Array.prototype.slice.call(arguments, 1));
+	// } catch (e) {
+		// error('Exception while processing callback: '+e);
+	// }
 }
 
 function assert(bool, msg)
 {
-    if (!bool) {
-        alert(msg);
-        throw (new Error(msg));
-    }
+	if (!bool) {
+		alert(msg);
+		throw (new Error(msg));
+	}
 }
 
 function forceArray(o)
 {
-    if (o instanceof Array) {
-        return (o);
-    }
-    return ([o]);
+	if (o instanceof Array) {
+		return (o);
+	}
+	return ([o]);
 }
 
 // Retrieve global and per-station configuration and merge them.
 // Call back with the result.
 function getAllConfig(cb) {
-    var res = {};
-    var funcs = [ Global.get, Server.get, Station.get ];
-    
-    function got(r) {
-        Object.assign(res, r);
-        var f = funcs.shift();
-        if (f) {
-            f(got);
-        } else {
-            cb(res);
-        }
-    }
-    
-    got({});
+	var res = {};
+	var funcs = [ Global.get, Server.get, Station.get ];
+	
+	function got(r) {
+		Object.assign(res, r);
+		var f = funcs.shift();
+		if (f) {
+			f(got);
+		} else {
+			cb(res);
+		}
+	}
+	
+	got({});
 }
 
 function joinTruthy(a, sep) {
-    var a2 = [];
-    for (var i = 0; i < a.length; i++) {
-        if (a[i]) {
-            a2.push(a[i]);
-        }
-    }
-    return (a2.join(sep));
+	var a2 = [];
+	for (var i = 0; i < a.length; i++) {
+		if (a[i]) {
+			a2.push(a[i]);
+		}
+	}
+	return (a2.join(sep));
 }
 
 function extend(sup, sub) {
-    sub.prototype = Object.create(sup.prototype);
-    sub.prototype.constructor = sub;
-    sub.sup = sup.prototype;
+	sub.prototype = Object.create(sup.prototype);
+	sub.prototype.constructor = sub;
+	sub.sup = sup.prototype;
 }
 
+// Error doesn't subclass well, because Error() without "new" creates a new
+// object.  You can't Error.call(obj, ...) to use Error() to initialize a
+// different object.
+function MyError(msg) {
+    var o = this;
+    o.message = msg;
+    o.stack = (new Error()).stack;
+}
+extend(Error, MyError);
+
 function merge() {
-    var res = {};
-    for (var i = 0; i < arguments.length; i++) {
-        var arg = arguments[i];
-        if (arg) {
-            for (var k in arg) {
-                res[k] = arg[k];
-            }
-        }
-    }
-    return (res);
+	var res = {};
+	for (var i = 0; i < arguments.length; i++) {
+		var arg = arguments[i];
+		if (arg) {
+			for (var k in arg) {
+				res[k] = arg[k];
+			}
+		}
+	}
+	return (res);
 }
 
 var cookies = null;
 function cookie(name) {
-    if (!cookies) {
-        cookies = {};
-        var a = document.cookie.split(';');
-        for (var i = 0; i < a.length; i++) {
-            var nv = a[i].split('=');
-            cookies[nv[0]] = nv[1];
-        }
-    }
-    return (cookies[name]);
+	if (!cookies) {
+		cookies = {};
+		var a = document.cookie.split(';');
+		for (var i = 0; i < a.length; i++) {
+			var nv = a[i].split('=');
+			cookies[nv[0]] = nv[1];
+		}
+	}
+	return (cookies[name]);
 }
 
 function assertParams(params) {
-    for (var i = 1; i < arguments.length; i++) {
-        assert(params[arguments[i]], 'Missing '+arguments[i]);
-    }
+	for (var i = 1; i < arguments.length; i++) {
+		assert(params[arguments[i]], 'Missing '+arguments[i]);
+	}
 }
 
 // This creates a new object using the constructor specified and the argument
 // array specified.  It works around the fact that there's no way to combine
 // the "new" operator and the "apply" method.
 function newApply(Cls, args) {
-    if (!(args instanceof Array)) {
-        args = Array.prototype.slice.call(args);
-    }
-    var a = [Cls].concat(args);
-    var f = Function.prototype.bind.apply(Cls, a);
-    return (new f());
-}
-
-// Given a date in ISO 8601 format, reformat it into presentation
-// format. Note that by convention our 8601-format strings do not have time zone
-// indicators.  The conversion here is thus from local time to UTC to local
-// time, which produces the right results even if the TZ is wrong.
-// It's acceptable for the argument to include a time, but it will not be
-// included in the result.
-function displayDate(d8601) {
-    if (!d8601) {
-        return ('');
-    }
-    var d = new Date(d8601);
-    return (d.toDateString());
-}
-
-// Given a date and time in ISO 8601 format, reformat it into presentation
-// format. Note that by convention our 8601-format strings do not have time zone
-// indicators.  The conversion here is thus from local time to UTC to local
-// time, which produces the right results even if the TZ is wrong.
-// NEEDSWORK configuration option for 24-hour time.
-function displayDateTime(d8601, seconds) {
-    if (!d8601) {
-        return ('');
-    }
-    var d = new Date(d8601);
-    var ds = d.toDateString();
-    var hh = d.getHours();
-    var ampm = hh < 12 ? 'AM' : 'PM';
-    hh %= 12;
-    if (hh == 0) {
-        hh = 12;
-    }
-    var ts = hh.toString();
-    ts += ':' + d.getMinutes().toString().padStart(2, '0');
-    if (seconds) {
-        ts += ':' + d.getSeconds().toString().padStart(2, '0');
-    }
-    ts += ' ' + ampm;
-    return (ds + ' ' + ts);
+	if (!(args instanceof Array)) {
+		args = Array.prototype.slice.call(args);
+	}
+	var a = [Cls].concat(args);
+	var f = Function.prototype.bind.apply(Cls, a);
+	return (new f());
 }
 
 var getClassName = function (obj) {
-    if (obj.constructor.name) {
-        return obj.constructor.name;
-    }
-    const regex = new RegExp(/^\s*function\s*(\S*)\s*\(/);
-    getClassName = function (obj) {
-        return (obj.constructor.toString().match(regex)[1]);
-    };
-    return (getClassName(obj));
+	if (obj.constructor.name) {
+		return obj.constructor.name;
+	}
+	const regex = new RegExp(/^\s*function\s*(\S*)\s*\(/);
+	getClassName = function (obj) {
+		return (obj.constructor.toString().match(regex)[1]);
+	};
+	return (getClassName(obj));
 };
 
 // https://github.com/uxitten/polyfill/blob/master/string.polyfill.js
@@ -288,29 +258,29 @@ if (!String.prototype.startsWith) {
 // object.  This is intended primarily for objects that each have only
 // a single element and are structured in an array to preserve order.
 function forEachArrayObject(a, cb) {
-    for (var i = 0; i < a.length; i++) {
-        for (var k in a[i]) {
-            cb(k, a[i][k]);
-        }
-    }
+	for (var i = 0; i < a.length; i++) {
+		for (var k in a[i]) {
+			cb(k, a[i][k]);
+		}
+	}
 }
 function someArrayObject(a, cb) {
-    for (var i = 0; i < a.length; i++) {
-        for (var k in a[i]) {
-            if (cb(k, a[i][k])) {
-                return (true);
-            }
-        }
-    }
-    return (false);
+	for (var i = 0; i < a.length; i++) {
+		for (var k in a[i]) {
+			if (cb(k, a[i][k])) {
+				return (true);
+			}
+		}
+	}
+	return (false);
 }
 function onlyArrayObject(a, cb) {
-    var ret_k = null;
-    var ret_r = null;
-    forEachArrayObject(a, function (k, r) {
-        assert(ret_k == null, 'Too many objects');
-        ret_k = k;
-        ret_r = r;
-    });
-    cb(ret_k, ret_r);
+	var ret_k = null;
+	var ret_r = null;
+	forEachArrayObject(a, function (k, r) {
+		assert(ret_k == null, 'Too many objects');
+		ret_k = k;
+		ret_r = r;
+	});
+	cb(ret_k, ret_r);
 }

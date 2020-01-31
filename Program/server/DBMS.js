@@ -38,19 +38,22 @@ DB.prototype.load = async function() {
     return (new Promise(function (resolve, reject) {
         pipeline.on('end', function () {
             o.loadInProgress = false;
+            pipeline.destroy();
             console.log('finished load', o.name);
             resolve();
         });
-        // Ignore pipeline errors so that nonexistent
+        // Ignore ENOENT so that nonexistent
         // databases are effectively empty.
-        // NEEDSWORK:  this error catch is broader than
-        // is desirable; it will presumably cause corrupt
-        // files to be effectively truncated rather than
-        // reported.
         pipeline.on('error',  function (e) {
             o.loadInProgress = false;
-            console.log('load encountered error', o.name, e);
-            resolve();
+            pipeline.destroy();
+            if (e.code == 'ENOENT') {
+                console.log('nonexistent', o.name);
+                resolve();
+            } else {
+                console.log('load error', o.name);
+                reject(e);
+            }
         });
     }));
 };

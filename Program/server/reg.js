@@ -1,3 +1,9 @@
+// Catch unhandled Promise rejection really early, to cover all cases.
+process.on("unhandledRejection", function (e) {
+    console.log(e);
+    process.exit(1);
+}, false);
+
 const port = 80;
 const express = require('express');
 const cookieParser = require('cookie-parser');

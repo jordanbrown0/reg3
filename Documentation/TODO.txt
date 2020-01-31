@@ -1,5 +1,3 @@
-P1:  Something is zapping the database.
-
 Login/logout
 PESO
 Master integration
@@ -76,45 +74,19 @@ Administration
 
 Option for 24-hour time vs 12-hour time in displays
 
-server manager says 'null' for membership number range when it hasn't been configured.
-
 search looks for what's in the record, which means that category matching is on the category code, not the category full text.  Perhaps the member-edit list should include both.
 
-Startup with no serverID file (and presumably with no main file) gets message
-    load encountered error serverID { [Error: ENOENT: no such file or directory, open 'C:\Users\Jordan\Documents\Reg3\ooze\Program\data\serverID.json']
-      errno: -4058,
-      code: 'ENOENT',
-      syscall: 'open',
-      path:
-       'C:\\Users\\Jordan\\Documents\\Reg3\\ooze\\Program\\data\\serverID.json' }
-... which isn't really a problem, but it should only dump unexpected errors.
-
-NewConventionWad (and others?) save Mercurial and GIT history, and shouldn't.
-NewConventionWad shouldn't save SampleData (and others?)
-NewServerWad - maybe CloneThisConventionWad or something like that?
-Need an "update the program" wad.  For this convention, or for a selected convention?
-
-NewConventionOnThisSystem needs error checking on the mkdir.
-
-All of the setup stuff could probably use more checking on the new directory name.
-
-Page title is wrong when you change the convention name.
+Page title is wrong when the convention name changes.  Remember that it might be changed through a change here, or an import, or a change on another station.
 
 Conflict resolver shows record keys for cross-references (e.g. printer IDs)
 
 Acknowledge note field
 
-bulk edit - e.g. for all Saturday, set note
-
-New member show price on display / edit pages.
-Store amount paid in record.
 Reports for total money in.
 
 Show whether or not picked up on the first page.
 
 Export only marked records?  Perhaps by category?
-
-Support as-of time.
 
 Stock "framework" UI stuff, like PESO.
 
@@ -171,25 +143,15 @@ Permissions
 
 Printer records need to be qualified by server.
 
-Station records need to be server-qualified if only to make the display understandable.  The display needs to be sorted by server and include server in the List.  Need error messages for "your station is configured to print on a printer on a different server".  Whether that will be a real issue will depend on network configuration; if the server is always the same name / IP address then stations will maintain their identity when moved.
+The station display needs to be sorted by server.  Need error messages for "your station is configured to print on a printer on a different server".  Whether that will be a real issue will depend on network configuration; if the server is always the same name / IP address then stations will maintain their identity when moved.
 
-What should happen when a station moves from one server to another?  Probably the station record says which server saw it last.
+What should happen when a station moves from one server to another?  Depends on whether the server has the same name.  If it does, it's the same station.  If not, it's a different station.
 
-For stations and printers, default to showing only those for this server?  (Yes.)
+For stations and printers, default to showing only those for this server.
 
 In List with headers, the "No matches" message only ends up in column 1.  But, other than walking the DOM, how to colspan?
 
 AQ list has funky rendering in Firefox.  Probably related to dynamically changing list.
-
-If writing the DB (either to persist or for export) is asynchronous, it might interleave with changes.  That's OK for most things, but we might write the server membership number and then later write a record created *after* that point.  Perhaps it needs to stay synchronous, or perhaps we need to ensure that we write the server table last, or perhaps we need to decide that it's OK since after all only this server should care and *it* has the current data.
-
-Must ensure that writing isn't interrupted by quitting!
-
-Make writing use rename so that it's not overwriting the old file.
-
-If writing the DB for persistence is asynchronous, we need to ensure that we restart the write if changes occur during it.  For extra credit, abort a write-in-progress and restart.  Or maybe not; a completed write still gets us a snapshot, versus (in theory) maybe never getting it all written out.
-
-If writing the DB for persistence is asynchronous, we need to make sure we don't do it twice at the same time(!).
 
 Make it clearer when an error is a server-side error.
 
@@ -209,6 +171,8 @@ Import from Member Solutions
 Import from Eventbrite
 Import from CSV
 
+How should an import file be fed into the system?  Options are upload and direct file access. Direct file access is awkward.  Upload has a problem with how to specify the desired import mapping.
+
 Export (DBF?  CSV?)
 
 Developer wads
@@ -217,6 +181,8 @@ Bulk ops
 	Delete
 	Modify?
 	report
+
+bulk edit - e.g. for all Saturday, set note
 
 Can add/put eval operations replace the special increment method, to let add-member be a single-atomic-ish operation?  But:  an increment or put operator needs to be async, because the DB might not yet be loaded.  (In theory.)
 
@@ -234,10 +200,11 @@ Transaction log - should this be client-side or server-side?
 	* How would transaction log sync work?  Ordinary mechanisms would work but seem expensive.  But let's see how fast import is.
 
 Offline operations
-	* Use real time?
-	* If not, time is <xxx>.
-    ** Do those need to be two separate parameters, or would it be enough to say that clearing the as-of time gets you real time?  Currently the UI has both but the usage only checks as-of time.
+    * Should require as-of if offlineRealTime is set
+    ** The problem is that there's no page-level / form-level validation.
 	* Caution on home page.
+
+Move InputDate to <input type=date>, et cetera.
 
 Figure out how to get leave-page warning.
 
@@ -261,8 +228,6 @@ Classes
 
 
 transfers - UI, and how to track.  Since membership number is no longer the key, maybe that's the answer.  The transfer-history records would all have the same membership number, but different keys.  This might require specialized search support - or maybe not; maybe you'd be able to look up a transfer-from record just like a normal record.  Special marking in the List and in the Editor, though.
-
-Incrementally write DB, rather than rewriting the entire thing.  Note that you can just add new versions of a record on the end and they'll overwrite the old ones.  Note also that because we keep the DB in memory it doesn't really matter how long it takes to read it.
 
 Editor:
 	Don't write record if no change.  (Or is this part of DB.put?)
@@ -296,15 +261,6 @@ Full screen.  Might need to prompt user to click to approve.  If we have full sc
 
 Push the printer support work upstream.
 
-Installation
-** Install label printer driver?  Or maybe just short cut to vendor's download page.
-* Client installation
-** Join network.
-** Shortcuts/autostarts to server web page.  (Note that if the network config stays constant, a single shortcut can work forever.)
-** Browser "print" configuration
-** Something to point upload/download at an appropriate device?
-** Maybe some of that can be semi-self-configuring, by having the server application serve a batch file (or whatever) that will tweak the client config.  Might need/want to configure multiple browsers.
-
 REST operations don't have a way to return errors.  (REST upload could.  Rest download would be hard.)
 
 REST upload could maybe use MIME multi-part instead of a separate URL, and that would allow mixing an RPC request with a file upload.
@@ -316,6 +272,37 @@ Memory usage statistics, perhaps on the busy% line.
 Consider disabling autocomplete.
 
 In conflict resolver, it would be nice if we could disable the [Resolve] button until all of the fields are resolved.  The missing piece is that NavBar doesn't have a "disable" concept.
+Incrementally write DB, rather than rewriting the entire thing.  Note that you can just add new versions of a record on the end and they'll overwrite the old ones.  Note also that because we keep the DB in memory it doesn't really matter how long it takes to read it.
+
+DBMS
+
+If writing the DB (either to persist or for export) is asynchronous, it might interleave with changes.  That's OK for most things, but we might write the server membership number and then later write a record created *after* that point.  Perhaps it needs to stay synchronous, or perhaps we need to ensure that we write the server table last, or perhaps we need to decide that it's OK since after all only this server should care and *it* has the current data.
+
+Must ensure that writing isn't interrupted by quitting!
+
+Make writing use rename so that it's not overwriting the old file.
+
+If writing the DB for persistence is asynchronous, we need to ensure that we restart the write if changes occur during it.  For extra credit, abort a write-in-progress and restart.  Or maybe not; a completed write still gets us a snapshot, versus (in theory) maybe never getting it all written out.
+
+If writing the DB for persistence is asynchronous, we need to make sure we don't do it twice at the same time(!).
+
+Installation
+** Install label printer driver?  Or maybe just short cut to vendor's download page.
+* Client installation
+** Join network.
+** Shortcuts/autostarts to server web page.  (Note that if the network config stays constant, a single shortcut can work forever.)
+** Browser "print" configuration
+** Something to point upload/download at an appropriate device?
+** Maybe some of that can be semi-self-configuring, by having the server application serve a batch file (or whatever) that will tweak the client config.  Might need/want to configure multiple browsers.
+
+NewConventionWad (and others?) save Mercurial and GIT history, and shouldn't.
+NewConventionWad shouldn't save SampleData (and others?)
+NewServerWad - maybe CloneThisConventionWad or something like that?
+Need an "update the program" wad.  For this convention, or for a selected convention?
+
+NewConventionOnThisSystem needs error checking on the mkdir.
+
+All of the setup stuff could probably use more checking on the new directory name.
 
 --------------
 

@@ -31,16 +31,16 @@ ServerManager.prototype.title = 'Administer servers...';
 ServerManager.prototype.summarize = function (k, r) {
     return (new DElement('tr',
         new DElement('td', r.name, { id: 'name' }),
-        new DElement('td', r.nextNumber, { id: 'nextNumber' }),
-        new DElement('td', r.lastNumber, { id: 'lastNumber' })
+        new DElement('td', r.nextNumber || '', { id: 'nextNumber' }),
+        new DElement('td', r.lastNumber || '', { id: 'lastNumber' })
     ));
 };
 
 ServerManager.prototype.header = function () {
-    return (new DElement('tr',
-        new DElement('th', 'Name'),
-        new DElement('th', 'Next'),
-        new DElement('th', 'Last')
+    return (tr(
+        th('Name'),
+        th('Next'),
+        th('Last')
     ));
 };
 
@@ -53,10 +53,6 @@ function ServerEdit(k, params) {
 }
 
 extend(DBEdit, ServerEdit);
-
-ServerEdit.prototype.get = function (cb) {
-    Server.get(cb);
-};
 
 ServerEdit.prototype.title = 'Server configuration...';
 

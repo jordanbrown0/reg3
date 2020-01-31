@@ -150,7 +150,9 @@ var stationSchema = [
             filter: Station.reportPrinterFilter,
             default: ''
         },
-        { field: 'metaclasses', label: 'Metaclasses', default: '' },
+        { field: 'metaclasses', label: 'Metaclasses', default: '' }
+    ],
+    [
         { title: 'Offline Operations' },
         { field: 'offlinePrint', label: 'Print badges now?', input: InputBool, default: true },
         { field: 'offlineMarkPickedUp', label: 'Mark badges picked up?',
@@ -159,6 +161,16 @@ var stationSchema = [
             input: InputBool, default: true },
         { field: 'offlineAsOf', label: 'If not, keep records as of',
             input: InputDateTime, default: '' }
+    ],
+    [
+        { title: 'Permissions' },
+        { field: 'permissions', label: 'Permissions', input: InputSelectMulti,
+            options: [
+                { newMember: 'Add new member' },
+                { classManage: 'Manage classes' },
+                { config: 'Manage configuration' }
+            ]
+        }
     ],
 ];
 

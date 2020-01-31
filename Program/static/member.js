@@ -177,7 +177,9 @@ MemberDisplay.prototype.print = function (cb) {
 MemberDisplay.prototype.markPickedUp = function (cb) {
     var o = this;
     if (o.conf.offlineMarkPickedUp && !o.r.pickedup) {
-        var timestampExpr = o.conf.offlineAsOf || { dateTime: [] };
+        var timestampExpr = o.conf.offlineRealTime
+            ? { dateTime: [] }
+            : o.conf.offlineAsOf;
         var serverDate = { setf: [ 'pickedup', timestampExpr ] };
         table.members.put(o.key, o.r, serverDate, function (rNew) { cb(); });
         return;
@@ -257,6 +259,7 @@ NewMember.prototype.activate = function () {
 
 function NewMemberEditor(r) {
     var o = this;
+    o.titlespan = new DElement('span');
     o.r = r;
     NewMemberEditor.sup.constructor.call(o,'div');
 }
@@ -279,7 +282,9 @@ NewMemberEditor.prototype.activate = function () {
                         return;
                     }
                     o.r.number = n;
-                    var timestampExpr = o.conf.offlineAsOf || { dateTime: [] };
+                    var timestampExpr = o.conf.offlineRealTime
+                        ? { dateTime: [] }
+                        : o.conf.offlineAsOf;
                     var serverDate = { setf: [ 'entered', timestampExpr ] };
                     table.members.add(null, o.r, serverDate, function (k) {
                         base.switchTo(new MemberDisplay(k));
@@ -291,24 +296,20 @@ NewMemberEditor.prototype.activate = function () {
 
         o.appendChild(editor);
         editor.activate();
+        Class.getDescription(o.r.class, gotDesc);
     }
-};
-
-NewMemberEditor.prototype.title = function () {
-    var o = this;
-    var span = new DElement('span');
-
-    Class.getDescription(o.r.class, gotDesc);
-
     function gotDesc(d) {
         var s = 'New member - ' + d;
         if (o.r.amount != undefined) {
             s += ' - ' + o.conf.currencyPrefix + o.r.amount + o.conf.currencySuffix;
         }
-        span.replaceChildren(s);
+        o.titlespan.replaceChildren(s);
     }
-    
-    return (span);
+};
+
+NewMemberEditor.prototype.title = function () {
+    var o = this;
+    return (o.titlespan);
 };
 
 function MemberUpgrade(k) {

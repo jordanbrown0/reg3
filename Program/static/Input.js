@@ -23,7 +23,6 @@ extend(DElement, Input);
 
 Input.prototype.get = function () {
     var o = this;
-    assert(!o.params.readOnly, 'get of read-only input ' + o.params.id);
     return (o.content.n.value);
 };
 
@@ -85,10 +84,8 @@ InputText.prototype.set = function (value) {
 
 InputText.prototype.validate = function () {
     var o = this;
-    // Perhaps this should call sup.get() rather than directly peeking
-    // at o.content.n, but the definition of get() is that it returns
-    // internal form, and here we want to inspect the as-edited form.
-    if (o.params.required && !o.content.n.value) {
+    var value = InputText.sup.get.call(o);
+    if (o.params.required && !value) {
         // NEEDSWORK this should really be concatenated with the
         // results from the superclass.
         return (["Field is required"]);
@@ -115,6 +112,7 @@ InputInt.prototype.get = function () {
 };
 
 InputInt.prototype.set = function (value) {
+    var o = this;
     var v = (value == undefined) ? '' : value.toString();
     InputInt.sup.set.call(this, v);
 };
@@ -221,54 +219,20 @@ extend(InputText, InputDate);
 InputDate.prototype.get = function () {
     var o = this;
     var s = InputDate.sup.get.call(o);
-    if (!s) {
-        return (s);
-    }
-    var mmddyy = s.split('/');
-    var mm = parseInt(mmddyy[0], 10);
-    var dd = parseInt(mmddyy[1], 10);
-    var yyyy = parseInt(mmddyy[2], 10);
-    if (yyyy < 100) {
-        yyyy += 2000;
-    }
-    // Normalize the date.  We probably don't really need to, because validation
-    // shouldn't allow a date that normalizes to different values.
-    var d = new Date(yyyy, mm-1, dd);
-    mm = d.getMonth()+1;
-    dd = d.getDate();
-    yyyy = d.getFullYear();
-    
-    return (
-        yyyy.toString().padStart(4, '0')
-        + '-'
-        + mm.toString().padStart(2, '0')
-        + '-'
-        + dd.toString().padStart(2, '0')
-    );
+    var ld = LDate.fromEditableDate(s);
+    return (ld ? ld.toJSON() : undefined);
 };
 
 InputDate.prototype.validate = function () {
     var o = this;
     var s = InputDate.sup.get.call(o);
-    if (s) {
-        var mmddyy = s.split('/');
-        var mm = parseInt(mmddyy[0], 10);
-        var dd = parseInt(mmddyy[1], 10);
-        var yyyy = parseInt(mmddyy[2], 10);
-        if (isNaN(mm) || isNaN(dd) || isNaN(yyyy)) {
-            return (["Invalid date"]);
+    try {
+        var ld = LDate.fromEditableDate();
+    } catch (e) {
+        if (e instanceof DateParseError) {
+            return ([e.message]);
         }
-        if (yyyy < 100) {
-            yyyy += 2000;
-        }
-        // Normalize the date.
-        var d = new Date(yyyy, mm-1, dd);
-        var mm2 = d.getMonth()+1;
-        var dd2 = d.getDate();
-        var yyyy2 = d.getFullYear();
-        if (mm != mm2 || dd != dd2 || yyyy != yyyy2) {
-            return (["Invalid date"]);
-        }
+        throw (e);
     }
     return (InputDate.sup.validate.call(o));
 };
@@ -279,20 +243,9 @@ InputDate.prototype.set = function (value) {
     assert(!(value instanceof Date), 'Not supposed to be using Date');
     if (value) {
         if (o.params.readOnly) {
-            s = displayDate(value);
+            s = LDate.fromJSON(value).toDisplayDate();
         } else {
-            // ECMAScript specifies that date-only strings are interpreted
-            // as UTC, while date+time strings without time zone specifiers
-            // are interpreted as local time.  We want to force local time.
-            if (value.indexOf('T') < 0) {
-                value += 'T00:00';
-            }
-            var d = new Date(value);
-            s = (d.getMonth()+1).toString().padStart(2, '0')
-                + '/'
-                + d.getDate().toString().padStart(2, '0')
-                + '/'
-                + d.getFullYear().toString().padStart(4, '0');
+            s = LDate.fromJSON(value).toEditableDate();
         }
     } else {
         s = '';
@@ -300,9 +253,6 @@ InputDate.prototype.set = function (value) {
     InputDate.sup.set.call(o, s);
 };
 
-// CAUTION:  This isn't really appropriate for input, since it's
-// kind of unpredictable what parsing it does.  Better would be to,
-// sigh, break it down into individual components.
 function InputDateTime(params)
 {
     var o = this;
@@ -313,7 +263,22 @@ extend(InputText, InputDateTime);
 InputDateTime.prototype.get = function () {
     var o = this;
     var s = InputDateTime.sup.get.call(o);
-    return (s);
+    var ld = LDate.fromEditable(s);
+    return (ld ? ld.toJSON() : undefined);
+};
+
+InputDateTime.prototype.validate = function () {
+    var o = this;
+    var s = InputDateTime.sup.get.call(o);
+    try {
+        var ld = LDate.fromEditable(s);
+    } catch (e) {
+        if (e instanceof DateTimeParseError) {
+            return ([e.message]);
+        }
+        throw (e);
+    }
+    return (InputDateTime.sup.validate.call(o));
 };
 
 InputDateTime.prototype.set = function (value) {
@@ -322,9 +287,9 @@ InputDateTime.prototype.set = function (value) {
     assert(!(value instanceof Date), 'Not supposed to be using Date');
     if (value) {
         if (o.params.readOnly) {
-            s = displayDateTime(value, false);
+            s = LDate.fromJSON(value).toDisplay({seconds: false});
         } else {
-            s = value;
+            s = LDate.fromJSON(value).toEditable();
         }
     } else {
         s = '';
@@ -492,6 +457,8 @@ InputSelectMulti.prototype.set = function (listVal) {
     }
 };
 
+// NEEDSWORK:  if the value supplied includes entries that aren't in the
+// list of options, should the result include them?
 InputSelectMulti.prototype.get = function (val) {
     var o = this;
     var ret = [];
@@ -542,8 +509,15 @@ InputSelectMulti.prototype.setOptions = function (opts) {
     }
 };
 
-// NEEDSWORK Should this accept a params.filter rather than
-// assuming that !hide is the right filter?
+//
+// Params:
+// table - either a DBTable instance, or a name as a string.
+// keyField - name of the field to that contains the value to include in the
+// result.  Defaults to the record key.
+// textField - name of the field to display, or a function(r) that returns the
+// value to display.
+// filter - a filter expression; include records if it evaluates truthy.
+//
 function InputSelectMultiDB(params) {
     var o = this;
     InputSelectMultiDB.sup.constructor.call(o, params);
@@ -551,7 +525,7 @@ function InputSelectMultiDB(params) {
     if (!(t instanceof DBTable)) {
         t = table[t];
     }
-    t.list({ filter: { not: { f: 'hide' } } }, function (recs) {
+    t.list({ filter: params.filter }, function (recs) {
         var opts = [];
         forEachArrayObject(recs, function (k, r) {
             var opt = {};
