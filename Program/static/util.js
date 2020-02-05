@@ -254,6 +254,18 @@ if (!String.prototype.startsWith) {
     });
 }
 
+if (!String.prototype.includes) {
+  String.prototype.includes = function(search, start) {
+    'use strict';
+
+    if (search instanceof RegExp) {
+      throw TypeError('first argument must not be a RegExp');
+    } 
+    if (start === undefined) { start = 0; }
+    return this.indexOf(search, start) !== -1;
+  };
+}
+
 // Given an array of objects, call the callback for each element in each
 // object.  This is intended primarily for objects that each have only
 // a single element and are structured in an array to preserve order.

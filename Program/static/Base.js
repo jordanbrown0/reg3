@@ -9,6 +9,7 @@ function Base()
         o.clock
     );
     o.body = new DElement('div', { className: 'Body' });
+    o.active = new DElement('div');
     o.navBar = new NavBar();
     o.navKey = new NavKey();
     o.appendChild(o.header, o.body, o.navBar);
@@ -26,10 +27,17 @@ Base.prototype.activate = function () {
 
 Base.prototype.switchTo = function (n) {
     var o = this;
-    o.body.replaceChildren(n);
-    o.setNav([]);
-    o.title.replaceChildren(n.title instanceof Function ? n.title() : n.title);
-    n.activate();
+    var a = o.active;
+    o.active = null;
+    a.deactivate(function () {
+        o.active = n;
+        o.body.replaceChildren(n);
+        o.setNav([]);
+        o.title.replaceChildren(n.title instanceof Function ? n.title() : n.title);
+        // Caution:  n.activate may be asynchronous, and it has no done callback.
+        // Perhaps it should.
+        n.activate();
+    });
 };
 
 Base.prototype.addNav = function (a) {

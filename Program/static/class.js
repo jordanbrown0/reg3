@@ -37,21 +37,13 @@ ClassManager.prototype.summarize = function (k, r) {
     var o = this;
     return (tr(
         td(r.order, { id: 'order' }),
-        td(o.conf.currencyPrefix + r.amount + o.conf.currencySuffix, {id: 'amount'}),
+        td(cfg.currencyPrefix + r.amount + cfg.currencySuffix, {id: 'amount'}),
         td(r.code, { id: 'code' }),
         td(r.description, { id: 'description' }),
         td(r.metaclass || '', { id: 'metaclass' }),
         td(LDate.fromJSON(r.start).toDisplayDate(), { id: 'start' }),
         td(LDate.fromJSON(r.end).toDisplayDate(), { id: 'end' })
     ));
-};
-
-ClassManager.prototype.activate = function () {
-    var o = this;
-    getAllConfig(function (conf) {
-        o.conf = conf;
-        ClassManager.sup.activate.call(o);
-    });
 };
 
 ClassManager.prototype.title = 'Class administration';
@@ -107,25 +99,16 @@ function ClassPicker(params)
 }
 extend(DBManager, ClassPicker);
 
-ClassPicker.prototype.activate = function () {
-    var o = this;
-
-    getAllConfig(function (conf) {
-        o.conf = conf;
-        ClassPicker.sup.activate.call(o);
-    });
-};
-
 ClassPicker.prototype.getFilter = function () {
     var o = this;
 
-    return (Class.getFilter(o.conf));
+    return (Class.getFilter());
 };
 
 ClassPicker.prototype.summarize = function (k, r) {
     var o = this;
     return (new DElement('tr',
-        new DElement('td', o.conf.currencyPrefix + r.amount + o.conf.currencySuffix, {id: 'amount'}),
+        new DElement('td', cfg.currencyPrefix + r.amount + cfg.currencySuffix, {id: 'amount'}),
         new DElement('td', r.description, { id: 'description' })
     ));
 };
@@ -152,17 +135,17 @@ Class.getDescription = function (id, cb) {
 
 // Return a filter expression that checks for metaclass and start/end times.
 // Applicable to both classes and upgrades.
-Class.getFilter = function (conf) {
+Class.getFilter = function () {
     var f = { and: [] };
-    if (conf.metaclasses) {
+    if (cfg.metaclasses) {
         f.and.push(
-            { includes: [ conf.metaclasses, { f: 'metaclass' } ] }
+            { includes: [ cfg.metaclasses, { f: 'metaclass' } ] }
         );
     }
 
-    var nowExpr =  conf.offlineRealTime
+    var nowExpr =  cfg.offlineRealTime
         ? { date: [] }
-        : LDate.fromJSON(conf.offlineAsOf).toJSONDate();
+        : LDate.fromJSON(cfg.offlineAsOf).toJSONDate();
     f.and.push(
         { or: [
             { not: { f: 'start' } },

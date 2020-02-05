@@ -347,25 +347,20 @@ function label_badge(r, done, err) {
 }
 
 function getPrinterInfo(cb, abort) {
-    var cfg;
     var printer;
-    
-    getAllConfig(gotConfig);
-    
-    function gotConfig(res) {
-        if (res.noPrint) {
-            alert('Would print label now');
-            cb(null);
-            return;
-        }
-        cfg = res;
-        if (!cfg.label) {
-            alert('No printer configured!');
-            abort();
-            return;
-        }
-        Printers.get(cfg.label, gotPrinter);
+        
+    if (cfg.noPrint) {
+        alert('Would print label now');
+        cb(null);
+        return;
     }
+    if (!cfg.label) {
+        alert('No printer configured!');
+        abort();
+        return;
+    }
+    Printers.get(cfg.label, gotPrinter);
+
     function gotPrinter(p) {
         printer = p.windows;
         rpc.printers(gotPrinters);

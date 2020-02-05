@@ -7,6 +7,8 @@ var globalSchema = [
         { field: 'currencySuffix', label: 'Currency suffix', default: '' },
         { field: 'voidClass', label: 'Class code for void memberships',
             default: 'Void' },
+    ],
+    [
         { title: 'Badges' },
         { field: 'font', label: 'Badge font', default: 'Times New Roman', required: true },
         { field: 'badgeCopies', label: 'Number of copies', input: InputInt, default: 1, required: true },
@@ -33,6 +35,14 @@ GlobalEdit.prototype.title = 'Global configuration';
 
 GlobalEdit.prototype.get = function (cb) {
     Global.get(cb);
+};
+
+GlobalEdit.prototype.done = function () {
+    var o = this;
+    getAllConfig(function (cfg_) {
+        cfg = cfg_;
+        GlobalEdit.sup.done.call(o);
+    });
 };
 
 var Global = {};

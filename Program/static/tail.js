@@ -1,4 +1,5 @@
 var stationId = cookie('StationID');
+var cfg;
 
 window.onload = function () {
     function doInit() {
@@ -9,8 +10,12 @@ window.onload = function () {
                 return;
             }
         }
-        log('Init done');
-        home();
+        // And finally... prime the configuration.
+        getAllConfig(function (cfg_) {
+            cfg = cfg_;
+            log('Init done');
+            home();
+        });
     }
     doInit();
 };

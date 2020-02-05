@@ -12,27 +12,24 @@ Menu.prototype.activate = function () {
     var keys = [];
     
     o.params.items.forEach(function (item) {
-        var tr = new DElement('tr');
-        o.appendChild(tr);
+        var ent;
+        if (item.perms && !cfg.permissions.includes(item.perms)) {
+            return;
+        }
         if (item.title) {
-            var title = new DElement('td', item.title, {
-                id: item.id,
-                className: 'Title'
-            });
-            tr.appendChild(title);
-        } else if (item.spacer) {
-            // Maybe we don't need anything here
-            // Maybe need an ID for CSS to control height
+            ent = td(item.title, { className: 'Title' });
         } else {
-            var ent = new DElement('td', item.label, {
-                id: item.id,
-                onclick: item.func,
-                className: 'Item'
-            });
-            tr.appendChild(ent);
-            if (item.key) {
-                keys.push({key: item.key, func: item.func});
-            }
+            ent = td(item.label, { className: 'Item' });
+        }
+        if (item.id) {
+            ent.setProperties({id: item.id});
+        }
+        if (item.func) {
+            ent.setProperties({onclick: item.func});
+        }
+        o.appendChild(tr(ent));
+        if (item.key) {
+            keys.push({key: item.key, func: item.func});
         }
     });
     base.addNav(keys);

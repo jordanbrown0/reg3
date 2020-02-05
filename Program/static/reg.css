@@ -32,7 +32,8 @@ table.Editor {
 }
 
 .Selected {
-    background: red;
+    /* #00ff00 is "lime"?  Really? */
+    background: lime;
 }
 
 .InputInt, .InputCurrency {
@@ -80,6 +81,11 @@ input.Disabled {
 
 .List table {
     width: 100%;
+}
+
+.ListNoMatch {
+    text-align: center;
+    background: red;
 }
 
 .ClassManager .List #amount, .ClassPicker .List #amount {

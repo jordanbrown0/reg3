@@ -207,11 +207,14 @@ function EditorTitle(schema_ent)
 {
     var o = this;
     EditorTitle.sup.constructor.call(o, 'tr');
-    o.appendChild(new DElement('td', schema_ent.title, {
+    var title = td(schema_ent.title, {
         colSpan: 3,
-        className: 'Title',
-        id: schema_ent.id
-    }));
+        className: 'Title'
+    });
+    if (schema_ent.id) {
+        title.setProperties({id: schema_ent.id});
+    }
+    o.appendChild(title);
 }
 extend(DElement, EditorTitle);
 
@@ -272,8 +275,14 @@ EditorEntry.prototype.get = function (r) {
 
 EditorEntry.prototype.validate = function () {
     var o = this;
-    var errors = [];
+
+    if (o.params.readOnly) {
+        return ([]);
+    }
+
     o.errorMessages.removeChildren();
+
+    var errors = [];
     o.input.validate().forEach(function (err) {
         o.errorMessages.appendChild(err);
         o.input.setError();

@@ -11,6 +11,10 @@ function DNode(n)
 DNode.prototype.activate = function () {
 };
 
+DNode.prototype.deactivate = function (cb) {
+    cb();
+};
+
 DNode.verbose = false;
 DNode.log = function () {
     if (DNode.verbose) {

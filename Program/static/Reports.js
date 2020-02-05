@@ -27,20 +27,15 @@ Reports.prototype.title = 'Reports';
 // This needs to be refactored a bit and recombined with the one in labels.js.
 // NEEDSWORK
 function getReportPrinterInfo(cb, abort) {
-    var cfg;
     var printer;
-    
-    getAllConfig(gotConfig);
-    
-    function gotConfig(res) {
-        cfg = res;
-        if (!cfg.reportPrinter) {
-            alert('No printer configured!');
-            abort();
-            return;
-        }
-        Printers.get(cfg.reportPrinter, gotPrinter);
+
+    if (!cfg.reportPrinter) {
+        alert('No printer configured!');
+        abort();
+        return;
     }
+    Printers.get(cfg.reportPrinter, gotPrinter);
+
     function gotPrinter(p) {
         printer = p.windows;
         rpc.printers(gotPrinters);

@@ -21,9 +21,9 @@ function CategoriesManager() {
 extend(DBManager, CategoriesManager);
 
 CategoriesManager.prototype.summarize = function (k, r) {
-    return (new DElement('tr',
-        new DElement('td', r.name, { id: 'name' }),
-        new DElement('td', r.description, { id: 'description' })
+    return (tr(
+        td(r.name, { id: 'name' }),
+        td(r.description, { id: 'description' })
     ));
 };
 

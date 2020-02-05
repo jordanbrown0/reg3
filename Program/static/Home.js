@@ -2,13 +2,34 @@ function Home()
 {
     var o = this;
     DElement.call(o, 'div');
-    o.menu = new Menu({ items: [
+    var items = [];
+    
+    items.push(
         // { title: title() },
-        { key: 'p', label: '(P)reviously registered', func: function () { base.switchTo(new MemberManager()); }},
-        { key: 'n', label: '(N)ew member', func: function () { base.switchTo(new NewMember()); }},
-        { key: 'a', label: '(A)dministration', func: function () { base.switchTo(new Admin()); }},
-        { key: 'r', label: '(R)eports', func: function () { base.switchTo(new Reports()); }}
-    ]});
+        { key: 'p', label: '(P)reviously registered',
+            func: function () { base.switchTo(new MemberManager()); }
+        },
+        { key: 'n', label: '(N)ew member', perms: 'newMember',
+            func: function () { base.switchTo(new NewMember()); }
+        }
+    );
+    if (lastKey) {
+        var lf = joinTruthy([lastLast, lastFirst], ', ');
+        items.push({ key: 'f',
+            label: '(F)ix last member (' + lf + ')',
+            func: function () { base.switchTo(new MemberDisplay(lastKey)); }
+        });
+    }
+    items.push(
+        { key: 'r', label: '(R)eports', perms: 'reports',
+            func: function () { base.switchTo(new Reports()); }
+        },
+        { key: 'a', label: '(A)dministration', perms: 'admin',
+            func: function () { base.switchTo(new Admin()); }
+        }
+    );
+
+    o.menu = new Menu({ items: items });
     o.appendChild(o.menu);
 }
 extend(DElement, Home);
@@ -21,13 +42,16 @@ Home.prototype.activate = function () {
     o.menu.activate();
 };
 
+Home.prototype.deactivate = function (cb) {
+    getAllConfig(function (cfg_) {
+        cfg = cfg_;
+        cb();
+    });
+};
+
 Home.prototype.title = function () {
     var o = this;
-    var span = new DElement('span');
-    getAllConfig(function (cfg) {
-        span.replaceChildren(cfg.convention);
-    });
-    return span;
+    return (cfg.convention);
 };
 
 function home()

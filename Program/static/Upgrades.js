@@ -59,15 +59,6 @@ function UpgradePicker(params)
 }
 extend(DBManager, UpgradePicker);
 
-UpgradePicker.prototype.activate = function () {
-    var o = this;
-    
-    getAllConfig(function (conf) {
-        o.conf = conf;
-        UpgradePicker.sup.activate.call(o);
-    });
-};
-
 UpgradePicker.prototype.title = 'Upgrade to...';
 
 UpgradePicker.prototype.summarize = function (k, r) {
@@ -81,7 +72,7 @@ UpgradePicker.prototype.summarize = function (k, r) {
         });
     }
     return (new DElement('tr',
-        new DElement('td', o.conf.currencyPrefix + r.amount + o.conf.currencySuffix, {id: 'amount'}),
+        new DElement('td', cfg.currencyPrefix + r.amount + cfg.currencySuffix, {id: 'amount'}),
         description
     ));
 };
@@ -91,7 +82,7 @@ UpgradePicker.prototype.getFilter = function () {
     
     var f = { and: [
         { eq: [ {f: 'from' }, o.params.from ] },
-        Class.getFilter(o.conf)
+        Class.getFilter(cfg)
     ] };
     return (f);
 };

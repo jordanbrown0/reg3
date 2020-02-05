@@ -15,6 +15,9 @@ NavBar.prototype.set = function (a) {
 NavBar.prototype.add = function (a) {
     var o = this;
     a.forEach(function (e) {
+        if (e.perms && !cfg.permissions.includes(e.perms)) {
+            return;
+        }
         if (e.msg) {
             o.content.appendChild(new Button(e.msg, {
                 onclick: function () {

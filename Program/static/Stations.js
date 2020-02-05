@@ -167,9 +167,12 @@ var stationSchema = [
         { field: 'permissions', label: 'Permissions', input: InputSelectMulti,
             options: [
                 { newMember: 'Add new member' },
-                { classManage: 'Manage classes' },
-                { config: 'Manage configuration' }
-            ]
+                { admin: 'Administration' },
+                { reports: 'Reports' },
+                { upgrade: 'Process upgrades' },
+                { unmark: 'Mark membership as not-picked-up' }
+            ],
+            default: ['admin', 'newMember', 'reports', 'upgrade', 'unmark' ]
         }
     ],
 ];

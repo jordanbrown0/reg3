@@ -134,12 +134,8 @@ function InputCurrency(params) {
     var o = this;
     params = Object.assign({}, params);
 
-    params.prefix = new DElement('span');
-    params.suffix = new DElement('span');
-    getAllConfig(function (conf) {
-        params.prefix.appendChild(conf.currencyPrefix);
-        params.suffix.appendChild(conf.currencySuffix);
-    });
+    params.prefix = cfg.currencyPrefix;
+    params.suffix = cfg.currencySuffix;
         
     InputCurrency.sup.constructor.call(o, params);
 }
@@ -227,7 +223,7 @@ InputDate.prototype.validate = function () {
     var o = this;
     var s = InputDate.sup.get.call(o);
     try {
-        var ld = LDate.fromEditableDate();
+        var ld = LDate.fromEditableDate(s);
     } catch (e) {
         if (e instanceof DateParseError) {
             return ([e.message]);

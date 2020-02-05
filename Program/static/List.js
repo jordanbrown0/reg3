@@ -68,16 +68,18 @@ List.prototype.refresh = function () {
         
         function row(k, r) {
             var summary = o.params.summarize(k, r);
-            var tr;
+            var contents;
             if (summary instanceof DElement) {
-                tr = summary;
+                contents = summary;
             } else {
-                tr = new DElement('tr', new DElement('td', summary));
+                contents = tr(td(summary));
             }
-            tr.setProperties({ onclick: function() { o.params.pick(k, r); }});
+            contents.setProperties({
+                onclick: function() { o.params.pick(k, r); }
+            });
 
             // NEEDSWORK this should probably be a distinct class
-            return { key: k, element: tr, rec: r };
+            return { key: k, element: contents, rec: r };
         };
         
         o.rows = [];
@@ -88,19 +90,18 @@ List.prototype.refresh = function () {
             o.table.appendChild(rowObj.element);
         });
         if (o.rows.length == 0) {
-            o.table.appendChild(new DElement('tr',
-                new DElement('td', 'No matches')
+            o.table.appendChild(tr(
+                td('No matches', {
+                    colSpan: 100,
+                    className: 'ListNoMatch'
+                })
             ));
         }
         if (o.params.footer) {
             if (o.params.footer instanceof DElement) {
                 o.table.appendChild(o.params.footer);
             } else {
-                o.table.appendChild(
-                    new DElement('tr',
-                        new DElement('td', o.params.footer)
-                    )
-                );
+                o.table.appendChild(tr(td(o.params.footer, {colSpan: 100})));
             }
         }
         if (o.rows.length == 1) {

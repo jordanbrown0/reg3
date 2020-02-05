@@ -49,19 +49,13 @@ Administration
 	user-specified fields (field name and description)
 	print a real-name label too?
 	justify l/c/r
-	offline / as-of
 	permissions
-		metaclasses
 		prereg?
-		new reg?
-		upgrades?
 		unlisted upgrades?
 		transfers?
 		search?
 		fix last?
 		other transactions?
-		administration?
-		reports?
 		log complimentary memberships?
 		log reprints?
 	housekeeping
@@ -116,8 +110,6 @@ Human name of new printer is "undefined".
 
 Use Windows computer name as server ID?  It's in global.process.env.COMPUTERNAME.
 
-Get config less frequently.  Maybe at return to Home.  Maybe when departing from Home.  One big win would be being able to retrieve the config synchronously.  Maybe get it only once during an excursion away from Home, and cache it.  (But then it still has to be async.)
-
 Style
 	Breakdown of responsibility for constructor and .activate() method.
 		Or should there be a .activate method at all? Should I use a different
@@ -132,6 +124,7 @@ UI
 	Do we want Esc/Enter/</> buttons on PCs?
 	* How to detect tablets?
 	* Maybe support iOS scroll events for page flip.
+    Disable page flip at first and last pages.
 
 Note that import / merge will need to be something of a three-way merge:  the two versions of the record as reported in the conflict, and the version of the record as it exists now.  For A being the existing record on this server and B being the record being imported, the merge operation probably needs to take (A+B) and B as arguments, and merge the version vectors.  It then needs to compare that merged VV with the then-current record, and if it's still newer then bump the VV and store.  If it's not newer - if the existing record has been bumped in the interim - then it needs to return (A+B) with the merged VV, and the new C, for conflict resolution, and repeat.  That might happen almost automatically if DBput starts returning conflict data.  Probably just restart the conflict resolver on that record, with the new records.
 
@@ -140,8 +133,7 @@ Membership number allocation causes the DB to be rewritten.  Even if we do incre
 Maybe rethink List "summarize" to take a schema.
 
 Permissions
-
-Printer records need to be qualified by server.
+    Need permissions support for NavBar / NavKey
 
 The station display needs to be sorted by server.  Need error messages for "your station is configured to print on a printer on a different server".  Whether that will be a real issue will depend on network configuration; if the server is always the same name / IP address then stations will maintain their identity when moved.
 
@@ -149,9 +141,13 @@ What should happen when a station moves from one server to another?  Depends on 
 
 For stations and printers, default to showing only those for this server.
 
-In List with headers, the "No matches" message only ends up in column 1.  But, other than walking the DOM, how to colspan?
-
 AQ list has funky rendering in Firefox.  Probably related to dynamically changing list.
+
+Browser-side errors need to interrupt UI
+window.addEventListener('error', function(event) { ... })
+window.onerror = function(message, source, lineno, colno, error) { ... }
+
+Maybe look again at my log infrastructure
 
 Make it clearer when an error is a server-side error.
 
@@ -187,8 +183,6 @@ bulk edit - e.g. for all Saturday, set note
 Can add/put eval operations replace the special increment method, to let add-member be a single-atomic-ish operation?  But:  an increment or put operator needs to be async, because the DB might not yet be loaded.  (In theory.)
 
 Turn the expression language into a full-ish programming language.
-
-Use "conf" or "cfg" for a config object?
 
 General alert/error UI (alert()?  Modal?)
 
@@ -303,6 +297,10 @@ Need an "update the program" wad.  For this convention, or for a selected conven
 NewConventionOnThisSystem needs error checking on the mkdir.
 
 All of the setup stuff could probably use more checking on the new directory name.
+
+Home should set page title.
+
+Exactly when should we retrieve the configuration?  Currently on startup, every time you leave Home, and on successfully leaving Global Config.  (It would be sensible to also retrieve it for station and server edits, but is not currently necessary because Home uses only cfg.convention.)
 
 --------------
 

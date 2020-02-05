@@ -8,17 +8,12 @@ extend(DElement, ReportsByClass);
 ReportsByClass.prototype.activate = function () {
     var o = this;
     
-    getAllConfig(gotConfig);
-    
-    function gotConfig(conf) {
-        o.conf = conf;
-
-        table.members.reduce(
-            { expr: 
-                { addto: [ {f: 'class'}, 1 ]}
-            },
-            gotTotals);
-    }
+    table.members.reduce(
+        { expr: 
+            { addto: [ {f: 'class'}, 1 ]}
+        },
+        gotTotals
+    );
 
     function gotTotals(totals) {
         o.totals = totals;
@@ -36,7 +31,7 @@ ReportsByClass.prototype.activate = function () {
 
         var grand = 0;
         forEachArrayObject(classes, function (k, c) {
-            if (c.code == o.conf.voidClass) {
+            if (c.code == cfg.voidClass) {
                 voidClass = c;
                 voidTotal = o.totals[c.code];
             } else {

@@ -26,6 +26,10 @@ NavKey.prototype.set = function (a) {
 NavKey.prototype.add = function (a) {
     var o = this;
     a.forEach(function (e) {
+        if (e.perms && !cfg.permissions.includes(e.perms)) {
+            return;
+        }
+
         if (e.key) {
             var kn = e.key.length == 1 ? e.key.toUpperCase() : e.key;
             o.keyHandlers[kn] = e.func;
@@ -95,10 +99,11 @@ var keyAliases = {
 // Alt (selects menu bar)
 // CapsLock
 // Ctrl + Tab, Ctrl + BackTab
+// Alt+F4
 
 // These are keys that are always a problem and should always be
 // suppressed.
-var alwaysNavKeys = [ 'F3', 'F12' ];
+var alwaysNavKeys = [ 'F3', 'F5', 'F12' ];
 
 // These are modifiers that are a problem except for specific
 // whitelisted sequences.
@@ -145,10 +150,10 @@ NavKey.prototype.shouldIgnore = function (e) {
         ignore = YES;
     }
 
-    if (alwaysNavKeys.indexOf(kn) >= 0) {
+    if (alwaysNavKeys.includes(kn)) {
         ignore = YES;
     }
-    if (sometimesNavKeys.indexOf(kn) >= 0) {
+    if (sometimesNavKeys.includes(kn)) {
         ignore = MAYBE;
     }
 
@@ -170,7 +175,7 @@ NavKey.prototype.shouldIgnore = function (e) {
     }
     switch (t.tagName.toLowerCase()) {
     case 'input':
-        return (inputTypes.indexOf(t.attributes.type.value.toLowerCase()) < 0);
+        return (!inputTypes.includes(t.attributes.type.value.toLowerCase()));
 
     case 'textarea':
         return (false);
@@ -193,7 +198,7 @@ NavKey.prototype.getKeyName = function (e) {
     var mods = [ 'Alt', 'Control', 'OS', 'Shift' ];
     
     // Don't add modifiers to modifiers.
-    if (mods.indexOf(kn) >= 0) {
+    if (mods.includes(kn)) {
         return (kn);
     }
 
