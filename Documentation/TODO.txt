@@ -172,13 +172,14 @@ Import from Member Solutions
 Import from Eventbrite
 Import from CSV
     Column oriented, or with headers?  Probably both.
+    Header variant sort of works.
 Import from .XLSX?
 
 Maybe need a "zap table" user interface.  Or maybe external import has a "clear first" option.
 
-Does JS - and in particular node.js - intern strings?  If not, we might want to make a point of interning them at DB load time and record update/add time.
+Does JS - and in particular node.js - intern strings?  If not, we might want to make a point of interning them at DB load time and record update/add time - at least the field names.
 
-Various imports should probably assign membership numbers if they aren't assigned.  Ugh.  That would mean involving the UI, since the server doesn't know about membership numbers.
+Various imports should probably assign membership numbers if they aren't assigned.  Ugh.  That would mean involving the UI, since the server doesn't know about membership numbers.  Or maybe there's a bulk "assign membership numbers to all records without them".
 
 How should an import file be fed into the system?  Options are upload and direct file access. Direct file access is awkward.  Upload has a problem with how to specify the desired import mapping.  Multipart might allow RPC+file upload.  Or one URL component could be the record ID for the mapping record.
 
