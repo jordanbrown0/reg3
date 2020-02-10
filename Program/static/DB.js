@@ -144,3 +144,17 @@ DBTable.prototype.applyDefaults = function (r) {
         }
     }
 };
+
+DBTable.prototype.externalImport = function (file, type, map, cb) {
+    var o = this;
+    switch(type) {
+    case 'DBF':
+        rpc.importDBF(o.dbName, o.tName, file, map, cb);
+        break;
+    case 'CSV':
+        rpc.importCSV(o.dbName, o.tName, file, map, true, cb);
+        break;
+    default:
+        throw new Error('unknown import type '+type);
+    }
+};

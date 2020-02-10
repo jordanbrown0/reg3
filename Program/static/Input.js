@@ -33,6 +33,10 @@ Input.prototype.set = function (value) {
 };
 
 Input.prototype.validate = function () {
+    var o = this;
+    if (o.params.required && !this.content.n.value) {
+        return (['Required']);
+    }
     return ([]);
 };
 
@@ -51,13 +55,15 @@ function InputInput(type, params) {
 
     var content = new DElement('input', {
         type: type,
-        id: params.id,
         oninput: function () {
             if (o.params.oninput) {
                 o.params.oninput();
             }
         }
     });
+    if (params.id) {
+        content.setProperties({id: params.id});
+    }
 
     InputInput.sup.constructor.call(o, content, params);
     
@@ -82,16 +88,16 @@ InputText.prototype.set = function (value) {
     InputText.sup.set.call(o, value || '');
 };
 
-InputText.prototype.validate = function () {
-    var o = this;
-    var value = InputText.sup.get.call(o);
-    if (o.params.required && !value) {
-        // NEEDSWORK this should really be concatenated with the
-        // results from the superclass.
-        return (["Field is required"]);
-    }
-    return (InputText.sup.validate.call(o));
-};
+// InputText.prototype.validate = function () {
+    // var o = this;
+    // var value = InputText.sup.get.call(o);
+    // if (o.params.required && !value) {
+        // // NEEDSWORK this should really be concatenated with the
+        // // results from the superclass.
+        // return (["Required"]);
+    // }
+    // return (InputText.sup.validate.call(o));
+// };
 
 function InputInt(params)
 {
@@ -102,12 +108,12 @@ extend(InputText, InputInt);
 
 InputInt.prototype.get = function () {
     var o = this;
-    var sval = InputInt.sup.get.call(this);
+    var sVal = InputInt.sup.get.call(this);
     // Note that the validator might disallow empty values.
-    if (sval == null || sval == '') {
+    if (sVal == null || sVal == '') {
         return (null);
     } else {
-        return (parseInt(sval, 10));
+        return (parseInt(sVal, 10));
     }
 };
 
@@ -142,47 +148,47 @@ function InputCurrency(params) {
 
 extend(InputInt, InputCurrency);
 
-function InputIntList(params)
-{
-    var o = this;
-    InputIntList.sup.constructor.call(o, params);
-}
+// function InputIntList(params)
+// {
+    // var o = this;
+    // InputIntList.sup.constructor.call(o, params);
+// }
 
-extend(InputText, InputIntList);
+// extend(InputText, InputIntList);
 
-InputIntList.prototype.get = function () {
-    var o = this;
-    var svals = InputIntList.sup.get.call(o).split(',');
-    var ivals = [];
-    svals.forEach(function (s) {
-        var v = parseInt(s, 10);
-        if (!isNaN(v)) {
-            ivals.push(v);
-        }
-    });
-    return (ivals);
-};
+// InputIntList.prototype.get = function () {
+    // var o = this;
+    // var svals = InputIntList.sup.get.call(o).split(',');
+    // var ivals = [];
+    // svals.forEach(function (s) {
+        // var v = parseInt(s, 10);
+        // if (!isNaN(v)) {
+            // ivals.push(v);
+        // }
+    // });
+    // return (ivals);
+// };
 
-InputIntList.prototype.set = function (ivals) {
-    var o = this;
-    ivals = ivals || [];
-    InputIntList.sup.set.call(o, ivals.join(','));
-};
+// InputIntList.prototype.set = function (ivals) {
+    // var o = this;
+    // ivals = ivals || [];
+    // InputIntList.sup.set.call(o, ivals.join(','));
+// };
 
 // NEEDSWORK:  this detects errors of the form "xxx" and "xxx123",
 // but not "123xxx"; the xxx is silently ignored.
-InputIntList.prototype.validate = function () {
-    var o = this;
-    var svals = InputIntList.sup.get.call(o).split(',');
-    if (svals &&
-        svals.some(function (s) {
-            return (isNaN(parseInt(s, 10)));
-        })
-    ) {
-        return (["Invalid number"]);
-    }
-    return (InputIntList.sup.validate.call(o));
-};
+// InputIntList.prototype.validate = function () {
+    // var o = this;
+    // var svals = InputIntList.sup.get.call(o).split(',');
+    // if (svals &&
+        // svals.some(function (s) {
+            // return (isNaN(parseInt(s, 10)));
+        // })
+    // ) {
+        // return (["Invalid number"]);
+    // }
+    // return (InputIntList.sup.validate.call(o));
+// };
 
 function InputBool(params)
 {
@@ -331,13 +337,28 @@ InputSelect.prototype.set = function (val) {
 InputSelect.prototype.setOptions = function (opts) {
     var o = this;
     o.content.removeChildren();
+    if (!(opts instanceof Array)) {
+        opts = [ opts ];
+    }
     opts.forEach(function (opt) {
+        if (!(opt instanceof Object)) {
+            var t = {};
+            t[opt] = opt;
+            opt = t;
+        }
         for (var val in opt) {
             o.content.appendChild(new DElement('option', { value: val }, opt[val]));
         }
     });
     o.content.n.value = o.value;
 };
+
+// InputSelect.prototype.validate = function () {
+    // if (o.params.required && !o.n.value) {
+        // return (['Required']);
+    // }
+    // return (InputSelect.sup.validate.call(o));
+// };
 
 // Params:
 // table:  Either a DBTable object, or the name of a table.
@@ -388,6 +409,16 @@ function InputClass(params)
     InputClass.sup.constructor.call(o, params);
 }
 extend(InputDBPicker, InputClass);
+
+function InputTablePicker(params)
+{
+    var o = this;
+    InputDBPicker.sup.constructor.call(o, params);
+    db.reg.listTables(function (tables) {
+        o.setOptions(tables);
+    });
+}
+extend(InputSelect, InputTablePicker);
 
 function InputDBLookup(params)
 {
@@ -537,3 +568,168 @@ function InputSelectMultiDB(params) {
 }
 
 extend(InputSelectMulti, InputSelectMultiDB);
+
+// Value is an array of values
+// params.input = an input constructor
+// params.subParams = parameters for the input constructor
+// table
+//      (+) (-) summary
+//      (+)
+function InputMulti(params) {
+    var o = this;
+    var content = new DElement('table', {
+        id: params.id,
+    });
+    
+    InputMulti.sup.constructor.call(o, content, params);
+
+    o.set([]);
+}
+
+extend(Input, InputMulti);
+
+InputMulti.prototype.set = function (values) {
+    var o = this;
+    o.children = [];
+    values.forEach(function (value) {
+        var child = o.newChild();
+        child.set(value);
+        o.children.push(child);
+    });
+    o.refresh();
+};
+
+InputMulti.prototype.get = function () {
+    var o = this;
+    var ret = [];
+    o.children.forEach(function (child) {
+        ret.push(child.get());
+    });
+    return (ret);
+};
+
+InputMulti.prototype.newChild = function () {
+    var o = this;
+    return (new o.params.params.input(o.params.params || {}));
+};
+
+InputMulti.prototype.refresh = function () {
+    var o = this;
+    var i;
+    o.content.removeChildren();
+    for (i = 0; i < o.children.length; i++) {
+        o.content.appendChild(o.row(i, o.children[i]));
+    }
+    o.content.appendChild(o.row(o.children.length));
+};
+
+InputMulti.prototype.row = function (index, child) {
+    var o = this;
+    var row = tr(
+        td(new Button('+', {
+            onclick: function () { o.add(index); }
+        }), { className: 'InputMultiButton' })
+    );
+    if (child) {
+        row.appendChild(
+            td(new Button('-', {
+                onclick: function () { o.remove(index); }
+            }), { className: 'InputMultiButton' }),
+            child
+        );
+    }
+    return (row);
+};
+
+InputMulti.prototype.add = function (index) {
+    var o = this;
+    var child = o.newChild();
+    child.set(o.params.default);
+    o.children.splice(index, 0, child);
+    o.refresh();
+};
+
+InputMulti.prototype.remove = function (index) {
+    var o = this;
+    o.children.splice(index, 1);
+    o.refresh();
+};
+
+InputMulti.prototype.validate = function () {
+    var o = this;
+    ret = [];
+    if (o.params.required && o.children.length == 0) {
+        return ([ 'Required' ]);
+    }
+    o.children.forEach(function (child) {
+        child.validate().forEach(function (e) {
+            ret.push(e);
+        });
+    });
+    return (ret);
+};
+
+function InputIntList(params) {
+    var o = this;
+    var params = Object.assign({params: {}}, params);
+    params.params = Object.assign({input: InputInt}, params.params);
+    InputIntList.sup.constructor.call(o, params);
+}
+
+extend(InputMulti, InputIntList);
+
+// params.schema: array of
+//      name: member name
+//      input: input constructor
+//      header: table header
+// NEEDSWORK:  The structure of this, as an independent table for each
+// InputObject, requires that you use CSS to arrange that an InputMultiObject
+// has its columns aligned.  Cleverer might be to allow an Input to return
+// an array of DElements, with private agreements on whether that array might
+// be an array of <td> elements.  But not today.
+function InputObject(params) {
+    var o = this;
+    var content = new DElement('table');
+    if (params.id) {
+        content.setProperties({id: params.id});
+    }
+    
+    InputObject.sup.constructor.call(o, content, params);
+
+    o.children = {};
+    o.params.schema.forEach(function (schemaEnt) {
+        var child = new schemaEnt.input(schemaEnt);
+        o.children[schemaEnt.field] = child;
+        o.content.appendChild(child);
+    });
+}
+
+extend(Input, InputObject);
+
+InputObject.prototype.set = function (values) {
+    var o = this;
+    for (k in o.children) {
+        o.children[k].set(values[k]);
+    }
+};
+
+InputObject.prototype.get = function () {
+    var o = this;
+    var ret = {};
+    for (k in o.children) {
+        ret[k] = o.children[k].get();
+    };
+    return (ret);
+};
+
+InputObject.prototype.validate = function () {
+    var o = this;
+    ret = [];
+
+    for (k in o.children) {
+        o.children[k].validate().forEach(function (e) {
+            ret.push(e);
+        });
+    };
+    return (ret);
+};

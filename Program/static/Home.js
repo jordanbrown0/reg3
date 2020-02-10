@@ -40,12 +40,16 @@ Home.prototype.activate = function () {
         { key: '!', msg: null, func: function () { base.switchTo(new Admin()); } }
     ]);
     o.menu.activate();
+    pageTitle.set(cfg.convention);
+    Home.sup.activate.call();
 };
 
 Home.prototype.deactivate = function (cb) {
+    var o = this;
     getAllConfig(function (cfg_) {
         cfg = cfg_;
-        cb();
+        pageTitle.set(cfg.convention);
+        Home.sup.deactivate.call(o, cb);
     });
 };
 

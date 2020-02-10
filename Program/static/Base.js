@@ -20,9 +20,6 @@ Base.prototype.activate = function () {
     var o = this;
     o.tick();
     setInterval(function () { o.tick(); }, 60*1000);
-    Global.get(function (cfg) {
-        pageTitle.set(cfg.convention);
-    });
 };
 
 Base.prototype.switchTo = function (n) {
@@ -64,7 +61,4 @@ var base;
 init.push(function baseInit() {
         base = new Base();
         document.body.appendChild(base.n);
-        init.push(function () {
-            base.activate();
-        });
 });

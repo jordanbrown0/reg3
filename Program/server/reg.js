@@ -11,9 +11,9 @@ const app = express();
 // const bodyParser = require('body-parser');
 const DBMS = require('./DBMS');
 const DBF = require('./DBF');
+const CSV = require('./CSV');
 const label = require('myclinic-drawer-printer').api;
 const sprintf = require('sprintf-js').sprintf;
-// const readline = require('readline');
 const Expression = require('./Expression');
 const { assert } = require('./utils');
 
@@ -78,18 +78,11 @@ methods.DBlistTables = async function (dbName) {
 methods.importDBF = async function (dbName, tName, filename, map) {
     var t = await getTable(dbName, tName);
     var t0 = Date.now();
-    var dbf = new DBF(filename, map);
+    var dbf = new DBF(filename, {map: map, autoLower: true});
     await dbf.load();
     t.sync(false);
-    await dbf.all(function (dbf_r) {
-        var db_r = {};
-        // NEEDSWORK:  Perhaps we should lowercase dBASE field names in the DBF
-        // processing, so that we don't need to do it here.  But they *are*
-        // conventionally upper case in dBASE.
-        for (f in dbf_r) {
-            db_r[f.toLowerCase()] = dbf_r[f];
-        }
-        if (db_r._deleted) {
+    await dbf.all(function (r) {
+        if (r._deleted) {
             // NEEDSWORK:  dBASE deleted records have data preserved.
             // Our deleted records do not; they are only a tombstone.
             // Adding a deleted record with data would be a violation of the
@@ -100,10 +93,22 @@ methods.importDBF = async function (dbName, tName, filename, map) {
             // Is that the best answer?
             return;
         }
-        delete db_r._deleted;
-        t.add(null, db_r, null);
+        delete r._deleted;
+        t.add(null, r, null);
     });
     await dbf.close();
+    t.sync(true);
+    console.log('took', Date.now()-t0);
+};
+
+methods.importCSV = async function (dbName, tName, filename, map, headers) {
+    var t = await getTable(dbName, tName);
+    var t0 = Date.now();
+    var csv = new CSV(filename, {map: map, headers: headers});
+    t.sync(false);
+    await csv.all(function (r) {
+        t.add(null, r, null);
+    });
     t.sync(true);
     console.log('took', Date.now()-t0);
 };

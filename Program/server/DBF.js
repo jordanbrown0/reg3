@@ -1,9 +1,17 @@
 const fs = require('fs');
 
-function DBF(name, map) {
+function DBF(name, params) {
     var o = this;
     o.fn = name;
-    o.map = map || {};
+    // dBASE field names are upper case in the database but are case
+    // insensitive.  We allow our map to be case insensitive too by
+    // uppercasing the names specified.
+    map = params.map || {};
+    o.map = {};
+    for (var dbfName in map) {
+        o.map[dbfName.toUpperCase()] = map[dbfName];
+    }
+    o.autoLower = params.autoLower;
 }
 
 DBF.prototype.load = async function () {
@@ -40,6 +48,9 @@ DBF.prototype.load = async function () {
         recOff += rec.length;
         switch(o.map[rec.name]) {
         case undefined:
+            if (o.autoLower) {
+                rec.name = rec.name.toLowerCase();
+            }
             break;
         case null:
             continue;

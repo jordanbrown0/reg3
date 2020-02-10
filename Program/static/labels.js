@@ -79,7 +79,7 @@ function label_badge(r, done, err) {
             v: caps.vertres
         };
         
-        if (!cfg.badgeCity && right.length == 0) {
+        if (!cfg.badgeCity.print && right.length == 0) {
             nameLimits = {
                 x: 0,
                 h: caps.horzres,
@@ -87,7 +87,7 @@ function label_badge(r, done, err) {
                 y: caps.vertres
             };
             list = [drawName];
-        } else if (!cfg.badgeCity && right.length > 0) {
+        } else if (!cfg.badgeCity.print && right.length > 0) {
             // NEEDSWORK these should be measured rather than constants.
             numberLimits = {
                 x: caps.horzres * .91,
@@ -103,7 +103,7 @@ function label_badge(r, done, err) {
                 y: caps.vertres
             };
             list = right.concat(drawName);
-        } else if (cfg.badgeCity && right.length == 0) {
+        } else if (cfg.badgeCity.print && right.length == 0) {
             // NEEDSWORK these should be measured not constants.
             cityLimits = {
                 x: 0,
@@ -119,7 +119,7 @@ function label_badge(r, done, err) {
                 y: caps.vertres * .9
             };
             list = [drawName, drawCity];
-        } else { // cfg.badgeCity && cfg.badgeNumber
+        } else { // cfg.badgeCity.print && cfg.badgeNumber
             numberLimits = {
                 x: caps.horzres * .91,
                 h: caps.horzres * .09,
@@ -256,7 +256,7 @@ function label_badge(r, done, err) {
                 x: cityLimits.x,
                 y: cityLimits.y,
                 font: cfg.font,
-                size: cfg.citySize,
+                size: cfg.badgeCity.size,
                 text: components.join(', ')
             });
             draw();

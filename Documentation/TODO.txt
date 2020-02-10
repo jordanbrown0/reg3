@@ -3,7 +3,6 @@ PESO
 Master integration
 "same" for address entry
 Number of memberships remaining on this server
-Fix previous membership
 Upgrades
 	ad hoc
 Transfers
@@ -45,7 +44,6 @@ Reports
 	Upgrades
 Administration
 	page size for reports
-	search interface vs last/first/number interface
 	user-specified fields (field name and description)
 	print a real-name label too?
 	justify l/c/r
@@ -54,7 +52,6 @@ Administration
 		unlisted upgrades?
 		transfers?
 		search?
-		fix last?
 		other transactions?
 		log complimentary memberships?
 		log reprints?
@@ -69,8 +66,6 @@ Administration
 Option for 24-hour time vs 12-hour time in displays
 
 search looks for what's in the record, which means that category matching is on the category code, not the category full text.  Perhaps the member-edit list should include both.
-
-Page title is wrong when the convention name changes.  Remember that it might be changed through a change here, or an import, or a change on another station.
 
 Conflict resolver shows record keys for cross-references (e.g. printer IDs)
 
@@ -88,12 +83,14 @@ Vanity membership numbers.  Maybe less necessary as a distinct concept now that 
 
 Input cleanup.  Automatically translate USA variants to the canonical form, "Calif" to "CA", et cetera.  Driven by a table, of course.  Both on demand (to clean up imported data) and during data entry.  (Would be cool if it was totally hot, so that you type something, tab away, and it gets corrected.)
 
-Search performance with large member tables (20K entries).  Will probably need to learn to skip searches, so that we don't search until we've processed all of the input.  (But keystroke suppression during RPC will lose keystrokes; for this case we need to reverse the priority of the two.)
+Search performance with large member tables (20K entries).  Will probably need to learn to skip searches, so that we don't search until we've processed all of the input.  (But keystroke suppression during RPC will lose keystrokes; for this case we need to reverse the priority of the two.)  Confirmed that this is a problem with 20K entries.  Right now I don't remember why I felt the need to suppress keystrokes.  Maybe it would be sufficient to suppress searches while a search is in process.
+
+We suppress keystrokes while RPC requests are outstanding, which fixes the problem of receiving keystrokes while in the middle of an RPC request (and, e.g., saving the record twice), but means that keystrokes might be dropped - during a search, for instance.  Also, there may be some RPC calls that are OK to allow keystrokes during - class lookup in member records, content lookups in lists, et cetera.  Maybe we just need to suppress *dispatched* keystrokes, and/or suppress searches and similar actions while an RPC operation is pending.  But note:  in general it's OK to have several RPC operations in flight.
+
+Change field names to match v2 when reasonable.  Avoid unnecessary differences.
 
 Print performance (~500ms to print long name requiring several shrink steps)
 	* Just have fewer font sizes?
-
-We suppress keystrokes while RPC requests are outstanding, which fixes the problem of receiving keystrokes while in the middle of an RPC request (and, e.g., saving the record twice), but means that keystrokes might be dropped - during a search, for instance.  Also, there may be some RPC calls that are OK to allow keystrokes during - class lookup in member records, content lookups in lists, et cetera.
 
 Station list if printer no longer exists.
 Station list row when station is not initialized.  (Maybe just one or more &nbsp;.)
@@ -132,9 +129,6 @@ Membership number allocation causes the DB to be rewritten.  Even if we do incre
 
 Maybe rethink List "summarize" to take a schema.
 
-Permissions
-    Need permissions support for NavBar / NavKey
-
 The station display needs to be sorted by server.  Need error messages for "your station is configured to print on a printer on a different server".  Whether that will be a real issue will depend on network configuration; if the server is always the same name / IP address then stations will maintain their identity when moved.
 
 What should happen when a station moves from one server to another?  Depends on whether the server has the same name.  If it does, it's the same station.  If not, it's a different station.
@@ -163,11 +157,30 @@ Heck, buttons should look more button-y.
 Conflict resolver should use edit schema, at least to get order and labels.  Multi-page conflict resolver would be confusing, but we might have to go there.
 
 Import from DBF - schema translation.  Ideally, admin-controlled schema translation.
+    Import from DBF is basically working.
+    Can't import directly into a new DB because the server doesn't return "members" in a table list.
+    Deliver a canned Reg v2 import somehow?  Maybe by delivering a *.json that
+    you can import that will bring in an externalImport map?
+    Should be able to import from browser upload, rather than from server file.
+    Should fields be ignored by default, or lower-cased and imported by default?
+    If they are ignored by default, it's a nuisance to have to fill out the import form.
+    If they are imported by default, there's no obvious way to *omit* unwanted fields.
+    Not that unwanted fields cause any real trouble.  MS unwanted fields have very verbose names;
+    it would be unfortunate to duplicate them.
+
 Import from Member Solutions
 Import from Eventbrite
 Import from CSV
+    Column oriented, or with headers?  Probably both.
+Import from .XLSX?
 
-How should an import file be fed into the system?  Options are upload and direct file access. Direct file access is awkward.  Upload has a problem with how to specify the desired import mapping.
+Maybe need a "zap table" user interface.  Or maybe external import has a "clear first" option.
+
+Does JS - and in particular node.js - intern strings?  If not, we might want to make a point of interning them at DB load time and record update/add time.
+
+Various imports should probably assign membership numbers if they aren't assigned.  Ugh.  That would mean involving the UI, since the server doesn't know about membership numbers.
+
+How should an import file be fed into the system?  Options are upload and direct file access. Direct file access is awkward.  Upload has a problem with how to specify the desired import mapping.  Multipart might allow RPC+file upload.  Or one URL component could be the record ID for the mapping record.
 
 Export (DBF?  CSV?)
 
@@ -241,7 +254,7 @@ Console log
 Maybe have "All" support be a generic feature for List?  It's now a generic feature for DBManager, but maybe it should move down into List.  (But maybe it should really be checkbox-based to allow for different filters - e.g. for printers there's "show printers on all servers" and "show hidden printers".)
 
 Test edit-edit conflicts, make sure you get a reasonable error.  Lead to conflict resolution.
-
+Fix-last vs delete conflict.  (Same as list-delete conflict, I think.)
 Test delete-{list,edit} conflicts.
 
 Force global configuration when not configured.
@@ -324,3 +337,9 @@ Drive member schema largely or completely from a table.
 Credit card integration
 
 Receipts.  Note that receipt might need to cover multiple memberships and perhaps upgrades.
+
+---
+
+Features not planned:
+
+	search interface vs last/first/number interface

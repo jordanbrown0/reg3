@@ -24,6 +24,12 @@ function Admin()
         {           label: 'Categories', func: function () {
             base.switchTo(new CategoriesManager());
         }},
+        {           label: 'External import mapping', func: function () {
+            base.switchTo(new ExternalImportManager());
+        }},
+        {           label: 'External import', func: function () {
+            base.switchTo(new ExternalImport());
+        }},
         { key: 'v', label: '(V) server manager', func: function () {
             base.switchTo(new ServerManager());
         }},

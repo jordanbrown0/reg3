@@ -12,11 +12,31 @@ var globalSchema = [
         { title: 'Badges' },
         { field: 'font', label: 'Badge font', default: 'Times New Roman', required: true },
         { field: 'badgeCopies', label: 'Number of copies', input: InputInt, default: 1, required: true },
-        { field: 'badgeCity', label: 'Print city on badges?', input: InputBool, default: true },
-        { field: 'badgeNumber', label: 'Print badge number on badges?', input: InputBool, default: true },
-        { field: 'numberSize', label: 'Size of badge number', input: InputInt, default: 45, required: true },
-        { field: 'citySize', label: 'Size of city', input: InputInt, default: 45, required: true },
-        { field: 'nameSizes', label: 'Sizes to try for names', input: InputIntList, default: [160,140,120,100], required: true }
+        { field: 'badgeCity',
+            label: 'City?  Size?',
+            input: InputObject,
+            default: { print: true, size: 45 },
+            schema: [
+                { field: 'print', input: InputBool },
+                { field: 'size', input: InputInt, required: true }
+            ]
+        },
+        { field: 'badgeNumber',
+            label: 'Number?  Size?',
+            input: InputObject,
+            default: { print: true, size: 45 },
+            schema: [
+                { field: 'print', input: InputBool },
+                { field: 'size', input: InputInt, required: true }
+            ]
+        },
+        { field: 'nameSizes',
+            label: 'Sizes to try for names',
+            input: InputIntList,
+            default: [160,140,120,100],
+            required: true,
+            params: { required: true }
+        }
     ],
 ];
 var globalDefault;

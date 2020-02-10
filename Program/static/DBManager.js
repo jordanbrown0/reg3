@@ -164,6 +164,7 @@ DBAdd.prototype.activate = function () {
     var o = this;
 
     o.r = {};
+    o.params.table.applyDefaults(o.r);
     if (o.params.keyField) {
         Editor.setReadOnly(o.params.schema, o.params.keyField, false);
     }

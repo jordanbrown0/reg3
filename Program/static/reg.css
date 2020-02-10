@@ -56,6 +56,10 @@ table.Editor {
     width: 12em;
 }
 
+.InputMultiButton {
+    width: 2em;
+}
+
 .Title {
     font-size: larger;
     font-weight: bolder;
@@ -77,6 +81,10 @@ input.Disabled {
 .MemberManager .List #footer {
     color: gray;
     text-align: center;
+}
+
+#map .InputText {
+    width: 10em;
 }
 
 .List table {

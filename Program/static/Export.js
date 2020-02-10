@@ -15,11 +15,6 @@ Export.prototype.activate = function () {
         } }
     ]);
     db.reg.listTables(function (tables) {
-        var i;
-        var checkboxes = {};
-        var table = new DElement('table');
-        o.tables = tables;
-
         o.bools = new InputSelectMulti({options: tables});
         o.appendChild(o.bools);
 

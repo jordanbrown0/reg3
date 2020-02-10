@@ -14,6 +14,7 @@ window.onload = function () {
         getAllConfig(function (cfg_) {
             cfg = cfg_;
             log('Init done');
+            base.activate();
             home();
         });
     }
