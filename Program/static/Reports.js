@@ -8,6 +8,9 @@ function Reports()
         }},
         { key: 'l', label: '(L)ist', func: function () {
             base.switchTo(new ReportsList());
+        }},
+        { key: 'd', label: '(D)uplicates', func: function () {
+            base.switchTo(new ReportsDups());
         }}
     ]});
     o.appendChild(o.menu);

@@ -25,6 +25,7 @@ Reports
 		same left(last,3) / left(first, 3)
 		same last, city
 		same last, left(first, 3)
+            All of those handled through general duplicate finder
 		custom filtering
 	Membership lists
 		class, number, and name, by name
@@ -156,19 +157,19 @@ Heck, buttons should look more button-y.
 
 Conflict resolver should use edit schema, at least to get order and labels.  Multi-page conflict resolver would be confusing, but we might have to go there.
 
-Import from DBF - schema translation.  Ideally, admin-controlled schema translation.
-    Import from DBF is basically working.
-    Can't import directly into a new DB because the server doesn't return "members" in a table list.
+Import from DBF
+    Import from DBF is basically working, with schema translation.
+    Can't import directly into a new DB because the server doesn't return "members" in a table list. How to prime?  Maybe client-side init does a no-op DB operation to get the table set up.
     Deliver a canned Reg v2 import somehow?  Maybe by delivering a *.json that
     you can import that will bring in an externalImport map?
     Should be able to import from browser upload, rather than from server file.
     Should fields be ignored by default, or lower-cased and imported by default?
     If they are ignored by default, it's a nuisance to have to fill out the import form.
     If they are imported by default, there's no obvious way to *omit* unwanted fields.
-    Not that unwanted fields cause any real trouble.  MS unwanted fields have very verbose names;
-    it would be unfortunate to duplicate them.
+    Not that unwanted fields cause any real trouble.  Member Solutions unwanted fields have very verbose names; it would be unfortunate to duplicate them.
 
 Import from Member Solutions
+    Partial.  Need content cleanup (e.g. "$75.00" => 75, class name, one-line badge name to two-line badge name).
 Import from Eventbrite
 Import from CSV
     Column oriented, or with headers?  Probably both.
