@@ -24,6 +24,9 @@ function Admin()
         {           label: 'Categories', func: function () {
             base.switchTo(new CategoriesManager());
         }},
+        {           label: 'Corrections', func: function () {
+            base.switchTo(new CorrectionsManager());
+        }},
         {           label: 'External import mapping', func: function () {
             base.switchTo(new ExternalImportManager());
         }},

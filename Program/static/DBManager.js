@@ -43,7 +43,6 @@ DBManager.prototype.activate = function () {
     if (o.params.canAdd) {
         base.addNav([
             { key: 'Add', msg: 'Add', func: function () {
-                log('add');
                 o.add();
             } }
         ]);

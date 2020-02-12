@@ -207,22 +207,49 @@ extend(DElement, MemberEdit);
 MemberEdit.prototype.activate = function () {
     var o = this;
 
-    table.members.get(o.key, function (r) {
+    var corrections = {};
+    table.corrections.list({filter: {eq: [{f: 'table'}, 'members']}},
+        gotCorrections);
+        
+    function gotCorrections(corRecs) {
+        forEachArrayObject(corRecs, function (k, cr) {
+            var field = cr.field;
+            corrections[field] = {};
+            cr.corrections.forEach(function (c) {
+                corrections[field][c.from.toLowerCase()] = c.to;
+            });
+        });
+        console.log(corrections);
+        table.members.get(o.key, gotRec);
+    }
+    
+    function gotRec(r) {
         o.r = r;
         o.setTitle();
         o.editor = new Editor(r, {
             schema: memberSchema,
             doneButton: 'Save',
-            done: function () {
-                table.members.put(o.key, r, null,
-                    function (rNew) { base.switchTo(new MemberDisplay(o.key)); }
-                );
-            },
+            done: done,
             cancel: home
         });
         o.appendChild(o.editor);
         o.editor.activate();
-    });
+    }
+    
+    function done() {
+        for (var f in corrections) {
+            var cf = corrections[f];
+            if (cf) {
+                var to = cf[o.r[f].toLowerCase()];
+                if (to) {
+                    o.r[f] = to;
+                }
+            }
+        }
+        table.members.put(o.key, o.r, null,
+            function (rNew) { base.switchTo(new MemberDisplay(o.key)); }
+        );
+    }
 };
 
 MemberEdit.prototype.setTitle = Member.setTitle;

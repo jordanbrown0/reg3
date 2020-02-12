@@ -87,6 +87,10 @@ input.Disabled {
     width: 10em;
 }
 
+#corrections .InputText {
+    width: 10em;
+}
+
 .List table {
     width: 100%;
 }

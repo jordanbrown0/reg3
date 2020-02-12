@@ -20,12 +20,6 @@ Reports
 	Memberships by class (done?  needs print.)
 		free vs paid
 	Possible duplicates
-		same last/first
-		same last / left(first,1)
-		same left(last,3) / left(first, 3)
-		same last, city
-		same last, left(first, 3)
-            All of those handled through general duplicate finder
 		custom filtering
 	Membership lists
 		class, number, and name, by name
@@ -82,7 +76,12 @@ Stock "framework" UI stuff, like PESO.
 
 Vanity membership numbers.  Maybe less necessary as a distinct concept now that the actual key is artificial.  Maybe they're just a matter of having strings instead of numbers.
 
-Input cleanup.  Automatically translate USA variants to the canonical form, "Calif" to "CA", et cetera.  Driven by a table, of course.  Both on demand (to clean up imported data) and during data entry.  (Would be cool if it was totally hot, so that you type something, tab away, and it gets corrected.)
+Input cleanup.  Automatically translate USA variants to the canonical form, "Calif" to "CA", et cetera.  Driven by a table, of course.  Both on demand (to clean up imported data) and during data entry.
+    Works on input (at Edit save)
+    Make it work per-field, so you tab away and it changes.
+    Bulk cleanup of existing data.
+    Performance - reloading on every edit is excessive.
+    If members ever move to DBManager, performance will be a minor concern, scanning the corrections table when it won't contain any corrections for any table other than members.
 
 Search performance with large member tables (20K entries).  Will probably need to learn to skip searches, so that we don't search until we've processed all of the input.  (But keystroke suppression during RPC will lose keystrokes; for this case we need to reverse the priority of the two.)  Confirmed that this is a problem with 20K entries.  Right now I don't remember why I felt the need to suppress keystrokes.  Maybe it would be sufficient to suppress searches while a search is in process.
 
