@@ -175,7 +175,6 @@ DBAdd.prototype.activate = function () {
     });
     o.appendChild(editor);
     editor.activate();
-    base.setTitle(o.params.title);
 };
 
 DBAdd.prototype.add = function (cb) {

@@ -170,7 +170,8 @@ var stationSchema = [
                 { admin: 'Administration' },
                 { reports: 'Reports' },
                 { upgrade: 'Process upgrades' },
-                { unmark: 'Mark membership as not-picked-up' }
+                { unmark: 'Mark membership as not-picked-up' },
+                { void: 'Void / unvoid memberships' }
             ],
             default: ['admin', 'newMember', 'reports', 'upgrade', 'unmark' ]
         }

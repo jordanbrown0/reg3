@@ -266,6 +266,13 @@ if (!String.prototype.includes) {
   };
 }
 
+
+if (!Array.prototype.includes) {
+    Array.prototype.includes = function (item) {
+        var o = this;
+        return (o.some(function (ent) { return (ent == item); }));
+    }
+}
 // Given an array of objects, call the callback for each element in each
 // object.  This is intended primarily for objects that each have only
 // a single element and are structured in an array to preserve order.

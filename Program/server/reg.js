@@ -113,9 +113,13 @@ methods.importCSV = async function (dbName, tName, filename, map, headers) {
     console.log('took', Date.now()-t0);
 };
 
+methods.defaultServerName = function () {
+    return (global.process.env.COMPUTERNAME + ' ' + global.process.cwd());
+};
+
 methods.nop = function () {
     return ('Bored now');
-}
+};
 
 methods.eval = function (r, expr) {
     return ((new Expression(expr)).exec(r));
@@ -221,7 +225,12 @@ function tick() {
     totalIdle = 0;
     avgBusy += alpha*(newBusy-avgBusy);
     if (showBusy) {
-        process.stdout.write(sprintf("\r%5.1f%% busy", avgBusy*100));
+        process.stdout.write(
+            sprintf("\r%5.1f%% busy %4.0fM",
+                avgBusy*100,
+                global.process.memoryUsage().rss/1024/1024
+            )
+        );
     }
 }
 

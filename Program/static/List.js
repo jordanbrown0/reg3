@@ -18,12 +18,13 @@ function List(params)
         type: 'text',
         value: '',
         id: 'search',
+        className: 'SearchBox',
         oninput: function() {
             o.search = this.value.split(' ');
             o.refresh();
         },
     });
-    o.appendChild(o.searchbox);
+    o.appendChild('Search', o.searchbox);
 
     o.table = new DElement('table', {border: 1});
     o.appendChild(o.table);
@@ -58,11 +59,7 @@ List.prototype.refresh = function () {
             if (o.params.header instanceof DElement) {
                 o.table.appendChild(o.params.header);
             } else {
-                o.table.appendChild(
-                    new DElement('tr',
-                        new DElement('th', o.params.header)
-                    )
-                );
+                o.table.appendChild(tr(th(o.params.header)));
             }
         }
         
@@ -127,10 +124,10 @@ List.prototype.select = function(n) {
         return;
     }
     if (o.selected != null) {
-        o.rows[o.selected].element.setAttribute('class', '');
+        o.rows[o.selected].element.removeClass('Selected');
     }
     if (n != null) {
-        o.rows[n].element.setAttribute('class', 'Selected');
+        o.rows[n].element.addClass('Selected');
     }
     o.selected = n;
 };

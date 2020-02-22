@@ -4,9 +4,7 @@ var globalSchema = [
         { field: 'startDate', label: 'Convention start date',
             input: InputDate },
         { field: 'currencyPrefix', label: 'Currency prefix', default: '$' },
-        { field: 'currencySuffix', label: 'Currency suffix', default: '' },
-        { field: 'voidClass', label: 'Class code for void memberships',
-            default: 'Void' },
+        { field: 'currencySuffix', label: 'Currency suffix', default: '' }
     ],
     [
         { title: 'Badges' },

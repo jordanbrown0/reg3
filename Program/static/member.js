@@ -1,6 +1,5 @@
 var lastKey = undefined;
-var lastLast = undefined;
-var lastFirst = undefined;
+var lastRec = undefined;
 
 var Member = {};
 
@@ -11,10 +10,14 @@ Member.setTitle = function () {
     Class.getDescription(o.r.class, gotDesc);
     
     function gotDesc(d) {
-        var s = joinTruthy([o.r.first, o.r.last], ' ') + ' - ' + d;
         if (o.r.amount != undefined) {
-            s += ' - ' + cfg.currencyPrefix + o.r.amount + cfg.currencySuffix;
+            d += ' - ' + cfg.currencyPrefix + o.r.amount + cfg.currencySuffix;
         }
+        var s = joinTruthy([o.r.first, o.r.last], ' ') + ' - ';
+        if (o.r.void) {
+            s += 'Void, was ';
+        }
+        s += d;
         o.titleSpan.replaceChildren(s);
     }
 };
@@ -26,20 +29,29 @@ function MemberManager() {
     o.list = new List({
         table: table.members,
         summarize: function (k, r) {
-            var pickupFlag = r.pickedup ? '*' : '';
+            var status;
+            if (r.void) {
+                status = 'X';
+            } else if (r.pickedup) {
+                status = '*';
+            } else {
+                status = '';
+            }
+
             var name = joinTruthy([ r.last, r.first ], ', ');
             var badge = joinTruthy([ r.badge1, r.badge2 ], ' ');
             if (badge) {
                 name = joinTruthy([name, '(' + badge + ')'], ' ');
             }
             var s = joinTruthy([ name, r.addr1, r.city ], ' / ');
-            return (new DElement('tr',
-                new DElement('td', pickupFlag, { id: 'pickupFlag' }),
-                new DElement('td', s, { id: 'summary' })
+
+            return (tr({className: r.void ? 'Void' : 'Active'},
+                td(status, { id: 'status' }),
+                td(s, { id: 'summary' })
             ));
         },
-        footer: new DElement('tr', { id: 'footer' },
-            new DElement('td', {colSpan: 2}, '* membership has been picked up')
+        footer: tr({ id: 'footer' },
+            td({colSpan: 2}, '* membership has been picked up')
         ),
         pick: function (k) {
             base.switchTo(new MemberDisplay(k));
@@ -110,8 +122,7 @@ MemberDisplay.prototype.activate = function () {
         o.r = r;
         
         lastKey = o.key;
-        lastLast = r.last;
-        lastFirst = r.first;
+        lastRec = r;
 
         o.setTitle();
 
@@ -130,13 +141,7 @@ MemberDisplay.prototype.activate = function () {
                 } }
             ]);
         }
-        if (r.pickedup) {
-            base.addNav([
-                { msg: 'Unmark', perms: 'unmark', func: function () {
-                    o.unmark();
-                } }
-            ]);
-        }
+
         base.addNav([
             { key: 'C', msg: 'Change', func: function () {
                 base.switchTo(new MemberEdit(o.key));
@@ -145,6 +150,20 @@ MemberDisplay.prototype.activate = function () {
                 base.switchTo(new MemberUpgrade(o.key));
             } }
         ]);
+
+        if (r.void) {
+            base.addNav([
+                { msg: 'Unvoid', perms: 'void', func: function () {
+                    o.setVoid(false);
+                } }
+            ]);
+        } else {
+            base.addNav([
+                { msg: 'Void', perms: 'void', func: function () {
+                    o.setVoid(true);
+                } }
+            ]);
+        }
 
         var editor = new Editor(r, {
             schema: memberSchema,
@@ -195,6 +214,15 @@ MemberDisplay.prototype.unmark = function () {
     }
 };
 
+MemberDisplay.prototype.setVoid = function (v) {
+    var o = this;
+    
+    o.r.void = v;
+    table.members.put(o.key, o.r, null, function (rNew) {
+        base.switchTo(new MemberDisplay(o.key));
+    });
+};
+
 function MemberEdit(key)
 {
     var o = this;
@@ -219,7 +247,6 @@ MemberEdit.prototype.activate = function () {
                 corrections[field][c.from.toLowerCase()] = c.to;
             });
         });
-        console.log(corrections);
         table.members.get(o.key, gotRec);
     }
     

@@ -14,7 +14,7 @@ function Home()
         }
     );
     if (lastKey) {
-        var lf = joinTruthy([lastLast, lastFirst], ', ');
+        var lf = joinTruthy([lastRec.last, lastRec.first], ', ');
         items.push({ key: 'f',
             label: '(F)ix last member (' + lf + ')',
             func: function () { base.switchTo(new MemberDisplay(lastKey)); }
@@ -22,7 +22,7 @@ function Home()
     }
     items.push(
         { key: 'r', label: '(R)eports', perms: 'reports',
-            func: function () { base.switchTo(new Reports()); }
+            func: function () { base.switchTo(new ReportMenu()); }
         },
         { key: 'a', label: '(A)dministration', perms: 'admin',
             func: function () { base.switchTo(new Admin()); }
@@ -37,7 +37,8 @@ extend(DElement, Home);
 Home.prototype.activate = function () {
     var o = this;
     base.addNav([
-        { key: '!', msg: null, func: function () { base.switchTo(new Admin()); } }
+        { key: '!', msg: null, func: function () { base.switchTo(new Admin()); } },
+        { key: '?', msg: null, func: function () { base.switchTo(new DebugControl()); } }
     ]);
     o.menu.activate();
     pageTitle.set(cfg.convention);

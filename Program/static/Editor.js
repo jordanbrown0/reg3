@@ -225,8 +225,7 @@ function EditorEntry(schemaEntry, params)
     EditorEntry.sup.constructor.call(o, 'tr');
     o.schemaEntry = schemaEntry;
     
-    o.appendChild(new DElement('td',
-        schemaEntry.label || new EntityNode('nbsp'),
+    o.appendChild(td(schemaEntry.label || new EntityNode('nbsp'),
         {className: 'Label'}));
 
     o.params = merge(
@@ -247,9 +246,9 @@ function EditorEntry(schemaEntry, params)
     }
     
     o.input = new o.params.input(o.params);
-    o.appendChild(new DElement('td', o.input, {className: 'Value'}));
+    o.appendChild(td(o.input, {className: 'Value'}));
 
-    o.errorMessages = new DElement('td', { className: 'ErrorMessage' });
+    o.errorMessages = td({ className: 'ErrorMessage' });
     o.appendChild(o.errorMessages);
 }
 extend(DElement, EditorEntry);

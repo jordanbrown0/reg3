@@ -1,4 +1,4 @@
-function Reports()
+function ReportMenu()
 {
     var o = this;
     DElement.call(o, 'div');
@@ -7,17 +7,17 @@ function Reports()
             base.switchTo(new ReportTallies());
         }},
         { key: 'l', label: '(L)ist', func: function () {
-            base.switchTo(new ReportsList());
+            base.switchTo(new ReportList());
         }},
         { key: 'd', label: '(D)uplicates', func: function () {
-            base.switchTo(new ReportsDups());
+            base.switchTo(new ReportDupsSetup());
         }}
     ]});
     o.appendChild(o.menu);
 }
-extend(DElement, Reports);
+extend(DElement, ReportMenu);
 
-Reports.prototype.activate = function () {
+ReportMenu.prototype.activate = function () {
     var o = this;
     o.menu.activate();
     base.addNav([
@@ -25,7 +25,7 @@ Reports.prototype.activate = function () {
     ]);
 };
 
-Reports.prototype.title = 'Reports';
+ReportMenu.prototype.title = 'Reports';
 
 // This needs to be refactored a bit and recombined with the one in labels.js.
 // NEEDSWORK

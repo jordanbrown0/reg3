@@ -15,17 +15,10 @@ DNode.prototype.deactivate = function (cb) {
     cb();
 };
 
-DNode.verbose = false;
-DNode.log = function () {
-    if (DNode.verbose) {
-        log.apply(undefined, arguments);
-    }
-}
-
 function DText(s)
 {
     DNode.call(this, document.createTextNode(s));
-    DNode.log('DText '+s);
+    Debug.dom('DText '+s);
 }
 extend(DNode, DText);
 
@@ -62,12 +55,13 @@ DElement.Node = function (node) {
     DElement.sup.constructor.call(this, node);
 };
 
-// Create a DElement based on a type and optionally children or attributes.
-// Is there really value to adding attributes here?  Would it be more useful to set
-// properties?  When do you need attributes and properties can't do the job?
+// Create a DElement based on a type and optionally children or properties.
+// Do we need to adding attributes here?  When do you need attributes and
+// properties can't do the job?
 DElement.type = function(type /* , [attrs | child | string ] ... */) {
-    DNode.log('DElement '+type);
-    DNode.call(this, document.createElement(type));
+    var o = this;
+    Debug.dom('DElement '+type);
+    DElement.sup.constructor.call(o, document.createElement(type));
 
     for (var i=1; i < arguments.length; i++) {
         if (arguments[i] instanceof DNode
@@ -75,8 +69,8 @@ DElement.type = function(type /* , [attrs | child | string ] ... */) {
             || ! (arguments[i] instanceof Object)) {
             this.appendChild(arguments[i]);
         } else {
-            DNode.log('DElement setprops');
-            this.setProperties(arguments[i]);
+            Debug.dom('DElement setprops');
+            o.setProperties(arguments[i]);
         }
     }
 };
@@ -105,7 +99,7 @@ DElement.prototype.getProperty = function (p) {
 DElement.prototype.appendChild = function (/*args*/) {
     var ret;
     for (var i = 0; i < arguments.length; i++) {
-        DNode.log(this.toString()+' appending '+arguments[i]);
+        Debug.dom(this.toString()+' appending '+arguments[i]);
         if (arguments[i] instanceof Array) {
             ret = this.appendChild.apply(this, arguments[i]);
         } else if (arguments[i] instanceof DNode) {
@@ -121,7 +115,7 @@ DElement.prototype.appendChild = function (/*args*/) {
 
 // Merge with setAttributes?
 DElement.prototype.setAttribute = function (name, val) {
-    DNode.log('setAttribute('+name+', '+val+')');
+    Debug.dom('setAttribute('+name+', '+val+')');
     this.n.setAttribute(name, val);
 };
 

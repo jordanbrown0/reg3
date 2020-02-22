@@ -5,7 +5,6 @@ window.onload = function () {
     function doInit() {
         var f;
         while (f = init.shift()) {
-            log(f);
             if (f(doInit)) {
                 return;
             }

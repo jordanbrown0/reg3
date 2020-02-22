@@ -4,16 +4,16 @@ function ReportTallies()
     DElement.call(o, 'div');
     o.menu = new Menu({ items: [
         { key: 'p', label: '(P)icked up by date', func: function () {
-            base.switchTo(new ReportsPickedUpByDate());
+            base.switchTo(new ReportTallyPickedUpByDate());
         }},
         { key: 'n', label: '(N)ew by date', func: function () {
-            base.switchTo(new ReportsNewByDate());
+            base.switchTo(new ReportTallyNewByDate());
         }},
         { key: 's', label: '(S)ummary', func: function () {
-            base.switchTo(new ReportsSummary());
+            base.switchTo(new ReportSummary());
         }},
         { key: 'c', label: 'by (C)lass', func: function () {
-            base.switchTo(new ReportsByClass());
+            base.switchTo(new ReportTallyByClass());
         }}
     ]});
     o.appendChild(o.menu);

@@ -8,6 +8,14 @@
     box-sizing: border-box;
 }
 
+:focus {
+    background-color: lightgreen;
+}
+
+button {
+    cursor: pointer;
+}
+
 .Editor #first, .Editor #last {
     color: red;
 }
@@ -73,7 +81,7 @@ input.Disabled {
     height: 60%;
 }
 
-.MemberManager .List #pickupFlag {
+.MemberManager .List #status {
     width: 1em;
     text-align: center;
 }
@@ -81,6 +89,18 @@ input.Disabled {
 .MemberManager .List #footer {
     color: gray;
     text-align: center;
+}
+
+.MemberManager .List .Void {
+    color: lightgray;
+}
+
+.Menu {
+    cursor: pointer;
+}
+
+.SearchBox {
+    margin-left: 0.5em;
 }
 
 #map .InputText {
@@ -93,6 +113,7 @@ input.Disabled {
 
 .List table {
     width: 100%;
+    cursor: pointer;
 }
 
 .ListNoMatch {
@@ -122,10 +143,6 @@ input.Disabled {
     text-align: right;
 }
 
-.NavBar {
-    height: 15%;
-}
-
 /*
  * About vertical-align...
  * vertical-align has two modes, and they are fundamentally different.
@@ -147,16 +164,6 @@ html, body {
     margin: 0;
 }
 
-.Base {
-    height: 100%;
-    padding: 8px;
-}
-
-.Body {
-    height: 80%;
-    overflow-y: auto;
-}
-
 .Printers .List #type {
     width: 2em;
     text-align: center;
@@ -171,6 +178,7 @@ html, body {
     text-align: center;
 }
 
+// NEEDSWORK no CSS class on reports right now
 .ReportsByClass #grand {
     font-size: larger;
     font-weight: bolder;
@@ -251,21 +259,35 @@ body {
     width: 20em;
 }
 
+.Base {
+    height: 100%;
+    padding: 8px;
+}
+
 .Base .Header {
     width: 100%;
     height: 5%;
 }
 
 .Base .Header #headerClock {
-    display: inline-block;
+    display: inline-block;  /* NEEDSWORK: Why? */
     width: 50%;
     text-align: right;
 }
 
 .Base .Header #headerTitle {
-    display: inline-block;
+    display: inline-block;  /* NEEDSWORK: Why? */
     width: 50%;
     text-align: left;
     font-size: larger;
     font-weight: bolder;
+}
+
+.Base .Body {
+    height: 90%;
+    overflow-y: auto;
+}
+
+.Base .NavBar {
+    height: 5%;
 }

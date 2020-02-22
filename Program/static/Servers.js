@@ -1,11 +1,13 @@
 var serverSchema = [
     [
-        { field: 'name', label: 'Server name', default: 'Unconfigured', required: true },
-        { field: 'noPrint', label: 'Disable printing?', input: InputBool, default: false },
-        { field: 'nextNumber', label: 'Next membership number to assign', input: InputInt,
-            default: null, required: true },
-        { field: 'lastNumber', label: 'Last membership number to assign', input: InputInt,
-            default: null, required: true },
+        { field: 'name', label: 'Server name',
+            default: 'Unconfigured', required: true },
+        { field: 'noPrint', label: 'Disable printing?', input: InputBool,
+            default: false },
+        { field: 'nextNumber', label: 'Next membership number to assign',
+            input: InputInt, default: null, required: true },
+        { field: 'lastNumber', label: 'Last membership number to assign',
+            input: InputInt, default: null, required: true },
     ],
 ];
 var serverDefault = undefined;
@@ -84,8 +86,14 @@ Server.id = function (cb) {
     }
 };
 
-init.push(function serversInit() {
-    table.servers = new DBTable(db.reg, 'servers',
-        { defaults: Editor.defaults(serverSchema) }
-    );
+init.push(function serversInit(cb) {
+    rpc.defaultServerName(function (n) {
+        var d = Editor.defaults(serverSchema);
+        d.name = n;
+        table.servers = new DBTable(db.reg, 'servers',
+            { defaults: d }
+        );
+        cb();
+    });
+    return (true);
 });

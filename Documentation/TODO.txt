@@ -10,6 +10,7 @@ Other transaction
 Reports
 	To display, printer, file.  Maybe these are all the same here, all going to a browser page for view/print/save.
 		but browser save-as-text is pretty weak
+        Maybe have a button or checkbox for output intended for save-as-text.
 	New memberships
 		By Day and class *
 		By class and day
@@ -20,7 +21,8 @@ Reports
 	Memberships by class (done?  needs print.)
 		free vs paid
 	Possible duplicates
-		custom filtering
+		custom filtering e.g. "Bill" matches "William".
+        Drive by table?
 	Membership lists
 		class, number, and name, by name
 		number and name, by name
@@ -82,12 +84,15 @@ Input cleanup.  Automatically translate USA variants to the canonical form, "Cal
     Bulk cleanup of existing data.
     Performance - reloading on every edit is excessive.
     If members ever move to DBManager, performance will be a minor concern, scanning the corrections table when it won't contain any corrections for any table other than members.
+    Substring corrections - e.g. correct "st" to "St." (or "St." to "St" if you prefer that style.)
 
 Search performance with large member tables (20K entries).  Will probably need to learn to skip searches, so that we don't search until we've processed all of the input.  (But keystroke suppression during RPC will lose keystrokes; for this case we need to reverse the priority of the two.)  Confirmed that this is a problem with 20K entries.  Right now I don't remember why I felt the need to suppress keystrokes.  Maybe it would be sufficient to suppress searches while a search is in process.
 
 We suppress keystrokes while RPC requests are outstanding, which fixes the problem of receiving keystrokes while in the middle of an RPC request (and, e.g., saving the record twice), but means that keystrokes might be dropped - during a search, for instance.  Also, there may be some RPC calls that are OK to allow keystrokes during - class lookup in member records, content lookups in lists, et cetera.  Maybe we just need to suppress *dispatched* keystrokes, and/or suppress searches and similar actions while an RPC operation is pending.  But note:  in general it's OK to have several RPC operations in flight.
 
 Change field names to match v2 when reasonable.  Avoid unnecessary differences.
+
+setup - mkbat fails to create batch file.  Win8 vs Win10 difference?
 
 Print performance (~500ms to print long name requiring several shrink steps)
 	* Just have fewer font sizes?
@@ -104,8 +109,6 @@ If I ever expand the use of expressions, one of the first things that's going to
 Force landscape on label printers
 Alert when attempting to print and configured printer no longer exists.
 Human name of new printer is "undefined".
-
-Use Windows computer name as server ID?  It's in global.process.env.COMPUTERNAME.
 
 Style
 	Breakdown of responsibility for constructor and .activate() method.
@@ -129,7 +132,11 @@ Membership number allocation causes the DB to be rewritten.  Even if we do incre
 
 Maybe rethink List "summarize" to take a schema.
 
-The station display needs to be sorted by server.  Need error messages for "your station is configured to print on a printer on a different server".  Whether that will be a real issue will depend on network configuration; if the server is always the same name / IP address then stations will maintain their identity when moved.
+Maybe support form navigation using up/down arrows.
+
+The station display needs to be sorted by server.
+
+Need error messages for "your station is configured to print on a printer on a different server".  Whether that will be a real issue will depend on network configuration; if the server is always the same name / IP address then stations will maintain their identity when moved.
 
 What should happen when a station moves from one server to another?  Depends on whether the server has the same name.  If it does, it's the same station.  If not, it's a different station.
 
@@ -140,8 +147,6 @@ AQ list has funky rendering in Firefox.  Probably related to dynamically changin
 Browser-side errors need to interrupt UI
 window.addEventListener('error', function(event) { ... })
 window.onerror = function(message, source, lineno, colno, error) { ... }
-
-Maybe look again at my log infrastructure
 
 Make it clearer when an error is a server-side error.
 
@@ -166,6 +171,8 @@ Import from DBF
     If they are ignored by default, it's a nuisance to have to fill out the import form.
     If they are imported by default, there's no obvious way to *omit* unwanted fields.
     Not that unwanted fields cause any real trouble.  Member Solutions unwanted fields have very verbose names; it would be unfortunate to duplicate them.
+    Convert date formats on import.
+    File open errors are not reported back to the user.
 
 Import from Member Solutions
     Partial.  Need content cleanup (e.g. "$75.00" => 75, class name, one-line badge name to two-line badge name).
@@ -173,6 +180,7 @@ Import from Eventbrite
 Import from CSV
     Column oriented, or with headers?  Probably both.
     Header variant sort of works.
+    Get numbers to be numbers.
 Import from .XLSX?
 
 Maybe need a "zap table" user interface.  Or maybe external import has a "clear first" option.
@@ -206,6 +214,8 @@ Transaction log - should this be client-side or server-side?
 	** And would have to sync previous versions too.
 	* If transaction log is a regular DB then it'd always be in memory and that might be too much.
 	* How would transaction log sync work?  Ordinary mechanisms would work but seem expensive.  But let's see how fast import is.
+    * (R)eports (L)ist is currently unsorted, needs to be sorted.  Note that although sorting on the server side is easy, if we're pulling across all of the data we might as well sort on the client side.
+    * Note that (R)eports (D)uplicates sorts on the server side and then pulls all data across, should sort on the client side.
 
 Offline operations
     * Should require as-of if offlineRealTime is set
@@ -213,6 +223,12 @@ Offline operations
 	* Caution on home page.
 
 Move InputDate to <input type=date>, et cetera.
+
+Widgets don't get full focus marking until you use keyboard navigation.  Or something like that.
+
+When we're on a form, we shouldn't let the focus escape from the form.  Clicking outside a field should still leave us with *some* field focused.  Tabbing past the end or beginning should loop or stall.
+
+In reports, it's possible for the focus to escape from the report body, so that space, PageUp, and PageDn don't work.  (Repeat-by:  click in the Home header, then RL, then space/PageUp/PageDn.)
 
 Figure out how to get leave-page warning.
 
@@ -222,7 +238,7 @@ IE has focus problems (maybe fixed)
 
 Printer in either real units or % of label, not pixels.
 
-reports
+REPORTS
 	* Seem to require server-side knowledge of the schema, sigh.
 	* Though I should check the practicality of pulling 20K records over into the browser and then pushing them back to the server.  Maybe it's not as bad as I fear.
 	* Maybe push across an expression that describes the report?
@@ -230,6 +246,8 @@ reports
 	* How to do reports to files?  Tally reports might not be too bad, but what about member lists?  Maybe a half-REST where we push a report expression using JSON-RPC and it streams back a report?  That would be plain text only, but maybe that's OK.
 	* Note Node.js PDFkit could generate PDF reports.  Maybe that's the only kind of report; leave the actual printing to AcroRead.  But plain text can be useful for other purposes.
 	* So far just pulling across the data and formating into DOM for display and alternate CSS for printing.
+    * CSS class for each report (to allow for selected formating of particular items in that report.  Esp ReportTallyByClass.
+    * ReportTallyNewByDate - use convention-start date for distinguishing new reg from prereg.
 
 Classes
 	* Do we need single-keystroke selection?
@@ -244,13 +262,11 @@ Editor:
 		Need form-global validation.
 
 Conflict resolver should detect case where there are no differences.
-	
+
 Log:
 	parentelem is not implemented
 	If Log() is instantiated before <body> loads, we end up with two bodies.
-	
-Console log
-	suppresses duplicates
+    Maybe look again at my log infrastructure
 
 Maybe have "All" support be a generic feature for List?  It's now a generic feature for DBManager, but maybe it should move down into List.  (But maybe it should really be checkbox-based to allow for different filters - e.g. for printers there's "show printers on all servers" and "show hidden printers".)
 
@@ -259,11 +275,11 @@ Fix-last vs delete conflict.  (Same as list-delete conflict, I think.)
 Test delete-{list,edit} conflicts.
 
 Force global configuration when not configured.
-
+Force server configuration when not configured.
 Force station configuration when not configured.
 
 Should printers use an artificial key, or should they use the Windows name as
-their key?
+their key?  Can't use Windows name as key because the same Windows name may be used on two servers.
 
 Full screen.  Might need to prompt user to click to approve.  If we have full screen, we might also want a QUIT button that closes the window, so that people don't have to figure out how to de-full-screen.  Or maybe just maximize.  (Can we maximize from JS?)
 
@@ -274,8 +290,6 @@ REST operations don't have a way to return errors.  (REST upload could.  Rest do
 REST upload could maybe use MIME multi-part instead of a separate URL, and that would allow mixing an RPC request with a file upload.
 
 Import/Export user interface.  Do we need a minimal-keystroke variant, given that import/export is expected to be far less frequent than it is today?
-
-Memory usage statistics, perhaps on the busy% line.
 
 Consider disabling autocomplete.
 
@@ -294,8 +308,9 @@ If writing the DB for persistence is asynchronous, we need to ensure that we res
 
 If writing the DB for persistence is asynchronous, we need to make sure we don't do it twice at the same time(!).
 
-Installation
+Server Installation
 ** Install label printer driver?  Or maybe just short cut to vendor's download page.
+** Firewall.
 * Client installation
 ** Join network.
 ** Shortcuts/autostarts to server web page.  (Note that if the network config stays constant, a single shortcut can work forever.)
@@ -306,7 +321,7 @@ Installation
 NewConventionWad (and others?) save Mercurial and GIT history, and shouldn't.
 NewConventionWad shouldn't save SampleData (and others?)
 NewServerWad - maybe CloneThisConventionWad or something like that?
-Need an "update the program" wad.  For this convention, or for a selected convention?
+Need an "update the program" wad.  For this convention, or for a selected convention, or generic and you pick on the target?
 
 NewConventionOnThisSystem needs error checking on the mkdir.
 

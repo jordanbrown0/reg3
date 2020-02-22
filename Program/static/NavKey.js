@@ -1,10 +1,8 @@
-var keyVerbose = false;
-
 function NavKey()
 {
     var o = this;
     document.documentElement.onkeydown = function (e) {
-        keyLog('keydown', e.key);
+        Debug.keyboard('keydown', e.key);
         if (isRPCActive()) {
             // For now, this is interesting enough to always log it.
             log('ignore because of pending RPC');
@@ -48,7 +46,7 @@ NavKey.prototype.getKeyHandler = function (e) {
     var o = this;
     var key = o.getKeyName(e);
 
-    keyLog(e.key + ' => ' + key + ', ' + e.keyCode);
+    Debug.keyboard(e.key + ' => ' + key + ', ' + e.keyCode);
     return (o.keyHandlers[key]);
 };
 
@@ -57,12 +55,12 @@ NavKey.prototype.onkeydown = function (e) {
     var o = this;
     var h = o.getKeyHandler(e)
     if (h) {
-        keyLog('handle keydown', e.key);
+        Debug.keyboard('handle keydown', e.key);
         e.preventDefault();
         h();
     } else {
         if (o.shouldIgnore(e)) {
-            keyLog('ignore', e.key);
+            Debug.keyboard('ignore', e.key);
             e.preventDefault();
         }
     }
@@ -70,18 +68,18 @@ NavKey.prototype.onkeydown = function (e) {
 
 NavKey.prototype.onkeypress = function (e) {
     var o = this;
-    keyLog('keypress', e);
+    Debug.keyboard('keypress', e);
     if (o.getKeyHandler(e)) {
-        keyLog('ignore keypress', e.key);
+        Debug.keyboard('ignore keypress', e.key);
         e.preventDefault();
     }
 };
 
 NavKey.prototype.onkeyup = function (e) {
     var o = this;
-    keyLog('keyup', e);
+    Debug.keyboard('keyup', e);
     if (o.getKeyHandler(e)) {
-        keyLog('ignore keyup', e.key);
+        Debug.keyboard('ignore keyup', e.key);
         e.preventDefault();
     }
 };
@@ -210,9 +208,3 @@ NavKey.prototype.getKeyName = function (e) {
 
     return (kn);
 };
-
-function keyLog() {
-    if (keyVerbose) {
-        log.apply(null, arguments);
-    }
-}

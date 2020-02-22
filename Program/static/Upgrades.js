@@ -71,8 +71,8 @@ UpgradePicker.prototype.summarize = function (k, r) {
             description.appendChild(d);
         });
     }
-    return (new DElement('tr',
-        new DElement('td', cfg.currencyPrefix + r.amount + cfg.currencySuffix, {id: 'amount'}),
+    return (tr(
+        td(cfg.currencyPrefix + r.amount + cfg.currencySuffix, {id: 'amount'}),
         description
     ));
 };

@@ -49,6 +49,10 @@ Input.prototype.clearError = function () {
     o.content.removeClass('ErrorValue');
 };
 
+Input.prototype.focus = function () {
+    var o = this;
+    o.content.focus();
+};
 
 function InputInput(type, params) {
     var o = this;
@@ -414,9 +418,10 @@ function InputTablePicker(params)
 {
     var o = this;
     InputDBPicker.sup.constructor.call(o, params);
-    db.reg.listTables(function (tables) {
-        o.setOptions(tables);
-    });
+    // db.reg.listTables(function (tables) {
+        // o.setOptions(tables);
+    // });
+    o.setOptions(Object.keys(table));
 }
 extend(InputSelect, InputTablePicker);
 
@@ -533,6 +538,14 @@ InputSelectMulti.prototype.setOptions = function (opts) {
         if (child) {
             child.set(true);
         }
+    }
+};
+
+InputSelectMulti.prototype.focus = function () {
+    var o = this;
+    for (key in o.children) {
+        o.children[key].focus();
+        break;
     }
 };
 
@@ -669,6 +682,13 @@ InputMulti.prototype.validate = function () {
     return (ret);
 };
 
+InputMulti.prototype.focus = function () {
+    var o = this;
+    if (o.children.length > 0) {
+        o.children[0].focus();
+    }
+};
+
 function InputIntList(params) {
     var o = this;
     var params = Object.assign({params: {}}, params);
@@ -696,9 +716,13 @@ function InputObject(params) {
     
     InputObject.sup.constructor.call(o, content, params);
 
+    o.first = null;
     o.children = {};
     o.params.schema.forEach(function (schemaEnt) {
         var child = new schemaEnt.input(schemaEnt);
+        if (!o.first) {
+            o.first = child;
+        }
         o.children[schemaEnt.field] = child;
         o.content.appendChild(child);
     });
@@ -732,4 +756,9 @@ InputObject.prototype.validate = function () {
         });
     };
     return (ret);
+};
+
+InputObject.prototype.focus = function () {
+    var o = this;
+    o.first.focus();
 };

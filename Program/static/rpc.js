@@ -1,10 +1,9 @@
 var rpc = {};
-var rpcVerbose = false;
 var rpcActive = {};
 var rpcFailed = false;
 
 init.push(function rpcInit(cb) {
-    if (rpcVerbose) {
+    if (debug.rpc) {
         log('Initializing RPC');
     }
     var serial = 0;
@@ -14,7 +13,7 @@ init.push(function rpcInit(cb) {
         x.onload = function() {
             delete rpcActive[myserial];
             var response = JSON.parse(x.responseText);
-            if (rpcVerbose) {
+            if (debug.rpc) {
                 log(myserial, '<==', response);
             }
             runcallback(function () { callback(response); })
@@ -22,7 +21,7 @@ init.push(function rpcInit(cb) {
         x.onerror = rpcError;
         x.open('PUT', '/Call');
         x.setRequestHeader('Content-Type', 'application/json');
-        if (rpcVerbose) {
+        if (debug.rpc) {
             log(myserial, '==>', params);
         }
         x.send(JSON.stringify(params));
@@ -71,7 +70,7 @@ init.push(function rpcInit(cb) {
 
     call({name: 'methods', params: []}, function(r) {
         addmethods(r.response);
-        if (rpcVerbose) {
+        if (debug.rpc) {
             log('RPC ready');
         }
         cb();
@@ -170,13 +169,13 @@ REST.upload = function (url, file, cb) {
     x.open('PUT', url);
     x.onload = function () {
         var res = JSON.parse(x.responseText);
-        if (rpcVerbose) {
+        if (debug.rpc) {
             log('REST <==', res);
         }
         cb(res);
     };
     x.onerror = rpcError;
-    if (rpcVerbose) {
+    if (debug.rpc) {
         log('REST ==>', file.name);
     }
     x.send(file);

@@ -1,4 +1,4 @@
-var reportsDupsSchema = [[
+var reportDupsSchema = [[
     {
         field: 'sort',
         label: 'Sort fields',
@@ -29,73 +29,70 @@ var reportsDupsSchema = [[
     }
 ]];
 
-function ReportsDups()
+function ReportDupsSetup()
 {
     var o = this;
     DElement.call(o, 'div');
 }
-extend(DElement, ReportsDups);
+extend(DElement, ReportDupsSetup);
 
-ReportsDups.prototype.activate = function () {
+ReportDupsSetup.prototype.activate = function () {
     var o = this;
-    var r = Editor.defaults(reportsDupsSchema);
+    var r = Editor.defaults(reportDupsSchema);
     var e = new Editor(r, {
-        schema: reportsDupsSchema,
-        done: function () { base.switchTo(new ReportsDupsGo(r)); },
-        doneButton: 'Go'
+        schema: reportDupsSchema,
+        done: function () { base.switchTo(new ReportDups(r)); },
+        doneButton: 'Go',
+        cancel: home
     });
     o.appendChild(e);
     e.activate();
 };
 
-ReportsDups.prototype.title = 'Possible Duplicates';
+ReportDupsSetup.prototype.title = 'Possible Duplicates';
 
-function ReportsDupsGo(params) {
+function ReportDups(params) {
     var o = this;
     o.params = params;
-    DElement.call(o, 'div');
+    ReportDups.sup.constructor.call(o);
 }
-extend(DElement, ReportsDupsGo);
+extend(Report, ReportDups);
 
-ReportsDupsGo.prototype.activate = function () {
+ReportDups.prototype.header = function () {
+    return (tr(
+        th('Last'),
+        th('First'),
+        th('Address')
+    ));
+};
+
+ReportDups.prototype.footer = function () {
+    return (tr(
+        th('Last'),
+        th('First'),
+        th('Address')
+    ));
+};
+
+ReportDups.prototype.body = function (cb) {
     var o = this;
 
-    base.addNav([
-        { key: 'P', msg: 'Print', func: function () { window.print(); } },
-        { key: 'Enter', msg: 'Done', func: home },
-        { key: 'Escape', func: home }
-    ]);
-
-    var body = new DElement('tbody');
-
-    var t = o.appendChild(
-        new DElement('table',
-            new DElement('thead',
-                tr(
-                    th('Last'),
-                    th('First')
-                )
-            ),
-            body,
-            new DElement('tfoot',
-                tr(
-                    th('Last'),
-                    th('First')
-                )
-            )
-        )
-    );
-
+    var body = [];
     var prev = {};
+    var first = true;
     table.members.list({sort: o.params.sort}, function (recs) {
         forEachArrayObject(recs, function (k, r) {
             if (maybeDup(prev, r)) {
-                line(prev);
-                line(r);
-                body.appendChild(tr(td(new EntityNode('nbsp'))));
+                if (!first) {
+                    body.push(tr(td(new EntityNode('nbsp'))));
+                }
+                body.push(line(prev));
+                body.push(line(r));
+                first = false;
             }
             prev = r;
         });
+        cb(body);
     });
     
     function maybeDup(r1, r2) {
@@ -112,7 +109,7 @@ ReportsDupsGo.prototype.activate = function () {
         }));
     }
     function line(r) {
-        body.appendChild(tr(
+        return(tr(
             td(r.last || ''),
             td(r.first || ''),
             td(joinTruthy(
@@ -123,4 +120,4 @@ ReportsDupsGo.prototype.activate = function () {
     }
 };
 
-ReportsDupsGo.prototype.title = 'Possible Duplicates';
+ReportDups.prototype.title = 'Possible Duplicates';
