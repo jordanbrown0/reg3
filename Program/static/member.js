@@ -24,7 +24,7 @@ Member.setTitle = function () {
 
 function MemberManager() {
     var o = this;
-    DElement.call(o, 'div', {className: 'MemberManager' });
+    MemberManager.sup.constructor.call(o, 'div', {className: 'MemberManager' });
 
     o.list = new List({
         table: table.members,
@@ -226,7 +226,7 @@ MemberDisplay.prototype.setVoid = function (v) {
 function MemberEdit(key)
 {
     var o = this;
-    DElement.call(o,'div');
+    MemberEdit.sup.constructor.call(o,'div');
     o.key = key;
     o.titleSpan = new DElement('span');
 }

@@ -2,7 +2,7 @@ function ConflictListResolver(conflicts)
 {
     var o = this;
     o.conflicts = conflicts;
-    DElement.call(o, 'div');
+    ConflictListResolver.sup.constructor.call(o, 'div');
 }
 extend(DElement, ConflictListResolver);
 
@@ -28,7 +28,7 @@ function ConflictResolver(c, params) {
     var o = this;
     o.c = c;
     o.params = params;
-    DElement.call(o, 'div', {className: 'ConflictResolver'});
+    ConflictResolver.sup.constructor.call(o, 'div', {className: 'ConflictResolver'});
 }
 
 extend(DElement, ConflictResolver);

@@ -1,7 +1,7 @@
 function Import()
 {
     var o = this;
-    DElement.call(o, 'div');
+    Import.sup.constructor.call(o, 'div');
 
     var fileInput = new DElement('input', {
         type: 'file',

@@ -7,7 +7,7 @@ var debugControlSchema = [[
 function DebugControl()
 {
     var o = this;
-    DElement.call(o, 'div');
+    DebugControl.sup.constructor.call(o, 'div');
 }
 extend(DElement, DebugControl);
 

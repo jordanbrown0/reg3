@@ -1,7 +1,15 @@
 function Base()
 {
     var o = this;
-    DElement.call(o, 'div', { className: 'Base' });
+    Base.sup.constructor.call(o, 'div', {
+        className: 'Base',
+        // This is interesting, in that we could make it so that focusing
+        // the base automatically re-focused on a field, but IE doesn't seem
+        // to believe in focusing on the base.
+        // tabIndex: 0,
+        // onfocus: function () { console.log('Base focus'); },
+        // onblur: function () { console.log('Base blur'); }
+    });
     o.clock = new DElement('span', { id: 'headerClock'});
     o.title = new DElement('span', { id: 'headerTitle'});
     o.header = new DElement('div', { className: 'Header' },

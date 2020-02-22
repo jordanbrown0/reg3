@@ -1,7 +1,7 @@
 function Report()
 {
     var o = this;
-    Report.sup.constructor.call(o, 'div');
+    Report.sup.constructor.call(o, 'div', {tabIndex: 0});
 }
 extend(DElement, Report);
 
@@ -13,6 +13,8 @@ Report.prototype.activate = function () {
         { key: 'Enter', msg: 'Done', func: home },
         { key: 'Escape', func: home }
     ]);
+    
+    o.focus();
     
     var tbody = new DElement('tbody');
     tbody.appendChild('Working...');

@@ -1,7 +1,7 @@
 function ReportTallies()
 {
     var o = this;
-    DElement.call(o, 'div');
+    ReportTallies.sup.constructor.call(o, 'div');
     o.menu = new Menu({ items: [
         { key: 'p', label: '(P)icked up by date', func: function () {
             base.switchTo(new ReportTallyPickedUpByDate());

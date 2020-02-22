@@ -1,7 +1,7 @@
 function Home()
 {
     var o = this;
-    DElement.call(o, 'div');
+    Home.sup.constructor.call(o, 'div');
     var items = [];
     
     items.push(

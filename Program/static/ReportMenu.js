@@ -1,7 +1,7 @@
 function ReportMenu()
 {
     var o = this;
-    DElement.call(o, 'div');
+    ReportMenu.sup.constructor.call(o, 'div');
     o.menu = new Menu({ items: [
         { key: 't', label: '(T)allies of members', func: function () {
             base.switchTo(new ReportTallies());

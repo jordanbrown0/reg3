@@ -1,7 +1,7 @@
 function Admin()
 {
     var o = this;
-    DElement.call(o, 'div');
+    Admin.sup.constructor.call(o, 'div');
     o.menu = new Menu({ items: [
         { key: 'c', label: '(C)lasses', func: function () {
             base.switchTo(new ClassManager());

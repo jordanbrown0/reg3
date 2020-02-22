@@ -14,6 +14,8 @@ function List(params)
     
     o.search = [];
 
+    // Note that the searchbox is greedy:  any time you try to take focus away
+    // from it, it grabs the focus back.
     o.searchbox = new DElement('input', {
         type: 'text',
         value: '',
@@ -23,6 +25,7 @@ function List(params)
             o.search = this.value.split(' ');
             o.refresh();
         },
+        onblur: function () { setTimeout(function () {o.searchbox.focus();}); }
     });
     o.appendChild('Search', o.searchbox);
 
