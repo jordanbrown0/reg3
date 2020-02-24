@@ -3,9 +3,7 @@ var rpcActive = {};
 var rpcFailed = false;
 
 init.push(function rpcInit(cb) {
-    if (debug.rpc) {
-        log('Initializing RPC');
-    }
+    Debug.rpc('Initializing RPC');
     var serial = 0;
     function call(params, callback) {
         var x = new XMLHttpRequest();
@@ -13,24 +11,21 @@ init.push(function rpcInit(cb) {
         x.onload = function() {
             delete rpcActive[myserial];
             var response = JSON.parse(x.responseText);
-            if (debug.rpc) {
-                log(myserial, '<==', response);
-            }
+            Debug.rpc(myserial, '<==', response);
             runcallback(function () { callback(response); })
         };
         x.onerror = rpcError;
         x.open('PUT', '/Call');
         x.setRequestHeader('Content-Type', 'application/json');
-        if (debug.rpc) {
-            log(myserial, '==>', params);
-        }
+        Debug.rpc(myserial, '==>', params);
         x.send(JSON.stringify(params));
-        rpcActive[myserial] = x;
+        rpcActive[myserial] = {xhr: x, params: params};
     }
 
     function addmethod(m) {
         rpc[m] = function() {
             if (rpcFailed) {
+                log('RPC dropping rpc.'+m);
                 return;
             }
             var args = Array.prototype.slice.call(arguments);
@@ -70,9 +65,7 @@ init.push(function rpcInit(cb) {
 
     call({name: 'methods', params: []}, function(r) {
         addmethods(r.response);
-        if (debug.rpc) {
-            log('RPC ready');
-        }
+        Debug.rpc('RPC ready');
         cb();
     });
     return (true);
@@ -82,7 +75,8 @@ function rpcError(e) {
     log('RPC error', e);
     // Abort all active RPC requests.
     for (var ser in rpcActive) {
-        rpcActive[ser].abort();
+        log('RPC aborting rpc.' + rpcActive[ser].params.name);
+        rpcActive[ser].xhr.abort();
         delete rpcActive[ser];
     }
     
@@ -93,7 +87,9 @@ function rpcError(e) {
     // would need to have a way to ping, preferably without
     // triggering the logging and whatnot associated with a real
     // request.
-    base.switchTo(new WaitServer());
+    // Note that we must not call the current page's deactivate method,
+    // because it might try to make an RPC call... as Home.deactivate does.
+    base.switchToNoDeactivate(new WaitServer());
 }
 
 function rpcRestored() {
@@ -169,15 +165,11 @@ REST.upload = function (url, file, cb) {
     x.open('PUT', url);
     x.onload = function () {
         var res = JSON.parse(x.responseText);
-        if (debug.rpc) {
-            log('REST <==', res);
-        }
+        Debug.rpc('REST <==', res);
         cb(res);
     };
     x.onerror = rpcError;
-    if (debug.rpc) {
-        log('REST ==>', file.name);
-    }
+    Debug.rpc('REST ==>', file.name);
     x.send(file);
 };
 

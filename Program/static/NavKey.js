@@ -57,7 +57,7 @@ NavKey.prototype.onkeydown = function (e) {
     if (h) {
         Debug.keyboard('handle keydown', e.key);
         e.preventDefault();
-        h();
+        h(e);
     } else {
         if (o.shouldIgnore(e)) {
             Debug.keyboard('ignore', e.key);
@@ -66,6 +66,7 @@ NavKey.prototype.onkeydown = function (e) {
     }
 };
 
+// Not currently used; we capture keyboard commands at keydown time.
 NavKey.prototype.onkeypress = function (e) {
     var o = this;
     Debug.keyboard('keypress', e);
@@ -75,6 +76,7 @@ NavKey.prototype.onkeypress = function (e) {
     }
 };
 
+// Not currently used; we capture keyboard commands at keydown time.
 NavKey.prototype.onkeyup = function (e) {
     var o = this;
     Debug.keyboard('keyup', e);

@@ -62,6 +62,8 @@ Administration
 
 Option for 24-hour time vs 12-hour time in displays
 
+Options for display and edit form for dates (for non-US).
+
 search looks for what's in the record, which means that category matching is on the category code, not the category full text.  Perhaps the member-edit list should include both.
 
 Conflict resolver shows record keys for cross-references (e.g. printer IDs)
@@ -84,7 +86,8 @@ Input cleanup.  Automatically translate USA variants to the canonical form, "Cal
     Bulk cleanup of existing data.
     Performance - reloading on every edit is excessive.
     If members ever move to DBManager, performance will be a minor concern, scanning the corrections table when it won't contain any corrections for any table other than members.
-    Substring corrections - e.g. correct "st" to "St." (or "St." to "St" if you prefer that style.)
+    
+    Substring corrections - e.g. correct "st" to "St." (or "St." to "St" if you prefer that style.)  Caution for usage other than as a street suffix, e.g. Spanish-derived "Ave de la ...".
 
 Search performance with large member tables (20K entries).  Will probably need to learn to skip searches, so that we don't search until we've processed all of the input.  (But keystroke suppression during RPC will lose keystrokes; for this case we need to reverse the priority of the two.)  Confirmed that this is a problem with 20K entries.  Right now I don't remember why I felt the need to suppress keystrokes.  Maybe it would be sufficient to suppress searches while a search is in process.
 
@@ -163,7 +166,7 @@ Conflict resolver should use edit schema, at least to get order and labels.  Mul
 
 Import from DBF
     Import from DBF is basically working, with schema translation.
-    Can't import directly into a new DB because the server doesn't return "members" in a table list. How to prime?  Maybe client-side init does a no-op DB operation to get the table set up.
+    Can't import directly into a new DB because the server doesn't return "members" in a table list. How to prime?  Maybe client-side init does a no-op DB operation to get the table set up.  Or maybe the selection is based on the client-side list of tables rather than the server-side list.
     Deliver a canned Reg v2 import somehow?  Maybe by delivering a *.json that
     you can import that will bring in an externalImport map?
     Should be able to import from browser upload, rather than from server file.
@@ -214,8 +217,7 @@ Transaction log - should this be client-side or server-side?
 	** And would have to sync previous versions too.
 	* If transaction log is a regular DB then it'd always be in memory and that might be too much.
 	* How would transaction log sync work?  Ordinary mechanisms would work but seem expensive.  But let's see how fast import is.
-    * (R)eports (L)ist is currently unsorted, needs to be sorted.  Note that although sorting on the server side is easy, if we're pulling across all of the data we might as well sort on the client side.
-    * Note that (R)eports (D)uplicates sorts on the server side and then pulls all data across, should sort on the client side.
+    * Note that (R)eports (D)uplicates and (L)ist sort on the server side and then pulls all data across, should sort on the client side.
 
 Offline operations
     * Should require as-of if offlineRealTime is set
@@ -226,15 +228,11 @@ Move InputDate to <input type=date>, et cetera.
 
 Widgets don't get full focus marking until you use keyboard navigation.  Or something like that.
 
-When we're on a form, we shouldn't let the focus escape from the form.  Clicking outside a field should still leave us with *some* field focused.  Tabbing past the end or beginning should loop or stall.
-
-In reports, it's possible for the focus to escape from the report body, so that space, PageUp, and PageDn don't work.  (Repeat-by:  click in the Home header, then RL, then space/PageUp/PageDn.)
+If you click outside a field in a form, it should force focus to *some* field, so that *some* field always has focus.
 
 Figure out how to get leave-page warning.
 
 Keyboard commands are still kind of iffy.  See comments in Base.
-
-IE has focus problems (maybe fixed)
 
 Printer in either real units or % of label, not pixels.
 
@@ -278,9 +276,6 @@ Force global configuration when not configured.
 Force server configuration when not configured.
 Force station configuration when not configured.
 
-Should printers use an artificial key, or should they use the Windows name as
-their key?  Can't use Windows name as key because the same Windows name may be used on two servers.
-
 Full screen.  Might need to prompt user to click to approve.  If we have full screen, we might also want a QUIT button that closes the window, so that people don't have to figure out how to de-full-screen.  Or maybe just maximize.  (Can we maximize from JS?)
 
 Push the printer support work upstream.
@@ -294,9 +289,12 @@ Import/Export user interface.  Do we need a minimal-keystroke variant, given tha
 Consider disabling autocomplete.
 
 In conflict resolver, it would be nice if we could disable the [Resolve] button until all of the fields are resolved.  The missing piece is that NavBar doesn't have a "disable" concept.
-Incrementally write DB, rather than rewriting the entire thing.  Note that you can just add new versions of a record on the end and they'll overwrite the old ones.  Note also that because we keep the DB in memory it doesn't really matter how long it takes to read it.
+
+Consider using Element.classList instead of Element.className when adding and removing entries.
 
 DBMS
+
+Incrementally write DB, rather than rewriting the entire thing.  Note that you can just add new versions of a record on the end and they'll overwrite the old ones.  Note also that because we keep the DB in memory it doesn't really matter how long it takes to read it.
 
 If writing the DB (either to persist or for export) is asynchronous, it might interleave with changes.  That's OK for most things, but we might write the server membership number and then later write a record created *after* that point.  Perhaps it needs to stay synchronous, or perhaps we need to ensure that we write the server table last, or perhaps we need to decide that it's OK since after all only this server should care and *it* has the current data.
 
@@ -329,7 +327,7 @@ All of the setup stuff could probably use more checking on the new directory nam
 
 Home should set page title.
 
-Exactly when should we retrieve the configuration?  Currently on startup, every time you leave Home, and on successfully leaving Global Config.  (It would be sensible to also retrieve it for station and server edits, but is not currently necessary because Home uses only cfg.convention.)
+Exactly when should we retrieve the configuration?  Currently on startup, every time you leave Home, and on successfully leaving Global Config.  (It would be sensible to also retrieve it for station and server edits, but is not currently necessary because Home uses only cfg.convention.)  I'm not entirely happy with this yet, because the "deactivate" mechanism used to pick up the configuration when leaving Home isn't satisfying.  Also it seems like we pick it up too much, which might be a scalability problem.
 
 --------------
 
