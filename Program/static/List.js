@@ -13,6 +13,8 @@ function List(params)
     }, params);
     
     o.search = [];
+    o.searching = false;
+    o.pending = false;
 
     // Note that the searchbox is greedy:  any time you try to take focus away
     // from it, it grabs the focus back.
@@ -48,6 +50,14 @@ List.prototype.activate = function () {
 
 List.prototype.refresh = function () {
     var o = this;
+    
+    if (o.searching) {
+        o.pending = true;
+        return;
+    }
+    o.searching = true;
+    o.pending = false;
+    
     var filter = o.params.filter
         ? { and: [ o.params.filter, { match: o.search } ] }
         : { match: o.search };
@@ -57,6 +67,11 @@ List.prototype.refresh = function () {
         sort: o.params.sort
     };
     o.params.table.list(listParams, function (recs) {
+        o.searching = false;
+        if (o.pending) {
+            o.refresh();
+            return;
+        }
         o.table.removeChildren();
         if (o.params.header) {
             if (o.params.header instanceof DElement) {

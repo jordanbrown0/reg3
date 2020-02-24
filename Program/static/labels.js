@@ -58,6 +58,7 @@ function label_badge(r, done, err) {
         // Check for printing disabled.
         if (!res) {
             done();
+            return;
         }
         caps = res.caps;
         cfg = res.cfg;

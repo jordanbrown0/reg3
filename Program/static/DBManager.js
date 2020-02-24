@@ -105,14 +105,24 @@ DBEdit.prototype.activate = function () {
         var editor = new Editor(r, {
             schema: o.params.schema,
             doneButton: 'Save',
-            done: function () { o.put(function (rNew) { o.done(); }); },
+            done: function () {
+                if (working(true)) {
+                    return;
+                }
+                o.put(function (rNew) { o.done(); });
+            },
             cancel: function () { o.cancel(); }
         });
         o.appendChild(editor);
         editor.activate();
         if (o.params.canDelete) {
             base.addNav([
-                { msg: 'Delete', func: function () { o.delete(); }}
+                { msg: 'Delete', func: function () {
+                    if (working(true)) {
+                        return;
+                    }
+                    o.delete(function () { o.done(); });
+                }}
             ]);
         }
     });
@@ -141,9 +151,9 @@ DBEdit.prototype.cancel = function () {
     home();
 };
 
-DBEdit.prototype.delete = function () {
+DBEdit.prototype.delete = function (cb) {
     var o = this;
-    o.params.table.delete(o.k, o.r, function () { o.done(); });
+    o.params.table.delete(o.k, o.r, cb);
 };
 
 DBEdit.prototype.title = function () {
@@ -170,7 +180,12 @@ DBAdd.prototype.activate = function () {
     var editor = new Editor(o.r, {
         schema: o.params.schema,
         doneButton: 'Add',
-        done: function () { o.add(function (k) { o.done(); }); },
+        done: function () {
+            if (working(true)) {
+                return;
+            }
+            o.add(function (k) { o.done(); });
+        },
         cancel: function () { o.cancel(); }
     });
     o.appendChild(editor);

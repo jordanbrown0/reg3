@@ -34,6 +34,7 @@ Base.prototype.switchTo = function (n) {
     var o = this;
     var a = o.active;
     o.active = null;
+    o.setNav([]);
     a.deactivate(function () {
         o.switchToNoDeactivate(n);
     });
@@ -74,6 +75,7 @@ Base.prototype.switchToNoDeactivate = function (n) {
         }
     ]);
     o.title.replaceChildren(n.title instanceof Function ? n.title() : n.title);
+    working(false);
     // Caution:  n.activate may be asynchronous, and it has no done callback.
     // Perhaps it should.
     n.activate();

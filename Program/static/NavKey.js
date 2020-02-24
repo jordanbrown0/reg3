@@ -3,12 +3,12 @@ function NavKey()
     var o = this;
     document.documentElement.onkeydown = function (e) {
         Debug.keyboard('keydown', e.key);
-        if (isRPCActive()) {
-            // For now, this is interesting enough to always log it.
-            log('ignore because of pending RPC');
-            e.preventDefault();
-            return;
-        }
+        // if (isRPCActive()) {
+            // // For now, this is interesting enough to always log it.
+            // log('ignore because of pending RPC');
+            // e.preventDefault();
+            // return;
+        // }
         o.onkeydown(e);
     };
     // document.body.onkeypress = function (e) { log('keypress', e.key); o.onkeypress(e); };

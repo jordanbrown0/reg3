@@ -127,6 +127,29 @@ function assertParams(params) {
 	}
 }
 
+// Simple lock around "working" segments to avoid reentrancy.
+// It's not mutual exclusion.  Rather, the intent is that the caller
+// will ignore operations that attempt to reenter, e.g.
+//     onsomething: function () {
+//         if (working(true)) {
+//             return;
+//         }
+//         ... do stuff ...
+//         working(false);
+//     }
+// Note that this is only an issue if "stuff" is asynchronous.
+// Since a very common case is to do something and then switch pages,
+// Base.switchTo does working(false).
+
+var isWorking = false;
+function working(flag) {
+    if (flag && isWorking) {
+        return (true);
+    }
+    isWorking = flag;
+    return (false);
+}
+
 // This creates a new object using the constructor specified and the argument
 // array specified.  It works around the fact that there's no way to combine
 // the "new" operator and the "apply" method.

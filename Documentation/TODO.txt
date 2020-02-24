@@ -226,6 +226,13 @@ Offline operations
 
 Move InputDate to <input type=date>, et cetera.
 
+working(true) is currently triggered by individual operations.  Perhaps all Nav operations should trigger it.  But note that that would mean PageUp/PageDn would need working(false).  But maybe only Nav, PgUp/PgDn, and Base.switchTo.  Oh, and anything that returns to the same page, e.g. aborted printing.
+
+There is probably a problem if you have more than ten identical memberships;
+you can't get to the eleventh.
+
+Lookup by membership number probably doesn't work because I don't think I have the "numbers must be complete words" logic.  Maybe that could be server-side; maybe it would recognize numeric data and do an exact match.
+
 Widgets don't get full focus marking until you use keyboard navigation.  Or something like that.
 
 If you click outside a field in a form, it should force focus to *some* field, so that *some* field always has focus.

@@ -104,11 +104,11 @@ var memberSchema = [
     ]
 ];
 
-function MemberDisplay(key)
+function MemberDisplay(k)
 {
     var o = this;
     MemberDisplay.sup.constructor.call(o,'div');
-    o.key = key;
+    o.k = k;
     o.titleSpan = new DElement('span');
 }
 extend(DElement, MemberDisplay);
@@ -116,12 +116,12 @@ extend(DElement, MemberDisplay);
 MemberDisplay.prototype.activate = function () {
     var o = this;
 
-    table.members.get(o.key, gotRec);
+    table.members.get(o.k, gotRec);
     
     function gotRec(r) {
         o.r = r;
         
-        lastKey = o.key;
+        lastKey = o.k;
         lastRec = r;
 
         o.setTitle();
@@ -129,38 +129,69 @@ MemberDisplay.prototype.activate = function () {
         if (cfg.offlinePrint) {
             base.addNav([
                 { key: 'P', msg: 'Print', func: function () {
+                    if (working(true)) {
+                        return;
+                    }
                     o.print(home);
                 } }
             ]);
         } else if (!r.pickedup && cfg.offlineMarkPickedUp) {
             base.addNav([
                 { key: 'P', msg: 'Picked Up', func: function () {
+                    if (working(true)) {
+                        return;
+                    }
                     o.markPickedUp(function () {
                         base.switchTo(new MemberDisplay(o.k));
                     });
                 } }
             ]);
         }
+        
+        if (r.pickedup) {
+            base.addNav([
+                { msg: 'Un-pick-up', perms: 'unmark',
+                    func: function () {
+                        if (working(true)) {
+                            return;
+                        }
+                        o.unmark(function () {
+                            base.switchTo(new MemberDisplay(o.k));
+                        });
+                    }
+                }
+            ]);
+        }
 
         base.addNav([
             { key: 'C', msg: 'Change', func: function () {
-                base.switchTo(new MemberEdit(o.key));
+                base.switchTo(new MemberEdit(o.k));
             } },
             { key: 'U', msg: 'Upgrade', perms: 'upgrade', func: function () {
-                base.switchTo(new MemberUpgrade(o.key));
+                base.switchTo(new MemberUpgrade(o.k));
             } }
         ]);
 
         if (r.void) {
             base.addNav([
                 { msg: 'Unvoid', perms: 'void', func: function () {
-                    o.setVoid(false);
+                    if (working(true)) {
+                        return;
+                    }
+                    o.setVoid(false, function () {
+                        base.switchTo(new MemberDisplay(o.k));
+                    });
                 } }
             ]);
         } else {
             base.addNav([
                 { msg: 'Void', perms: 'void', func: function () {
-                    o.setVoid(true);
+                    if (working(true)) {
+                        return;
+                    }
+                    o.setVoid(true, function () {
+                        base.switchTo(new MemberDisplay(o.k));
+                    });
                 } }
             ]);
         }
@@ -170,7 +201,7 @@ MemberDisplay.prototype.activate = function () {
             readOnly: true,
             cancel: home,
             done: function () {
-                base.switchTo(new MemberEdit(o.key));
+                base.switchTo(new MemberEdit(o.k));
             }
         });
         o.appendChild(editor);
@@ -187,7 +218,10 @@ MemberDisplay.prototype.title = function () {
 
 MemberDisplay.prototype.print = function (cb) {
     var o = this;
-    label_badge(o.r, function () { o.markPickedUp(cb); }, function () {});
+    label_badge(o.r,
+        function () { o.markPickedUp(cb); },
+        function () { working(false); }
+    );
 };
 
 MemberDisplay.prototype.markPickedUp = function (cb) {
@@ -197,37 +231,35 @@ MemberDisplay.prototype.markPickedUp = function (cb) {
             ? { dateTime: [] }
             : cfg.offlineAsOf;
         var serverDate = { setf: [ 'pickedup', timestampExpr ] };
-        table.members.put(o.key, o.r, serverDate, function (rNew) { cb(); });
+        table.members.put(o.k, o.r, serverDate, function (rNew) { cb(); });
         return;
     }
     cb();
 }
 
-MemberDisplay.prototype.unmark = function () {
+MemberDisplay.prototype.unmark = function (cb) {
     var o = this;
     
     if (o.r.pickedup) {
         o.r.pickedup = '';
-        table.members.put(o.key, o.r, null, function (rNew) {
-            base.switchTo(new MemberDisplay(o.key));
-        });
+        table.members.put(o.k, o.r, null, function (rNew) { cb(); });
+        return;
     }
+    cb();
 };
 
-MemberDisplay.prototype.setVoid = function (v) {
+MemberDisplay.prototype.setVoid = function (v, cb) {
     var o = this;
     
     o.r.void = v;
-    table.members.put(o.key, o.r, null, function (rNew) {
-        base.switchTo(new MemberDisplay(o.key));
-    });
+    table.members.put(o.k, o.r, null, function (rNew) { cb(); });
 };
 
-function MemberEdit(key)
+function MemberEdit(k)
 {
     var o = this;
     MemberEdit.sup.constructor.call(o,'div');
-    o.key = key;
+    o.k = k;
     o.titleSpan = new DElement('span');
 }
 extend(DElement, MemberEdit);
@@ -247,7 +279,7 @@ MemberEdit.prototype.activate = function () {
                 corrections[field][c.from.toLowerCase()] = c.to;
             });
         });
-        table.members.get(o.key, gotRec);
+        table.members.get(o.k, gotRec);
     }
     
     function gotRec(r) {
@@ -264,6 +296,9 @@ MemberEdit.prototype.activate = function () {
     }
     
     function done() {
+        if (working(true)) {
+            return;
+        }
         for (var f in corrections) {
             var cf = corrections[f];
             if (cf) {
@@ -273,8 +308,8 @@ MemberEdit.prototype.activate = function () {
                 }
             }
         }
-        table.members.put(o.key, o.r, null,
-            function (rNew) { base.switchTo(new MemberDisplay(o.key)); }
+        table.members.put(o.k, o.r, null,
+            function (rNew) { base.switchTo(new MemberDisplay(o.k)); }
         );
     }
 };
@@ -323,9 +358,13 @@ NewMemberEditor.prototype.activate = function () {
         schema: memberSchema,
         doneButton: 'Add',
         done: function () {
+            if (working(true)) {
+                return;
+            }
             Server.newMembershipNumber(function (n) {
                 if (!n) {
                     alert('No membership numbers available!');
+                    working(false);
                     return;
                 }
                 o.r.number = n;
@@ -374,6 +413,9 @@ MemberUpgrade.prototype.activate = function () {
             new UpgradePicker({
                 from: r.class,
                 pick: function (k, rUp) {
+                    if (working(true)) {
+                        return;
+                    }
                     r.class = rUp.to;
                     r.amount = (r.amount||0) + rUp.amount;
                     table.members.put(o.k, r, null, function (rNew) {

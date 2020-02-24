@@ -6,8 +6,6 @@ function Import()
     var fileInput = new DElement('input', {
         type: 'file',
         onchange: function () {
-            log('fileInput change');
-            log(fileInput.n.files);
             REST.upload('/REST/importDB/reg', fileInput.n.files.item(0),
                 function (conflicts) {
                     base.switchTo(new ConflictListResolver(conflicts));
