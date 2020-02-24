@@ -111,7 +111,6 @@ Base.tabElements = [ 'input', 'select', 'textarea' ];
 // forward-tab and backward-tab cases out into separate functions seems good
 // for readability even though the two functions are very similar.
 Base.prototype.doTab = function (e) {
-    console.log('tab');
     var o = this;
     var source = e.target;
     // We'd like to use [tabIndex], and FF supplies a default tabIndex, but
@@ -131,9 +130,7 @@ Base.prototype.doTab = function (e) {
             || !Base.tabElements.includes(elem.tagName.toLowerCase())) {
             return (false);
         }
-        console.log('consider', elem.tabIndex, elem);
         if (elem == source) {
-            console.log('found');
             found = true;
             return (false);
         }
@@ -143,7 +140,6 @@ Base.prototype.doTab = function (e) {
         var eti = elem.tabIndex || maxti;
         if (eti == sti) {
             if (found) {
-                console.log('found next');
                 next = elem;
                 return (true);
             }
@@ -163,7 +159,6 @@ Base.prototype.doTab = function (e) {
         next = first;
     }
     if (next) {
-        console.log('focus', next);
         next.focus();
     }
 };
