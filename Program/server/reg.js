@@ -1,8 +1,28 @@
-// Catch unhandled Promise rejection really early, to cover all cases.
-process.on("unhandledRejection", function (e) {
-    console.log(e);
+// Catch unhandled errors really early, to cover all cases.
+
+// This snippet can be helpful to find the names of events emitted by process.
+// var pemit = process.emit;
+// process.emit = function () {
+    // console.log('process', arguments);
+    // return pemit.apply(this, arguments);
+// }
+process.on('unhandledRejection', function (reason, promise) {
+    console.log('uncaughtRejection');
+    console.log(reason);
+    console.log(promise);
     process.exit(1);
-}, false);
+});
+process.on('uncaughtException', function (err, origin) {
+    if (origin == 'uncaughtException'
+        && err.code == 'EADDRINUSE'
+        && err.syscall == 'listen') {
+        console.log('A server is already running on port ' + err.port + '.');
+        process.exit(1);
+    } else {
+        console.log(err.stack);
+        process.exit(1);
+    }
+});
 
 const port = 80;
 const express = require('express');
