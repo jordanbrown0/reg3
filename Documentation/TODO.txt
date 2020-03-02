@@ -20,8 +20,6 @@ Membership number allocation causes the DB to be rewritten.  Even if we do incre
 
 Maybe rethink List "summarize" to take a schema.
 
-Maybe support form navigation using up/down arrows.
-
 The station display needs to be sorted by server.
 
 Need error messages for "your station is configured to print on a printer on a different server".  Whether that will be a real issue will depend on network configuration; if the server is always the same name / IP address then stations will maintain their identity when moved.
