@@ -1,118 +1,3 @@
-Login/logout
-PESO
-Master integration
-"same" for address entry
-Number of memberships remaining on this server
-Upgrades
-	ad hoc
-Transfers
-Other transaction
-Reports
-	To display, printer, file.  Maybe these are all the same here, all going to a browser page for view/print/save.
-		but browser save-as-text is pretty weak
-        Maybe have a button or checkbox for output intended for save-as-text.
-	New memberships
-		By Day and class *
-		By class and day
-		by hour
-	Memberships picked up
-		by day and class  *
-		by hour
-	Memberships by class (done?  needs print.)
-		free vs paid
-	Possible duplicates
-		custom filtering e.g. "Bill" matches "William".
-        Drive by table?
-	Membership lists
-		class, number, and name, by name
-		number and name, by name
-		one line class, nujmber, name, and address, by name
-		multiline class, number, name, and address, by name
-		one line class, number, name, and address, by name, with check box
-		class, number, and name, by class and name
-		class, number, and name, by class and number
-		one line number, class, name, and address, by number
-	Miniature reports on labels
-		summary *
-		picked up by day
-		new by day
-		new by day and class
-	Classes
-	Upgrades
-Administration
-	page size for reports
-	user-specified fields (field name and description)
-	print a real-name label too?
-	justify l/c/r
-	permissions
-		prereg?
-		unlisted upgrades?
-		transfers?
-		search?
-		other transactions?
-		log complimentary memberships?
-		log reprints?
-	housekeeping
-		fix country name variants
-		delete (move to primary member UI)
-		hotel audit (search membership and master)
-		time fixer
-	transaction log
-		import/export
-
-Option for 24-hour time vs 12-hour time in displays
-
-Options for display and edit form for dates (for non-US).
-
-search looks for what's in the record, which means that category matching is on the category code, not the category full text.  Perhaps the member-edit list should include both.
-
-Conflict resolver shows record keys for cross-references (e.g. printer IDs)
-
-Acknowledge note field
-
-Reports for total money in.
-
-Show whether or not picked up on the first page.
-
-Export only marked records?  Perhaps by category?
-
-Stock "framework" UI stuff, like PESO.
-
-Vanity membership numbers.  Maybe less necessary as a distinct concept now that the actual key is artificial.  Maybe they're just a matter of having strings instead of numbers.
-
-Input cleanup.  Automatically translate USA variants to the canonical form, "Calif" to "CA", et cetera.  Driven by a table, of course.  Both on demand (to clean up imported data) and during data entry.
-    Works on input (at Edit save)
-    Make it work per-field, so you tab away and it changes.
-    Bulk cleanup of existing data.
-    Performance - reloading on every edit is excessive.
-    If members ever move to DBManager, performance will be a minor concern, scanning the corrections table when it won't contain any corrections for any table other than members.
-    
-    Substring corrections - e.g. correct "st" to "St." (or "St." to "St" if you prefer that style.)  Caution for usage other than as a street suffix, e.g. Spanish-derived "Ave de la ...".
-
-Search performance with large member tables (20K entries).  Will probably need to learn to skip searches, so that we don't search until we've processed all of the input.  (But keystroke suppression during RPC will lose keystrokes; for this case we need to reverse the priority of the two.)  Confirmed that this is a problem with 20K entries.  Right now I don't remember why I felt the need to suppress keystrokes.  Maybe it would be sufficient to suppress searches while a search is in process.
-
-We suppress keystrokes while RPC requests are outstanding, which fixes the problem of receiving keystrokes while in the middle of an RPC request (and, e.g., saving the record twice), but means that keystrokes might be dropped - during a search, for instance.  Also, there may be some RPC calls that are OK to allow keystrokes during - class lookup in member records, content lookups in lists, et cetera.  Maybe we just need to suppress *dispatched* keystrokes, and/or suppress searches and similar actions while an RPC operation is pending.  But note:  in general it's OK to have several RPC operations in flight.
-
-Change field names to match v2 when reasonable.  Avoid unnecessary differences.
-
-setup - mkbat fails to create batch file.  Win8 vs Win10 difference?
-
-Print performance (~500ms to print long name requiring several shrink steps)
-	* Just have fewer font sizes?
-
-Station list if printer no longer exists.
-Station list row when station is not initialized.  (Maybe just one or more &nbsp;.)
-
-It would be nice if a subclassed Input widget got CSS classes for both the superclass and the subclass.  (But would have to ensure that rules for the subclass dominated.)
-
-Printer ID - print a label on each printer giving its Windows and human names (and any stations assigned to it?)
-
-If I ever expand the use of expressions, one of the first things that's going to have to happen is for all of the functions to become async.
-
-Force landscape on label printers
-Alert when attempting to print and configured printer no longer exists.
-Human name of new printer is "undefined".
-
 Style
 	Breakdown of responsibility for constructor and .activate() method.
 		Or should there be a .activate method at all? Should I use a different
@@ -195,6 +80,7 @@ Various imports should probably assign membership numbers if they aren't assigne
 How should an import file be fed into the system?  Options are upload and direct file access. Direct file access is awkward.  Upload has a problem with how to specify the desired import mapping.  Multipart might allow RPC+file upload.  Or one URL component could be the record ID for the mapping record.
 
 Export (DBF?  CSV?)
+Export only marked records?  Perhaps by category?
 
 Developer wads
 
@@ -208,6 +94,7 @@ bulk edit - e.g. for all Saturday, set note
 Can add/put eval operations replace the special increment method, to let add-member be a single-atomic-ish operation?  But:  an increment or put operator needs to be async, because the DB might not yet be loaded.  (In theory.)
 
 Turn the expression language into a full-ish programming language.
+If I ever expand the use of expressions, one of the first things that's going to have to happen is for all of the functions to become async.
 
 General alert/error UI (alert()?  Modal?)
 
