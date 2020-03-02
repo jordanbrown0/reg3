@@ -108,29 +108,11 @@ Add timing data to DBMS ops - load, write, import, export.
 
 What logging do we have for REST operations?
 
-Offline operations
-    * Should require as-of if offlineRealTime is set
-    ** The problem is that there's no page-level / form-level validation.
-	* Caution on home page.
-
-Move InputDate to <input type=date>, et cetera.
-
 working(true) is currently triggered by individual operations.  Perhaps all Nav operations should trigger it.  But note that that would mean PageUp/PageDn would need working(false).  But maybe only Nav, PgUp/PgDn, and Base.switchTo.  Oh, and anything that returns to the same page, e.g. aborted printing.  Perhaps working(true) should have some visible indication, though the general theory is that if it ever takes more than a small fraction of a second it's too long.
-
-There is probably a problem if you have more than ten identical memberships;
-you can't get to the eleventh.
-
-Lookup by membership number probably doesn't work because I don't think I have the "numbers must be complete words" logic.  Maybe that could be server-side; maybe it would recognize numeric data and do an exact match.
 
 Widgets don't get full focus marking until you use keyboard navigation.  Or something like that.
 
-If you click outside a field in a form, it should force focus to *some* field, so that *some* field always has focus.
-
-Figure out how to get leave-page warning.
-
 Keyboard commands are still kind of iffy.  See comments in Base.
-
-Printer in either real units or % of label, not pixels.
 
 REPORTS
 	* Seem to require server-side knowledge of the schema, sigh.
@@ -143,20 +125,6 @@ REPORTS
     * CSS class for each report (to allow for selected formating of particular items in that report.  Esp ReportTallyByClass.
     * ReportTallyNewByDate - use convention-start date for distinguishing new reg from prereg.
 
-Classes
-	* Do we need single-keystroke selection?
-
-
-transfers - UI, and how to track.  Since membership number is no longer the key, maybe that's the answer.  The transfer-history records would all have the same membership number, but different keys.  This might require specialized search support - or maybe not; maybe you'd be able to look up a transfer-from record just like a normal record.  Special marking in the List and in the Editor, though.
-
-Editor:
-	Don't write record if no change.  (Or is this part of DB.put?)
-	General validators.
-		We have per-field validation.
-		Need form-global validation.
-
-Conflict resolver should detect case where there are no differences.
-
 Log:
 	parentelem is not implemented
 	If Log() is instantiated before <body> loads, we end up with two bodies.
@@ -164,53 +132,15 @@ Log:
 
 Maybe have "All" support be a generic feature for List?  It's now a generic feature for DBManager, but maybe it should move down into List.  (But maybe it should really be checkbox-based to allow for different filters - e.g. for printers there's "show printers on all servers" and "show hidden printers".)
 
-Test edit-edit conflicts, make sure you get a reasonable error.  Lead to conflict resolution.
-Fix-last vs delete conflict.  (Same as list-delete conflict, I think.)
-Test delete-{list,edit} conflicts.
-
-Force global configuration when not configured.
-Force server configuration when not configured.
-Force station configuration when not configured.
-
-Full screen.  Might need to prompt user to click to approve.  If we have full screen, we might also want a QUIT button that closes the window, so that people don't have to figure out how to de-full-screen.  Or maybe just maximize.  (Can we maximize from JS?)
-
 Push the printer support work upstream.
 
 REST operations don't have a way to return errors.  (REST upload could.  Rest download would be hard.)
 
 REST upload could maybe use MIME multi-part instead of a separate URL, and that would allow mixing an RPC request with a file upload.
 
-Import/Export user interface.  Do we need a minimal-keystroke variant, given that import/export is expected to be far less frequent than it is today?
-
 Consider disabling autocomplete.
 
-In conflict resolver, it would be nice if we could disable the [Resolve] button until all of the fields are resolved.  The missing piece is that NavBar doesn't have a "disable" concept.
-
 Consider using Element.classList instead of Element.className when adding and removing entries.
-
-DBMS
-
-Incrementally write DB, rather than rewriting the entire thing.  Note that you can just add new versions of a record on the end and they'll overwrite the old ones.  Note also that because we keep the DB in memory it doesn't really matter how long it takes to read it.
-
-If writing the DB (either to persist or for export) is asynchronous, it might interleave with changes.  That's OK for most things, but we might write the server membership number and then later write a record created *after* that point.  Perhaps it needs to stay synchronous, or perhaps we need to ensure that we write the server table last, or perhaps we need to decide that it's OK since after all only this server should care and *it* has the current data.
-
-Must ensure that writing isn't interrupted by quitting!
-
-Make writing use rename so that it's not overwriting the old file.
-
-If writing the DB for persistence is asynchronous, we need to ensure that we restart the write if changes occur during it.  For extra credit, abort a write-in-progress and restart.  Or maybe not; a completed write still gets us a snapshot, versus (in theory) maybe never getting it all written out.
-
-If writing the DB for persistence is asynchronous, we need to make sure we don't do it twice at the same time(!).
-
-Server Installation
-** Install label printer driver?  Or maybe just short cut to vendor's download page.
-** Firewall.
-* Client installation
-** Join network.
-** Shortcuts/autostarts to server web page.  (Note that if the network config stays constant, a single shortcut can work forever.)
-** Browser "print" configuration
-** Something to point upload/download at an appropriate device?
-** Maybe some of that can be semi-self-configuring, by having the server application serve a batch file (or whatever) that will tweak the client config.  Might need/want to configure multiple browsers.
 
 NewConventionWad (and others?) save Mercurial and GIT history, and shouldn't.
 NewConventionWad shouldn't save SampleData (and others?)
