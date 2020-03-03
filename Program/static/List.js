@@ -99,7 +99,7 @@ List.prototype.refresh = function () {
         
         o.rows = [];
         o.selected = null;
-        forEachArrayObject(recs, function (k, r) {
+        recs.forEach(function (k, r) {
             var rowObj = row(k, r);
             o.rows.push(rowObj);
             o.table.appendChild(rowObj.element);

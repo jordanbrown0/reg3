@@ -96,13 +96,6 @@ If I ever expand the use of expressions, one of the first things that's going to
 
 General alert/error UI (alert()?  Modal?)
 
-Transaction log - should this be client-side or server-side?
-	* Maybe have the database itself be a transaction log, overwriting earlier versions on load.
-	** But export would probably be current versions only; otherwise, we'd have to store all previous versions in memory.
-	** And would have to sync previous versions too.
-	* If transaction log is a regular DB then it'd always be in memory and that might be too much.
-	* How would transaction log sync work?  Ordinary mechanisms would work but seem expensive.  But let's see how fast import is.
-    * Note that (R)eports (D)uplicates and (L)ist sort on the server side and then pulls all data across, should sort on the client side.
 
 Add timing data to DBMS ops - load, write, import, export.
 
@@ -122,8 +115,7 @@ REPORTS
 	* How to do reports to files?  Tally reports might not be too bad, but what about member lists?  Maybe a half-REST where we push a report expression using JSON-RPC and it streams back a report?  That would be plain text only, but maybe that's OK.
 	* Note Node.js PDFkit could generate PDF reports.  Maybe that's the only kind of report; leave the actual printing to AcroRead.  But plain text can be useful for other purposes.
 	* So far just pulling across the data and formating into DOM for display and alternate CSS for printing.
-    * CSS class for each report (to allow for selected formating of particular items in that report.  Esp ReportTallyByClass.
-    * ReportTallyNewByDate - use convention-start date for distinguishing new reg from prereg.
+    * Note that (R)eports (D)uplicates sorts on the server side and then pulls all data across, should sort on the client side.
 
 Log:
 	parentelem is not implemented

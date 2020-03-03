@@ -54,14 +54,19 @@ ReportSummary.prototype.body = function (cb) {
         },
         function (ret) {
             ret.grand = (ret.warm||0) + (ret.noShow||0);
-            cb([
-                tr(td(ret.warm||0), td('Warm Bodies')),
-                tr(td(ret.noShow||0), td('No show')),
-                tr(td(ret.prereg||0), td('Preregistered')),
-                tr(td(ret.atTheDoor||0), td('At the door')),
-                tr(td(ret.grand), td('Grand total')),
-                tr(td(ret.void||0), td('Void'))
-            ]);
+            var body = [];
+            var lines = [
+                { v: ret.warm,      t: 'Warm bodies' },
+                { v: ret.noShow,    t: 'No show' },
+                { v: ret.prereg,    t: 'Preregistered' },
+                { v: ret.atTheDoor, t: 'At the door' },
+                { v: ret.grand,     t: 'Grand total' },
+                { v: ret.void,      t: 'Void' }
+            ];
+            lines.forEach(function (r) {
+                body.push(tr(td(r.v||0, {className: 'Count'}), td(r.t)));
+            });
+            cb(body);
         }
     );
 };

@@ -20,6 +20,8 @@ Report.prototype.activate = function () {
     tbody.appendChild('Working...');
 
     var t = o.appendChild(new DElement('table'));
+    t.addClass(getClassName(o));
+    t.addClass('Report');
     if (o.header) {
         t.appendChild(new DElement('thead', o.header()));
     }

@@ -9,3 +9,20 @@ th {
 .Base .Header {
     display: none;
 }
+
+.Report td, .Report th {
+    padding-right: 10px;
+}
+
+.Report .Total {
+    font-size: larger;
+    font-weight: bolder;
+}
+
+.Report .Count {
+    text-align: right;
+}
+
+.ReportList th, .ReportDups th {
+    text-align: left;
+}

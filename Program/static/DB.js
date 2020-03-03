@@ -117,7 +117,8 @@ DBTable.prototype.delete = function (k, r, cb) {
 DBTable.prototype.list = function (params, cb) {
     var o = this;
     rpc.DBlist(o.dbName, o.tName, params, function (recs) {
-        forEachArrayObject(recs, function (k, r) {
+        recs = new ArrayObject(recs);
+        recs.forEach(function (k, r) {
             o.applyDefaults(r);
         });
         cb(recs);

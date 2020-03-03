@@ -23,13 +23,17 @@ ReportTallyPickedUpByDate.prototype.body = function (cb) {
         var grand = 0;
         Object.keys(totals).sort().forEach(function (d) {
             body.push(tr(
-                td(totals[d]),
+                td(totals[d], {className: 'Count'}),
                 td(d || 'Not picked up')
             ));
             grand += totals[d];
         });
 
-        body.push(tr(td(grand), td('Grand total')));
+        body.push(tr(
+            {className: 'Total'},
+            td(grand, {className: 'Count'}),
+            td('Grand total')
+        ));
         
         cb(body);
     }

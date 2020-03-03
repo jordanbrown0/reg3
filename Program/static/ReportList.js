@@ -26,18 +26,20 @@ ReportList.prototype.footer = function () {
 
 ReportList.prototype.body = function (cb) {
     var o = this;
-    var body = [];
-    table.members.list({sort: ['last', 'first']}, function (recs) {
-        forEachArrayObject(recs, function (k, r) {
-            body.push(tr(
-                td(r.last || ''),
-                td(r.first || ''),
-                td(joinTruthy(
-                    [ r.addr1, r.addr2, r.city, r.state, r.postcode, r.country ],
-                    ' / '
-                ))
-            ));
-        });
+    table.members.list({}, function (recs) {
+        var body = [];
+        recs.toArray()
+            .sort(compareFunction(['last', 'first']))
+            .forEach(function (r) {
+                body.push(tr(
+                    td(r.last || ''),
+                    td(r.first || ''),
+                    td(joinTruthy(
+                        [ r.addr1, r.addr2, r.city, r.state, r.postcode, r.country ],
+                        ' / '
+                    ))
+                ));
+            });
         cb(body);
     });
 };

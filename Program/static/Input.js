@@ -388,7 +388,7 @@ function InputDBPicker(params)
     }
     t.list({ filter: filter }, function (recs) {
         var opts = [];
-        forEachArrayObject(recs, function (k, r) {
+        recs.forEach(function (k, r) {
             var opt = {};
             var optKey = params.keyField ? r[params.keyField] : k;
             var optVal = params.textField instanceof Function
@@ -567,7 +567,7 @@ function InputSelectMultiDB(params) {
     }
     t.list({ filter: params.filter }, function (recs) {
         var opts = [];
-        forEachArrayObject(recs, function (k, r) {
+        recs.forEach(function (k, r) {
             var opt = {};
             var optKey = params.keyField ? r[params.keyField] : k;
             var optVal = params.textField instanceof Function

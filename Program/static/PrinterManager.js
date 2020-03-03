@@ -102,13 +102,13 @@ Printers.refresh = function (cb) {
         var newPrinters = [];
         var deletePrinters = [];
         printers.forEach(function (p) {
-            if (!someArrayObject(recs, function (k, r) {
+            if (!recs.some(function (k, r) {
                 return (r.windows == p.printerName);
             })) {
                 newPrinters.push(p.printerName);
             }
         });
-        forEachArrayObject(recs, function (k, r) {
+        recs.forEach(function (k, r) {
             if (!printers.some(function (p) {
                 return (r.windows == p.printerName);
             })) {
@@ -124,12 +124,10 @@ Printers.refresh = function (cb) {
             } else {
                 cb();
             }
-        };
+        }
         sync();
     };
 };
-
-// NEEDSWORK should be Printers.get().
 
 Printers.get = function (id, cb) {
     table.printers.getOrNull(id, function (r) { cb(r); });

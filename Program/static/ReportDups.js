@@ -80,18 +80,21 @@ ReportDups.prototype.body = function (cb) {
     var body = [];
     var prev = {};
     var first = true;
-    table.members.list({sort: o.params.sort}, function (recs) {
-        forEachArrayObject(recs, function (k, r) {
-            if (maybeDup(prev, r)) {
-                if (!first) {
-                    body.push(tr(td(new EntityNode('nbsp'))));
+    table.members.list({}, function (recs) {
+        var body = [];
+        recs.toArray()
+            .sort(compareFunction(o.params.sort))
+            .forEach(function (r) {
+                if (maybeDup(prev, r)) {
+                    if (!first) {
+                        body.push(tr(td(new EntityNode('nbsp'))));
+                    }
+                    body.push(line(prev));
+                    body.push(line(r));
+                    first = false;
                 }
-                body.push(line(prev));
-                body.push(line(r));
-                first = false;
-            }
-            prev = r;
-        });
+                prev = r;
+            });
         cb(body);
     });
     

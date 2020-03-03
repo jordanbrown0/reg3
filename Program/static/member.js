@@ -272,7 +272,7 @@ MemberEdit.prototype.activate = function () {
         gotCorrections);
         
     function gotCorrections(corRecs) {
-        forEachArrayObject(corRecs, function (k, cr) {
+        corRecs.forEach(function (k, cr) {
             var field = cr.field;
             corrections[field] = {};
             cr.corrections.forEach(function (c) {

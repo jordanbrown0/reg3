@@ -162,6 +162,69 @@ function newApply(Cls, args) {
 	return (new f());
 }
 
+function compareFunction(fields) {
+    return (function compareRecsByFields(a, b) {
+        for (var i = 0; i < fields.length; i++) {
+            var f = fields[i];
+            var af = a[f];
+            var bf = b[f];
+            if (typeof(af) == 'string') {
+                af = af.toLowerCase();
+            }
+            if (typeof(bf) == 'string') {
+                bf = bf.toLowerCase();
+            }
+            if (af == undefined) {
+                if (bf != undefined) {
+                    return (1);
+                }
+            } else if (bf == undefined) {
+                return (-1);
+            } else if (af < bf) {
+                return (-1);
+            } else if (af > bf) {
+                return (1);
+            }
+        }
+        return (0);
+    });
+}
+
+function ArrayObject(a) {
+    var o = this;
+    o.array = a;
+}
+
+ArrayObject.prototype.forEach = function (cb) {
+	var o = this;
+    o.array.forEach(function (ent) {
+		for (var k in ent) {
+			cb(k, ent[k]);
+		}
+    });
+};
+
+ArrayObject.prototype.some = function (cb) {
+    var o = this;
+    return (o.array.some(function (ent) {
+		for (var k in ent) {
+			if (cb(k, ent[k])) {
+				return (true);
+			}
+		}
+        return (false);
+    }));
+};
+
+ArrayObject.prototype.toArray = function () {
+    var o = this;
+    var a = [];
+    o.forEach(function (k, r) {
+        a.push(r);
+    });
+    return (a);
+};
+
 var getClassName = function (obj) {
 	if (obj.constructor.name) {
 		return obj.constructor.name;
@@ -295,34 +358,4 @@ if (!Array.prototype.includes) {
         var o = this;
         return (o.some(function (ent) { return (ent == item); }));
     }
-}
-// Given an array of objects, call the callback for each element in each
-// object.  This is intended primarily for objects that each have only
-// a single element and are structured in an array to preserve order.
-function forEachArrayObject(a, cb) {
-	for (var i = 0; i < a.length; i++) {
-		for (var k in a[i]) {
-			cb(k, a[i][k]);
-		}
-	}
-}
-function someArrayObject(a, cb) {
-	for (var i = 0; i < a.length; i++) {
-		for (var k in a[i]) {
-			if (cb(k, a[i][k])) {
-				return (true);
-			}
-		}
-	}
-	return (false);
-}
-function onlyArrayObject(a, cb) {
-	var ret_k = null;
-	var ret_r = null;
-	forEachArrayObject(a, function (k, r) {
-		assert(ret_k == null, 'Too many objects');
-		ret_k = k;
-		ret_r = r;
-	});
-	cb(ret_k, ret_r);
 }
