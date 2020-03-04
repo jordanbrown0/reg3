@@ -47,6 +47,11 @@ methods.methods = function () {
     return (Object.keys(methods));
 };
 
+methods.log = function () {
+    console.log.apply(null, arguments);
+};
+methods.log.varargs = true;
+
 // Load the specified database.
 // This is not strictly necessary, because the database is lazy-loaded
 // whenever referenced.  However, it allows you to move the performance
@@ -265,7 +270,7 @@ async function methodcall(req)
         return ({error: 'No such method '+req.name});
     }
     var params = req.params;
-    if (method.length != params.length) {
+    if (method.length != params.length && !method.varargs) {
         var msg = sprintf("%s: argument mismatch, expected %d got %d",
             req.name, method.length, params.length);
         console.log(msg);
