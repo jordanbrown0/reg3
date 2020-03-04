@@ -46,8 +46,10 @@ Editor.prototype.activate = function () {
     ]);
     if (o.params.schema.length > 1) {
         base.addNav([
-            { key: 'PageUp', msg: '<', func:  function () { o.prev(); } },
-            { key: 'PageDown', msg: '>', func:  function () { o.next(); } }
+            { key: 'PageUp', msg: '<', touch: 'swipeRight',
+            func:  function () { o.prev(); } },
+            { key: 'PageDown', msg: '>', touch: 'swipeLeft',
+            func:  function () { o.next(); } }
         ]);
     }
     o.pages = [];
@@ -62,7 +64,7 @@ Editor.prototype.activate = function () {
         prev = page;
         o.pages.push(page);
     });
-    
+
     // Perhaps this should be in a separate Editor.set().
     o.pages.forEach(function (page) {
         page.set(o.r);

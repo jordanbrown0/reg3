@@ -20,6 +20,7 @@ function Base()
     o.active = new DElement('div');
     o.navBar = new NavBar();
     o.navKey = new NavKey();
+    o.navTouch = new NavTouch();
     o.appendChild(o.header, o.body, o.navBar);
 }
 extend(DElement, Base);
@@ -85,12 +86,14 @@ Base.prototype.addNav = function (a) {
     var o = this;
     o.navBar.add(a);
     o.navKey.add(a);
+    o.navTouch.add(a);
 };
 
 Base.prototype.setNav = function (a) {
     var o = this;
     o.navBar.set(a);
     o.navKey.set(a);
+    o.navTouch.set(a);
 };
 
 Base.prototype.tick = function () {
