@@ -130,13 +130,12 @@ REST operations don't have a way to return errors.  (REST upload could.  Rest do
 
 REST upload could maybe use MIME multi-part instead of a separate URL, and that would allow mixing an RPC request with a file upload.
 
-Consider disabling autocomplete.
-
 Consider using Element.classList instead of Element.className when adding and removing entries.
 
 NewConventionWad (and others?) save Mercurial and GIT history, and shouldn't.
 NewConventionWad shouldn't save SampleData (and others?)
 NewServerWad - maybe CloneThisConventionWad or something like that?
+
 Need an "update the program" wad.  For this convention, or for a selected convention, or generic and you pick on the target?
 
 NewConventionOnThisSystem needs error checking on the mkdir.

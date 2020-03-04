@@ -63,7 +63,8 @@ function InputInput(type, params) {
             if (o.params.oninput) {
                 o.params.oninput();
             }
-        }
+        },
+        autocomplete: 'off'
     });
     if (params.id) {
         content.setProperties({id: params.id});
