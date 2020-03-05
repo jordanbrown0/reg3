@@ -163,7 +163,7 @@ DB.prototype.writeStream = function (stream, tables) {
     var o = this;
     var t0 = Date.now();
     var nrecs = 0;
-    
+
     if (!tables) {
         tables = Object.keys(o.tables);
     }

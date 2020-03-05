@@ -18,9 +18,6 @@ What is UI for new members?
 	* how does lookup in MASTER fit in?
 	* Do anything about looking up existing memberships first?
 
-Menu items should perhaps look more button-y.
-Heck, buttons should look more button-y.
-
 Import from DBF
     Import from DBF is basically working, with schema translation.
     Can't import directly into a new DB because the server doesn't return "members" in a table list. How to prime?  Maybe client-side init does a no-op DB operation to get the table set up.  Or maybe the selection is based on the client-side list of tables rather than the server-side list.
@@ -65,12 +62,7 @@ bulk edit - e.g. for all Saturday, set note
 
 Can add/put eval operations replace the special increment method, to let add-member be a single-atomic-ish operation?  But:  an increment or put operator needs to be async, because the DB might not yet be loaded.  (In theory.)
 
-Turn the expression language into a full-ish programming language.
-If I ever expand the use of expressions, one of the first things that's going to have to happen is for all of the functions to become async.
-
 General alert/error UI (alert()?  Modal?)
-
-Add timing data to DBMS ops - load, write, import, export.
 
 What logging do we have for REST operations?
 
@@ -79,16 +71,6 @@ working(true) is currently triggered by individual operations.  Perhaps all Nav 
 Widgets don't get full focus marking until you use keyboard navigation.  Or something like that.
 
 Keyboard commands are still kind of iffy.  See comments in Base.
-
-REPORTS
-	* Seem to require server-side knowledge of the schema, sigh.
-	* Though I should check the practicality of pulling 20K records over into the browser and then pushing them back to the server.  Maybe it's not as bad as I fear.
-	* Maybe push across an expression that describes the report?
-	* Report by pushing a reporting expression (or expressions) that are executed server-side and print?  Or by pushing a query expression that does connection and tallying and returns the data to the client for the client to format and send back a print request?  Probably both.
-	* How to do reports to files?  Tally reports might not be too bad, but what about member lists?  Maybe a half-REST where we push a report expression using JSON-RPC and it streams back a report?  That would be plain text only, but maybe that's OK.
-	* Note Node.js PDFkit could generate PDF reports.  Maybe that's the only kind of report; leave the actual printing to AcroRead.  But plain text can be useful for other purposes.
-	* So far just pulling across the data and formating into DOM for display and alternate CSS for printing.
-    * Note that (R)eports (D)uplicates sorts on the server side and then pulls all data across, should sort on the client side.
 
 Log:
 	parentelem is not implemented
@@ -100,8 +82,6 @@ Maybe have "All" support be a generic feature for List?  It's now a generic feat
 Push the printer support work upstream.
 
 REST operations don't have a way to return errors.  (REST upload could.  Rest download would be hard.)
-
-REST upload could maybe use MIME multi-part instead of a separate URL, and that would allow mixing an RPC request with a file upload.
 
 Consider using Element.classList instead of Element.className when adding and removing entries.
 
@@ -117,7 +97,6 @@ All of the setup stuff could probably use more checking on the new directory nam
 
 Home should set page title.
 
-Exactly when should we retrieve the configuration?  Currently on startup, every time you leave Home, and on successfully leaving Global Config.  (It would be sensible to also retrieve it for station and server edits, but is not currently necessary because Home uses only cfg.convention.)  I'm not entirely happy with this yet, because the "deactivate" mechanism used to pick up the configuration when leaving Home isn't satisfying.  Also it seems like we pick it up too much, which might be a scalability problem.
 
 --------------
 
