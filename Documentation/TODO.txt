@@ -1,14 +1,3 @@
-Style
-	Breakdown of responsibility for constructor and .activate() method.
-		Or should there be a .activate method at all? Should I use a different
-		pattern for switching?
-		Or maybe a create / load split?
-		Or maybe we should create the entire structure, and then load and switch as required?
-
-Membership number allocation causes the DB to be rewritten.  Even if we do incremental writes, we end up with a record written for each number allocated.
-
-Maybe rethink List "summarize" to take a schema.
-
 Need error messages for "your station is configured to print on a printer on a different server".  Whether that will be a real issue will depend on network configuration; if the server is always the same name / IP address then stations will maintain their identity when moved.
 
 What should happen when a station moves from one server to another?  Depends on whether the server has the same name.  If it does, it's the same station.  If not, it's a different station.
@@ -31,8 +20,6 @@ What is UI for new members?
 
 Menu items should perhaps look more button-y.
 Heck, buttons should look more button-y.
-
-Conflict resolver should use edit schema, at least to get order and labels.  Multi-page conflict resolver would be confusing, but we might have to go there.
 
 Import from DBF
     Import from DBF is basically working, with schema translation.
@@ -82,7 +69,6 @@ Turn the expression language into a full-ish programming language.
 If I ever expand the use of expressions, one of the first things that's going to have to happen is for all of the functions to become async.
 
 General alert/error UI (alert()?  Modal?)
-
 
 Add timing data to DBMS ops - load, write, import, export.
 

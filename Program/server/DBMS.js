@@ -22,7 +22,9 @@ function DB(name) {
 // NEEDSWORK:  this should be single-threaded.
 DB.prototype.load = async function() {
     var o = this;
-    console.log('starting load', o.name);
+    var t0 = Date.now();
+    var nrecs = 0;
+    console.log('\nstarting load', o.name);
     assert(!o.loadInProgress, 'DB.load entered reentrantly!');
     o.loadInProgress = true;
     var pipeline = new Chain([
@@ -33,13 +35,18 @@ DB.prototype.load = async function() {
     pipeline.on('data', function (d) {
         var t = o.getTable(d.value.t);
         t.load(d.value.k, d.value.r);
+        nrecs++;
     });
     
     return (new Promise(function (resolve, reject) {
         pipeline.on('end', function () {
             o.loadInProgress = false;
             pipeline.destroy();
-            console.log('finished load', o.name);
+            console.log('\nfinished load',
+                o.name,
+                nrecs, 'records took',
+                (Date.now()-t0)+'ms'
+            );
             resolve();
         });
         // Ignore ENOENT so that nonexistent
@@ -61,6 +68,9 @@ DB.prototype.load = async function() {
 // NEEDSWORK:  Should this be single-threaded?
 DB.prototype.import = async function(stream) {
     var o = this;
+    var t0 = Date.now();
+    var nrec = 0;
+
     var conflicts = [];
     var pipeline = new Chain([
         stream,
@@ -68,6 +78,7 @@ DB.prototype.import = async function(stream) {
         new StreamValues()
     ]);
     pipeline.on('data', function (d) {
+        nrec++;
         var t = o.getTable(d.value.t);
         var result = t.import(d.value.k, d.value.r);
         if (result) {
@@ -77,18 +88,22 @@ DB.prototype.import = async function(stream) {
     
     return (new Promise(function (resolve, reject) {
         pipeline.on('end', function () {
-            console.log('pipeline end');
             o.write();
+            console.log('\nfinished import',
+                nrec, 'records',
+                conflicts.length, 'conflicts',
+                (Date.now()-t0)+'ms'
+            );
             resolve(conflicts);
         });
-        // Ignore pipeline errors so that nonexistent
-        // databases are effectively empty.
-        // NEEDSWORK:  this error catch is broader than
+        // Report errors and then ignore them.
+        // NEEDSWORK:  this error catch may be broader than
         // is desirable; it will presumably cause corrupt
         // files to be effectively truncated rather than
         // reported.
-        pipeline.on('error', function () {
-            console.log('pipeline error');
+        pipeline.on('error', function (e) {
+            console.log('\nimport pipeline error');
+            console.log(e);
             resolve();
         });
     }));
@@ -122,6 +137,7 @@ DB.prototype.write = function() {
         return;
     }
     
+    var t0 = Date.now();
     // NEEDSWORK atomic replace
     console.log('\nwriting', o.filename);
     var nrec = 0;
@@ -140,22 +156,27 @@ DB.prototype.write = function() {
         });
     }
     fs.closeSync(fd);
-    console.log('wrote',nrec,'records');
+    console.log('wrote',o.name,nrec,'records took', (Date.now()-t0)+'ms');
 };
 
 DB.prototype.writeStream = function (stream, tables) {
     var o = this;
+    var t0 = Date.now();
+    var nrecs = 0;
+    
     if (!tables) {
         tables = Object.keys(o.tables);
     }
     tables.forEach(function (tName) {
         var t = o.tables[tName];
         t.forEach(function (k, r) {
+            nrecs++;
             var rec = { t: tName, k: k, r: r };
             stream.write(JSON.stringify(rec));
             stream.write('\n');
         });
     });
+    console.log('\nexport finished', nrecs, 'records took', (Date.now()-t0)+'ms');
 };
 
 DB.prototype.listTables = function () {
