@@ -16,6 +16,7 @@ function StationManager() {
 extend(DBManager, StationManager);
 
 StationManager.prototype.title = 'Administer all stations...';
+StationManager.prototype.sort = [ 'server' ];
 
 StationManager.prototype.summarize = function (k, r) {
     var labelName = td({ id: 'labelName' });

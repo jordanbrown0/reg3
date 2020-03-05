@@ -66,6 +66,7 @@ PrinterManager.prototype.header = function () {
 };
 
 PrinterManager.prototype.title = 'Printer management';
+PrinterManager.prototype.sort = [ 'server' ];
 
 function PrinterEdit(/*args*/)
 {
