@@ -419,9 +419,6 @@ function InputTablePicker(params)
 {
     var o = this;
     InputDBPicker.sup.constructor.call(o, params);
-    // db.reg.listTables(function (tables) {
-        // o.setOptions(tables);
-    // });
     o.setOptions(Object.keys(table));
 }
 extend(InputSelect, InputTablePicker);
