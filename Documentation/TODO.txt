@@ -20,8 +20,6 @@ Maybe have "All" support be a generic feature for List?  It's now a generic feat
 
 Push the printer support work upstream.
 
-REST operations don't have a way to return errors.  (REST upload could.  Rest download would be hard.)
-
 Consider using Element.classList instead of Element.className when adding and removing entries.
 
 NewConventionWad (and others?) save Mercurial and GIT history, and shouldn't.
@@ -34,7 +32,7 @@ NewConventionOnThisSystem needs error checking on the mkdir.
 
 All of the setup stuff could probably use more checking on the new directory name.
 
-Home should set page title.
+Home should set page title to pick up convention name changes.
 
 
 --------------
