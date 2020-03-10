@@ -217,18 +217,10 @@ var totalIdle = 0;
 var totalBusy = 0;
 var tPrev = null;
 
-async function methodcallmiddleware(req, res, next)
-{
+async function busyCall(f) {
     var tStart = hrtime();
 
-    if (rpcVerbose) {
-        console.log('<==', req.body);
-    }
-    var ret = await methodcall(req.body);
-    if (rpcVerbose) {
-        console.log('==>', ret);
-    }
-    res.json(ret);
+    await f();
     
     var tEnd = hrtime();
     if (tPrev) {
@@ -238,6 +230,20 @@ async function methodcallmiddleware(req, res, next)
         totalBusy += busy;
     }
     tPrev = tEnd;
+}
+
+async function methodCallMiddleware(req, res, next)
+{
+    await busyCall(async function () {
+        if (rpcVerbose) {
+            console.log('<==', req.body);
+        }
+        var ret = await methodCall(req.body);
+        if (rpcVerbose) {
+            console.log('==>', ret);
+        }
+        res.json(ret);
+    });
 }
 
 var avgBusy = 0;
@@ -261,7 +267,7 @@ function tick() {
 
 setInterval(tick, busyTick).unref();
  
-async function methodcall(req)
+async function methodCall(req)
 {
     assert(req.name, 'No req.name');
     assert(req.params, 'No req.params');
@@ -306,50 +312,108 @@ async function getTable(dbName, tName) {
 var restExportMethods = {};
 
 restExportMethods.exportDB = async function (res, dbName, tables) {
+    assert(dbName, 'No dbName');
     res.attachment(dbName+'.json');
     var db = await DBMS.getDB(dbName);
     db.writeStream(res, tables);
-    res.end();
 };
 
 // This middleware accepts a JSON-RPC request as a form parameter, and returns
 // a file.
-function formJson(paramName) {
-    return (async function (req, res, next) {
-        var request = JSON.parse(req.body[paramName]);
+async function exportMiddleware(req, res, next) {
+    await busyCall(async function () {
+        var request = JSON.parse(req.body['request']);
         if (rpcVerbose) {
             console.log('<==', request);
         }
-        var name = request.name;
-        var params = request.params;
-        params.unshift(res);
-        await restExportMethods[name].apply(null, params);
+        await exportMethodCall(request, res);
         if (rpcVerbose) {
             console.log('==> file');
         }
     });
 }
 
+async function exportMethodCall(req, res) {
+    assert(req.name, 'No req.name');
+    assert(req.params, 'No req.params');
+    var method = restExportMethods[req.name];
+    if (!method) {
+        console.log('No such method '+req.name);
+        return;
+    }
+    var params = req.params;
+    // Note that we will prepend "res" to the method parameter list.
+    var expected = method.length - 1;
+    if (expected != params.length && !method.varargs) {
+        var msg = sprintf("%s: argument mismatch, expected %d got %d",
+            req.name, expected, params.length);
+        console.log(msg);
+        return;
+    }
+    params.unshift(res);
+    try {
+        await method.apply(null, params);
+    } catch (e) {
+        // This is a programmer error.
+        // It would be good if we could *both* return an error *and*
+        // dump one on the Node.js console.
+        // Maybe we should have two exception classes, one for
+        // server-side programmer errors and one for caller errors.
+        console.log(e);
+        // NEEDSWORK there's no clear way to return an error.
+        // Perhaps we can return an HTTP error.
+        return;
+    }
+    res.end();
+}
+
 var restImportMethods = {};
 
-restImportMethods.importDB = async function (req) {
-    var db = await DBMS.getDB(req.params.db);
-    return (await db.import(req));
+restImportMethods.importDB = async function (params, stream) {
+    var db = await DBMS.getDB(params.db);
+    return (await db.import(stream));
 };
 
 // This function accepts a file, and returns a JSON-RPC response.
 async function importMiddleware(req, res, next) {
-    if (rpcVerbose) {
-        console.log('<==', req.url);
+    await busyCall(async function () {
+        if (rpcVerbose) {
+            console.log('<==', req.url);
+        }
+
+        ret = await importMethodCall(req.params, req);
+        
+        if (rpcVerbose) {
+            console.log('==>', ret);
+        }
+        res.json(ret);
+        res.end();
+    });
+}
+
+// This function accepts a file, and returns a JSON-RPC response.
+async function importMethodCall(params, stream) {
+    var method = restImportMethods[params.name];
+    if (!method) {
+        return ({error: 'No such import method '+params.name});
     }
     
-    var ret = await restImportMethods[req.params.name](req);
-    
-    if (rpcVerbose) {
-        console.log('==>', ret);
+    var retval;
+    try {
+        retval = await method(params, stream);
+    } catch (e) {
+        // This is a programmer error.
+        // It would be good if we could *both* return an error *and*
+        // dump one on the Node.js console.
+        // Maybe we should have two exception classes, one for
+        // server-side programmer errors and one for caller errors.
+        console.log(e);
+        return ({ error: e.toString() });
     }
-    res.json(ret);
-    res.end();
+    if (retval === undefined) {
+        return ({});
+    }
+    return ({ response: retval });
 }
 
 process.title = 'Registration Server';
@@ -402,10 +466,10 @@ process.stdin.on('data', function (c) {
 DBMS.init().then(function () {
     app.route('/Call')
         .put(express.json())
-        .put(methodcallmiddleware);
+        .put(methodCallMiddleware);
     app.route('/REST')
         .post(express.urlencoded({extended: true}))
-        .post(formJson('request'));
+        .post(exportMiddleware);
     app.route('/REST/:name/:db')
         .put(importMiddleware);
     app.use(cookieParser());

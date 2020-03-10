@@ -26,6 +26,17 @@ DB.prototype.listTables = function (cb) {
     rpc.DBlistTables(o.dbName, cb);
 };
 
+DB.prototype.import = function (file, cb) {
+    var o = this;
+    REST.importDB(o.dbName, file, cb);
+};
+
+DB.prototype.export = function (tables) {
+    var o = this;
+    tables = tables || null;
+    REST.exportDB(o.dbName, tables);
+};
+
 // Params:
 // defaults:  a prototypical record supplying defaults for any fields that
 // are undefined in the DB.

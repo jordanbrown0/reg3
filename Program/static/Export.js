@@ -11,7 +11,7 @@ Export.prototype.activate = function () {
     base.addNav([
         { key: 'Escape', msg: 'Cancel', func: function () { home(); } },
         { key: 'a', msg: 'Export All', func: function () {
-            REST.exportDB('reg');
+            db.reg.export();
         } }
     ]);
     db.reg.listTables(function (tables) {
@@ -30,7 +30,7 @@ Export.prototype.exportSelected = function () {
     var o = this;
     
     var selected = o.bools.get();
-    REST.exportDB('reg', selected);
+    db.reg.export(selected);
 };
 
 Export.prototype.title = 'Export...';

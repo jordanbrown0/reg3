@@ -6,7 +6,7 @@ function Import()
     var fileInput = new DElement('input', {
         type: 'file',
         onchange: function () {
-            REST.upload('/REST/importDB/reg', fileInput.n.files.item(0),
+            db.reg.import(fileInput.n.files.item(0),
                 function (conflicts) {
                     base.switchTo(new ConflictListResolver(conflicts));
                 }
@@ -15,7 +15,6 @@ function Import()
     });
     o.appendChild(fileInput);
     fileInput.n.click();
-
 }
 extend(DElement, Import);
 

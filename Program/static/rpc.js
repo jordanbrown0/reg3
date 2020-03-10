@@ -32,13 +32,13 @@ init.push(function rpcInit(cb) {
             var success = null;
             var failure = null;
             while (args.length > 0 && !failure) {
-                var cb = args.pop();
-                if (cb instanceof Function) {
+                var f = args.pop();
+                if (f instanceof Function) {
                     failure = success;
-                    success = cb;
+                    success = f;
                     continue;
                 }
-                args.push(cb);
+                args.push(f);
                 break;
             }
             call({name: m, params: args}, function (r) {
@@ -160,13 +160,25 @@ WaitServer.prototype.title = "Uh oh...";
 //
 var REST = {};
 
-REST.upload = function (url, file, cb) {
+REST.importDB = function (dbName, file, cb) {
+    RESTupload('/REST/importDB/'+dbName, file, cb);
+};
+
+RESTupload = function (url, file, success) {
     var x = new XMLHttpRequest();
     x.open('PUT', url);
     x.onload = function () {
-        var res = JSON.parse(x.responseText);
-        Debug.rpc('REST <==', res);
-        cb(res);
+        var r = JSON.parse(x.responseText);
+        Debug.rpc('REST <==', r);
+        if (r.error) {
+            // Conventional JSON-RPC above has an optional failure callback.
+            // Hasn't seemed necessary here yet.
+            throw (new Error(r.error));
+        } else {
+            if (success) {
+                success(r.response);
+            }
+        }
     };
     x.onerror = rpcError;
     Debug.rpc('REST ==>', file.name);
@@ -174,10 +186,11 @@ REST.upload = function (url, file, cb) {
 };
 
 REST.exportDB = function (name) {
-    REST.download('exportDB', Array.apply(null, arguments));
+    var args = Array.prototype.slice.call(arguments);
+    RESTdownload('exportDB', args);
 };
 
-REST.download = function (method, params) {
+RESTdownload = function (method, params) {
     var form = new DElement('form', {
         target: "_blank",
         method: "POST",
@@ -191,6 +204,7 @@ REST.download = function (method, params) {
     document.body.appendChild(form.n);
     setTimeout(function () {
         // NEEDSWORK:  I don't know of any way to detect an error here.
+        // Or, for that matter, to detect completion.
         form.n.submit();
         document.body.removeChild(form.n);
     });

@@ -5,8 +5,6 @@ AQ list has funky rendering in Firefox.  Probably related to dynamically changin
 
 Try with 6+ label printers
 
-What logging do we have for REST operations?
-
 working(true) is currently triggered by individual operations.  Perhaps all Nav operations should trigger it.  But note that that would mean PageUp/PageDn would need working(false).  But maybe only Nav, PgUp/PgDn, and Base.switchTo.  Oh, and anything that returns to the same page, e.g. aborted printing.  Perhaps working(true) should have some visible indication, though the general theory is that if it ever takes more than a small fraction of a second it's too long.
 
 Widgets don't get full focus marking until you use keyboard navigation.  Or something like that.
