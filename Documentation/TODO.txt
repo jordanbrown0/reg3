@@ -1,68 +1,9 @@
-Need error messages for "your station is configured to print on a printer on a different server".  Whether that will be a real issue will depend on network configuration; if the server is always the same name / IP address then stations will maintain their identity when moved.
-
 What should happen when a station moves from one server to another?  Depends on whether the server has the same name.  If it does, it's the same station.  If not, it's a different station.
 
-For stations and printers, default to showing only those for this server.
 
 AQ list has funky rendering in Firefox.  Probably related to dynamically changing list.
 
-Browser-side errors need to interrupt UI
-window.addEventListener('error', function(event) { ... })
-window.onerror = function(message, source, lineno, colno, error) { ... }
-
-Make it clearer when an error is a server-side error.
-
 Try with 6+ label printers
-
-What is UI for new members?
-	* how does lookup in MASTER fit in?
-	* Do anything about looking up existing memberships first?
-
-Import from DBF
-    Import from DBF is basically working, with schema translation.
-    Can't import directly into a new DB because the server doesn't return "members" in a table list. How to prime?  Maybe client-side init does a no-op DB operation to get the table set up.  Or maybe the selection is based on the client-side list of tables rather than the server-side list.
-    Deliver a canned Reg v2 import somehow?  Maybe by delivering a *.json that
-    you can import that will bring in an externalImport map?
-    Should be able to import from browser upload, rather than from server file.
-    Should fields be ignored by default, or lower-cased and imported by default?
-    If they are ignored by default, it's a nuisance to have to fill out the import form.
-    If they are imported by default, there's no obvious way to *omit* unwanted fields.
-    Not that unwanted fields cause any real trouble.  Member Solutions unwanted fields have very verbose names; it would be unfortunate to duplicate them.
-    Convert date formats on import.
-    File open errors are not reported back to the user.
-
-Import from Member Solutions
-    Partial.  Need content cleanup (e.g. "$75.00" => 75, class name, one-line badge name to two-line badge name).
-Import from Eventbrite
-Import from CSV
-    Column oriented, or with headers?  Probably both.
-    Header variant sort of works.
-    Get numbers to be numbers.
-Import from .XLSX?
-
-Maybe need a "zap table" user interface.  Or maybe external import has a "clear first" option.
-
-Does JS - and in particular node.js - intern strings?  If not, we might want to make a point of interning them at DB load time and record update/add time - at least the field names.
-
-Various imports should probably assign membership numbers if they aren't assigned.  Ugh.  That would mean involving the UI, since the server doesn't know about membership numbers.  Or maybe there's a bulk "assign membership numbers to all records without them".
-
-How should an import file be fed into the system?  Options are upload and direct file access. Direct file access is awkward.  Upload has a problem with how to specify the desired import mapping.  Multipart might allow RPC+file upload.  Or one URL component could be the record ID for the mapping record.
-
-Export (DBF?  CSV?)
-Export only marked records?  Perhaps by category?
-
-Developer wads
-
-Bulk ops
-	Delete
-	Modify?
-	report
-
-bulk edit - e.g. for all Saturday, set note
-
-Can add/put eval operations replace the special increment method, to let add-member be a single-atomic-ish operation?  But:  an increment or put operator needs to be async, because the DB might not yet be loaded.  (In theory.)
-
-General alert/error UI (alert()?  Modal?)
 
 What logging do we have for REST operations?
 
