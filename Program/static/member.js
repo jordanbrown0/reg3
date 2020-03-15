@@ -411,7 +411,7 @@ MemberUpgrade.prototype.activate = function () {
     table.members.get(o.k, function (r) {
         base.switchTo(
             new UpgradePicker({
-                from: r.class,
+                member: r,
                 pick: function (k, rUp) {
                     if (working(true)) {
                         return;

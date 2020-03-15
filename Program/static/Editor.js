@@ -175,8 +175,13 @@ extend(DElement, EditorPage);
 
 EditorPage.prototype.activate = function () {
     var o = this;
-    // NEEDSWORK this should find the first read-write entry.
-    o.entries[0].focus();
+    o.entries.some(function (e) {
+        if (!e.schemaEntry.readOnly) {
+            e.focus();
+            return (true);
+        }
+        return (false);
+    });
 };
 
 EditorPage.prototype.set = function (r) {

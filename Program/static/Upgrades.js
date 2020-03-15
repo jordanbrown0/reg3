@@ -50,7 +50,7 @@ UpgradesManager.prototype.summarize = function (k, r) {
 function UpgradePicker(params)
 {
     var o = this;
-    assertParams(params, 'from', 'pick');
+    assertParams(params, 'member', 'pick');
     var myparams = Object.assign({
         table: table.upgrades,
         schema: upgradesSchema
@@ -60,6 +60,19 @@ function UpgradePicker(params)
 extend(DBManager, UpgradePicker);
 
 UpgradePicker.prototype.title = 'Upgrade to...';
+
+UpgradePicker.prototype.activate = function () {
+    var o = this;
+    UpgradePicker.sup.activate.call(o);
+    base.addNav([
+        { msg: 'Other', func: function () {
+            base.switchTo(new UpgradeAdHocPicker({
+                member: o.params.member,
+                pick: function (k, r) { o.pick(k, r); }
+            }));
+        } }
+    ]);
+};
 
 UpgradePicker.prototype.summarize = function (k, r) {
     var o = this;
@@ -81,7 +94,7 @@ UpgradePicker.prototype.getFilter = function () {
     var o = this;
     
     var f = { and: [
-        { eq: [ {f: 'from' }, o.params.from ] },
+        { eq: [ {f: 'from' }, o.params.member.class ] },
         Class.getFilter(cfg)
     ] };
     return (f);
@@ -102,6 +115,75 @@ UpgradePicker.prototype.cancel = function () {
 };
 
 UpgradePicker.prototype.sort = [ 'order' ];
+
+
+// NEEDSWORK this seems to mostly work, but seems overly complex
+// and the page titles are undefined.
+function UpgradeAdHocPicker(params) {
+    var o = this;
+    o.params = params;
+    UpgradeAdHocPicker.sup.constructor.call(o, 'span');
+}
+
+extend(DElement, UpgradeAdHocPicker);
+
+UpgradeAdHocPicker.prototype.activate = function () {
+    var o = this;
+    
+    base.switchTo(new ClassPicker({
+        titleManager: 'Upgrade to...',
+        pick: function (k, r) {
+            base.switchTo(new UpgradeAdHocPicker2({
+                member: o.params.member,
+                class: r,
+                pick: function (r) { o.params.pick(null, r); }
+            }));
+        }
+    }));
+};
+
+
+
+function UpgradeAdHocPicker2(params) {
+    var o = this;
+    o.params = params;
+    UpgradeAdHocPicker2.sup.constructor.call(o, 'span');
+};
+
+extend(DElement, UpgradeAdHocPicker2);
+
+UpgradeAdHocPicker2.prototype.activate = function () {
+    var o = this;
+    var schema = [[
+        { field: 'from', label: 'From class', input: InputClass, readOnly: true },
+        { field: 'to', label: 'To class', input: InputClass, readOnly: true },
+        { field: 'currentAmount', label: 'Paid so far', input: InputCurrency, readOnly: true },
+        { field: 'classAmount', label: 'Class cost', input: InputCurrency, readOnly: true },
+        { field: 'upgradeAmount', label: 'Upgrade cost', input: InputCurrency }
+    ]];
+    var r = {
+        from: o.params.member.class,
+        to: o.params.class.code,
+        currentAmount: o.params.member.amount,
+        classAmount: o.params.class.amount,
+        upgradeAmount: o.params.class.amount - o.params.member.amount
+    };
+    var editor = new Editor(r, {
+        schema: schema,
+        cancel: home,
+        done: function () {
+            o.params.pick({
+                from: r.from,
+                to: r.to,
+                amount: r.upgradeAmount
+            });
+        }
+    });
+    o.appendChild(editor);
+    editor.activate();
+};
+
+UpgradeAdHocPicker2.prototype.title = 'Confirm upgrade...';
 
 var Upgrades = {};
 
