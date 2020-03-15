@@ -65,12 +65,17 @@ Editor.prototype.activate = function () {
         o.pages.push(page);
     });
 
-    // Perhaps this should be in a separate Editor.set().
-    o.pages.forEach(function (page) {
-        page.set(o.r);
-    });
+    o.set(o.r);
 
     o.switchEditPage(o.pages[0]);
+};
+
+Editor.prototype.set = function (r) {
+    var o = this;
+
+    o.pages.forEach(function (page) {
+        page.set(r);
+    });
 };
 
 Editor.prototype.next = function () {
@@ -267,7 +272,10 @@ EditorEntry.prototype.focus = function () {
 
 EditorEntry.prototype.set = function (r) {
     var o = this;
-    o.input.set(r[o.schemaEntry.field]);
+    var v = r[o.schemaEntry.field];
+    if (v !== undefined) {
+        o.input.set(r[o.schemaEntry.field]);
+    }
 };
 
 EditorEntry.prototype.get = function (r) {

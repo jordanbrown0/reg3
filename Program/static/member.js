@@ -380,6 +380,21 @@ NewMemberEditor.prototype.activate = function () {
         cancel: home
     });
 
+    if (lastRec) {
+        base.addNav([
+            { msg: 'Same address', key: 'ControlS', func: function () {
+                editor.set({
+                    addr1: lastRec.addr1,
+                    addr2: lastRec.addr2,
+                    city: lastRec.city,
+                    state: lastRec.state,
+                    postcode: lastRec.postcode,
+                    country: lastRec.country
+                });
+            } }
+        ]);
+    }
+
     o.appendChild(editor);
     editor.activate();
     Class.getDescription(o.r.class, gotDesc);
