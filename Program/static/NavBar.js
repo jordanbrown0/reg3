@@ -19,7 +19,11 @@ NavBar.prototype.add = function (a) {
             return;
         }
         if (e.msg) {
-            o.content.appendChild(new Button(e.msg, {
+            var msg = e.msg;
+            if (e.key) {
+                msg += ' ('+e.key+')';
+            }
+            o.content.appendChild(new Button(msg, {
                 onclick: function () {
                     if (isRPCActive()) {
                         log('button ignored because RPC active');
