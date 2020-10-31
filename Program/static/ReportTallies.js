@@ -3,16 +3,16 @@ function ReportTallies()
     var o = this;
     ReportTallies.sup.constructor.call(o, 'div');
     o.menu = new Menu({ items: [
-        { key: 'p', label: '(P)icked up by date', func: function () {
+        { label: '&Picked up by date', func: function () {
             base.switchTo(new ReportTallyPickedUpByDate());
         }},
-        { key: 'n', label: '(N)ew by date', func: function () {
+        { label: '&New by date', func: function () {
             base.switchTo(new ReportTallyNewByDate());
         }},
-        { key: 's', label: '(S)ummary', func: function () {
+        { label: '&Summary', func: function () {
             base.switchTo(new ReportSummary());
         }},
-        { key: 'c', label: 'by (C)lass', func: function () {
+        { label: 'by &Class', func: function () {
             base.switchTo(new ReportTallyByClass());
         }}
     ]});
@@ -24,7 +24,7 @@ ReportTallies.prototype.activate = function () {
     var o = this;
     o.menu.activate();
     base.addNav([
-        { key: 'Escape', msg: 'Cancel', func: function () { home(); } }
+        { label: 'Cancel', key: 'Escape', func: function () { home(); } }
     ]);
 };
 

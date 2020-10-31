@@ -32,20 +32,14 @@ function NavTouch()
     };
 }
 
-NavTouch.prototype.set = function (a) {
+NavTouch.prototype.clear = function () {
     var o = this;
     o.handlers = {};
-    o.add(a);
 };
 
-NavTouch.prototype.add = function (a) {
+NavTouch.prototype.add = function (e) {
     var o = this;
-    a.forEach(function (e) {
-        if (e.perms && !cfg.permissions.includes(e.perms)) {
-            return;
-        }
-        if (e.touch) {
-            o.handlers[e.touch] = e.func;
-        }
-    });
+    if (e.touch) {
+        o.handlers[e.touch] = e.func;
+    }
 };

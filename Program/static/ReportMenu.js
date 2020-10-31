@@ -3,13 +3,13 @@ function ReportMenu()
     var o = this;
     ReportMenu.sup.constructor.call(o, 'div');
     o.menu = new Menu({ items: [
-        { key: 't', label: '(T)allies of members', func: function () {
+        { label: '&Tallies of members', func: function () {
             base.switchTo(new ReportTallies());
         }},
-        { key: 'l', label: '(L)ist', func: function () {
+        { label: '&List', func: function () {
             base.switchTo(new ReportList());
         }},
-        { key: 'd', label: '(D)uplicates', func: function () {
+        { label: '&Duplicates', func: function () {
             base.switchTo(new ReportDupsSetup());
         }}
     ]});
@@ -21,7 +21,7 @@ ReportMenu.prototype.activate = function () {
     var o = this;
     o.menu.activate();
     base.addNav([
-        { key: 'Escape', msg: 'Cancel', func: function () { home(); } }
+        { label: 'Cancel', key: 'Escape', func: function () { home(); } }
     ]);
 };
 

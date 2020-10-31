@@ -23,6 +23,7 @@ function List(params)
         value: '',
         id: 'search',
         className: 'SearchBox',
+        autocomplete: 'off',
         oninput: function() {
             o.search = this.value.split(' ');
             o.refresh();
@@ -42,7 +43,7 @@ List.prototype.activate = function () {
         { key: 'ArrowDown', func: function () { o.next(); } },
         { key: 'ArrowUp', func: function () { o.prev(); } },
         { key: 'Enter', func: function () { o.pick(); } },
-        { key: 'Escape', msg: 'Cancel', func: function () { o.cancel(); } }
+        { label: 'Cancel', key: 'Escape', func: function () { o.cancel(); } }
     ]);
     o.searchbox.focus();
     o.refresh();

@@ -12,10 +12,11 @@ Menu.prototype.activate = function () {
     var keys = [];
     
     o.params.items.forEach(function (item) {
-        var ent;
-        if (item.perms && !cfg.permissions.includes(item.perms)) {
+        item = base.processNav(item);
+        if (!item) {
             return;
         }
+        var ent;
         if (item.title) {
             ent = td(item.title, { className: 'Title' });
         } else {

@@ -9,8 +9,8 @@ Export.prototype.activate = function () {
     var o = this;
     
     base.addNav([
-        { key: 'Escape', msg: 'Cancel', func: function () { home(); } },
-        { key: 'a', msg: 'Export All', func: function () {
+        { label: 'Cancel', key: 'Escape', func: function () { home(); } },
+        { label: 'Export &All', func: function () {
             db.reg.export();
         } }
     ]);
@@ -19,7 +19,7 @@ Export.prototype.activate = function () {
         o.appendChild(o.bools);
 
         base.addNav([
-            { key: 's', msg: 'Export Selected', func: function () {
+            { label: 'Export &Selected', func: function () {
                 o.exportSelected();
             } }
         ]);

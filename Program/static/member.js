@@ -128,7 +128,7 @@ MemberDisplay.prototype.activate = function () {
 
         if (cfg.offlinePrint) {
             base.addNav([
-                { key: 'P', msg: 'Print', func: function () {
+                { label: '&Print', func: function () {
                     if (working(true)) {
                         return;
                     }
@@ -137,7 +137,7 @@ MemberDisplay.prototype.activate = function () {
             ]);
         } else if (!r.pickedup && cfg.offlineMarkPickedUp) {
             base.addNav([
-                { key: 'P', msg: 'Picked Up', func: function () {
+                { label: '&Picked Up', func: function () {
                     if (working(true)) {
                         return;
                     }
@@ -150,7 +150,7 @@ MemberDisplay.prototype.activate = function () {
         
         if (r.pickedup) {
             base.addNav([
-                { msg: 'Un-pick-up', perms: 'unmark',
+                { label: 'Un-pick-up', perms: 'unmark',
                     func: function () {
                         if (working(true)) {
                             return;
@@ -164,17 +164,17 @@ MemberDisplay.prototype.activate = function () {
         }
 
         base.addNav([
-            { key: 'C', msg: 'Change', func: function () {
+            { label: '&Change', func: function () {
                 base.switchTo(new MemberEdit(o.k));
             } },
-            { key: 'U', msg: 'Upgrade', perms: 'upgrade', func: function () {
+            { label: '&Upgrade', perms: 'upgrade', func: function () {
                 base.switchTo(new MemberUpgrade(o.k));
             } }
         ]);
 
         if (r.void) {
             base.addNav([
-                { msg: 'Unvoid', perms: 'void', func: function () {
+                { label: 'Unvoid', perms: 'void', func: function () {
                     if (working(true)) {
                         return;
                     }
@@ -185,7 +185,7 @@ MemberDisplay.prototype.activate = function () {
             ]);
         } else {
             base.addNav([
-                { msg: 'Void', perms: 'void', func: function () {
+                { label: 'Void', perms: 'void', func: function () {
                     if (working(true)) {
                         return;
                     }
@@ -382,7 +382,7 @@ NewMemberEditor.prototype.activate = function () {
 
     if (lastRec) {
         base.addNav([
-            { msg: 'Same address', key: 'ControlS', func: function () {
+            { label: 'Same address', key: 'ControlS', func: function () {
                 editor.set({
                     addr1: lastRec.addr1,
                     addr2: lastRec.addr2,

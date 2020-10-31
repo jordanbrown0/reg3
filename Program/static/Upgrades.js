@@ -65,7 +65,7 @@ UpgradePicker.prototype.activate = function () {
     var o = this;
     UpgradePicker.sup.activate.call(o);
     base.addNav([
-        { msg: 'Other', perms: 'adHocUpgrades', func: function () {
+        { label: 'Other', perms: 'adHocUpgrades', func: function () {
             base.switchTo(new UpgradeAdHocPicker({
                 member: o.params.member,
                 pick: function (k, r) { o.pick(k, r); }

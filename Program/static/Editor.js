@@ -30,15 +30,15 @@ Editor.prototype.activate = function () {
     var o = this;
     base.addNav([
         {
+            label: o.params.doneButton,
             key: 'Enter',
-            msg: o.params.doneButton,
             func: function () {
                 o.done();
             }
         },
         {
+            label: o.params.cancelButton,
             key: 'Escape',
-            msg: o.params.cancelButton,
             func: function () {
                 o.params.cancel();
             }
@@ -46,9 +46,9 @@ Editor.prototype.activate = function () {
     ]);
     if (o.params.schema.length > 1) {
         base.addNav([
-            { key: 'PageUp', msg: '<', touch: 'swipeRight',
+            { label: '<', key: 'PageUp', touch: 'swipeRight',
             func:  function () { o.prev(); } },
-            { key: 'PageDown', msg: '>', touch: 'swipeLeft',
+            { label: '>', key: 'PageDown', touch: 'swipeLeft',
             func:  function () { o.next(); } }
         ]);
     }

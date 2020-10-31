@@ -9,8 +9,8 @@ Report.prototype.activate = function () {
     var o = this;
 
     base.addNav([
-        { key: 'P', msg: 'Print', func: function () { window.print(); } },
-        { key: 'Enter', msg: 'Done', func: home },
+        { label: '&Print', func: function () { window.print(); } },
+        { label: 'Done', key: 'Enter', func: home },
         { key: 'Escape', func: home }
     ]);
     

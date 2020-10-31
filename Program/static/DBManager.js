@@ -26,7 +26,7 @@ DBManager.prototype.activate = function () {
     if (o.params.canShowAll) {
         var allText = new DElement('span', 'All');
         base.addNav([
-            { msg: allText, func: function () {
+            { label: allText, func: function () {
                 if (list.getFilter()) {
                     allText.removeChildren();
                     allText.appendChild('Limit');
@@ -42,7 +42,7 @@ DBManager.prototype.activate = function () {
     }
     if (o.params.canAdd) {
         base.addNav([
-            { msg: 'Add', func: function () { o.add(); } }
+            { label: 'Add', func: function () { o.add(); } }
         ]);
     }
     list.activate();
@@ -115,7 +115,7 @@ DBEdit.prototype.activate = function () {
         editor.activate();
         if (o.params.canDelete) {
             base.addNav([
-                { msg: 'Delete', func: function () {
+                { label: 'Delete', func: function () {
                     if (working(true)) {
                         return;
                     }

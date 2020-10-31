@@ -15,31 +15,24 @@ function NavKey()
     // document.body.onkeyup = function (e) { log('keyup', e.key); o.onkeyup(e); };
 }
 
-NavKey.prototype.set = function (a) {
+NavKey.prototype.clear = function () {
     var o = this;
     o.keyHandlers = {};
-    o.add(a);
 };
 
-NavKey.prototype.add = function (a) {
+NavKey.prototype.add = function (e) {
     var o = this;
-    a.forEach(function (e) {
-        if (e.perms && !cfg.permissions.includes(e.perms)) {
-            return;
+    if (e.key) {
+        var kn = e.key.length == 1 ? e.key.toUpperCase() : e.key;
+        o.keyHandlers[kn] = e.func;
+        // Allow Shift+x in addition to x.
+        // NEEDSWORK:  Won't interact properly when kn already includes
+        // a modifier, because the "Shift" won't be added in the right
+        // place.
+        if (kn.indexOf('Shift') < 0) {
+            o.keyHandlers['Shift'+kn] = e.func;
         }
-
-        if (e.key) {
-            var kn = e.key.length == 1 ? e.key.toUpperCase() : e.key;
-            o.keyHandlers[kn] = e.func;
-            // Allow Shift+x in addition to x.
-            // NEEDSWORK:  Won't interact properly when kn already includes
-            // a modifier, because the "Shift" won't be added in the right
-            // place.
-            if (kn.indexOf('Shift') < 0) {
-                o.keyHandlers['Shift'+kn] = e.func;
-            }
-        }
-    });
+    }
 };
 
 NavKey.prototype.getKeyHandler = function (e) {

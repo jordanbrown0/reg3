@@ -38,12 +38,12 @@ ConflictResolver.prototype.activate = function () {
     var c = o.c;
 
     base.addNav([
-        { key: 'Escape', msg: 'Cancel', func: function () { home(); } },
-        { msg: 'Resolve', func: function () { o.resolve(); } }
+        { label: 'Cancel', key: 'Escape', func: function () { home(); } },
+        { label: 'Resolve', func: function () { o.resolve(); } }
     ]);
     if (o.params.skipped) {
         base.addNav([
-            { msg: 'Skip', func: function () { o.skip(); } }
+            { label: 'Skip', func: function () { o.skip(); } }
         ]);
     }
     

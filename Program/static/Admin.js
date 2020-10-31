@@ -3,44 +3,44 @@ function Admin()
     var o = this;
     Admin.sup.constructor.call(o, 'div');
     o.menu = new Menu({ items: [
-        { key: 'c', label: '(C)lasses', func: function () {
+        { label: '&Classes', func: function () {
             base.switchTo(new ClassManager());
         }},
-        { key: 'g', label: '(G)lobal configuration', func: function () {
+        { label: '&Global configuration', func: function () {
             base.switchTo(new GlobalEdit());
         }},
-        { key: 'p', label: '(P)rinter management', func: function () {
+        { label: '&Printer management', func: function () {
             base.switchTo(new PrinterManager());
         }},
-        { key: 's', label: '(S)tation configuration', func: function () {
+        { label: '&Station configuration', func: function () {
             base.switchTo(new StationEdit());
         }},
-        { key: 'q', label: '(Q) station manager', func: function () {
+        { label: '&Q station manager', func: function () {
             base.switchTo(new StationManager());
         }},
-        { key: 'u', label: '(U)pgrades', func: function () {
+        { label: '&Upgrades', func: function () {
             base.switchTo(new UpgradesManager());
         }},
-        {           label: 'Categories', func: function () {
+        { label: 'Categories', func: function () {
             base.switchTo(new CategoriesManager());
         }},
-        {           label: 'Corrections', func: function () {
+        { label: 'Corrections', func: function () {
             base.switchTo(new CorrectionsManager());
         }},
-        {           label: 'External import mapping', func: function () {
+        { label: 'External import mapping', func: function () {
             base.switchTo(new ExternalImportManager());
         }},
-        {           label: 'External import', func: function () {
+        { label: 'External import', func: function () {
             base.switchTo(new ExternalImport());
         }},
-        { key: 'v', label: '(V) server manager', func: function () {
+        { label: 'ser&ver manager', func: function () {
             base.switchTo(new ServerManager());
         }},
-        { key: 't', label: '(T)est printer', func: label_test },
-        { key: 'i', label: '(I)mport', func: function () {
+        { label: '&Test printer', func: label_test },
+        { label: '&Import', func: function () {
             base.switchTo(new Import());
         }},
-        { key: 'e', label: '(E)xport', func: function () {
+        { label: '&Export', func: function () {
             base.switchTo(new Export());
         }}
     ]});
@@ -52,7 +52,7 @@ Admin.prototype.activate = function () {
     var o = this;
     o.menu.activate();
     base.addNav([
-        { key: 'Escape', msg: 'Cancel', func: function () { home(); } }
+        { label: 'Cancel', key: 'Escape', func: function () { home(); } }
     ]);
 };
 

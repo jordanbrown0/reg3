@@ -20,7 +20,7 @@ extend(DElement, Import);
 
 Import.prototype.activate = function () {
     base.addNav([
-        { key: 'Escape', msg: 'Cancel', func: function () { home(); } }
+        { label: 'Cancel', key: 'Escape', func: function () { home(); } }
     ]);
 };
 

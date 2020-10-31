@@ -84,16 +84,24 @@ Base.prototype.switchToNoDeactivate = function (n) {
 
 Base.prototype.addNav = function (a) {
     var o = this;
-    o.navBar.add(a);
-    o.navKey.add(a);
-    o.navTouch.add(a);
+    a.forEach(function (e) {
+        e = o.processNav(e);
+        if (!e) {
+            return;
+        }
+        log(e);
+        o.navBar.add(e);
+        o.navKey.add(e);
+        o.navTouch.add(e);
+    });
 };
 
 Base.prototype.setNav = function (a) {
     var o = this;
-    o.navBar.set(a);
-    o.navKey.set(a);
-    o.navTouch.set(a);
+    o.navBar.clear();
+    o.navKey.clear();
+    o.navTouch.clear();
+    o.addNav(a);
 };
 
 Base.prototype.tick = function () {
@@ -101,6 +109,48 @@ Base.prototype.tick = function () {
     rpc.eval(null, {dateTime: []}, function (d) {
         o.clock.replaceChildren(LDate.fromJSON(d).toDisplay({seconds: false}));
     });
+};
+
+Base.prototype.processNav = function (item) {
+    if (item.perms && !cfg.permissions.includes(item.perms)) {
+        return (undefined);
+    }
+    var label = item.label;
+    var t = {
+        id: item.id,
+        func: item.func,
+        touch: item.touch,
+        title: item.title,
+        label: item.label
+    };
+    if (typeof(item.label) == 'string') {
+        t.label = new DElement('span');
+        for (var i = 0; i < label.length; i++) {
+            var c = label.charAt(i);
+            if (c == '&' && i+1 < label.length) {
+                i++;
+                c = label.charAt(i);
+                if (c != '&') {
+                    t.label.appendChild(new DElement('u', c));
+                    t.key = c;
+                    continue;
+                }
+            }
+            t.label.appendChild(c);
+        }
+        if (item.label2) {
+            t.label.appendChild(item.label2);
+        }
+        if (item.key) {
+            t.label.appendChild(' (');
+            t.label.appendChild(new DElement('u', item.key));
+            t.label.appendChild(')');
+        }
+    }
+    if (item.key) {
+        t.key = item.key;
+    }
+    return (t);
 };
 
 // We have a custom implementation of Tab and Backtab that confines them to the

@@ -6,32 +6,23 @@ function NavBar()
 }
 extend(DElement, NavBar);
 
-NavBar.prototype.set = function (a) {
+NavBar.prototype.clear = function () {
     var o = this;
     o.content.removeChildren();
-    o.add(a);
 };
 
-NavBar.prototype.add = function (a) {
+NavBar.prototype.add = function (e) {
     var o = this;
-    a.forEach(function (e) {
-        if (e.perms && !cfg.permissions.includes(e.perms)) {
-            return;
-        }
-        if (e.msg) {
-            var msg = e.msg;
-            if (e.key) {
-                msg += ' ('+e.key+')';
-            }
-            o.content.appendChild(new Button(msg, {
-                onclick: function () {
-                    if (isRPCActive()) {
-                        log('button ignored because RPC active');
-                    } else {
-                        e.func();
-                    }
+    if (e.label) {
+        var label = e.label;
+        o.content.appendChild(new Button(label, {
+            onclick: function () {
+                if (isRPCActive()) {
+                    log('button ignored because RPC active');
+                } else {
+                    e.func();
                 }
-            }));
-        }
-    });
+            }
+        }));
+    }
 };
