@@ -42,6 +42,10 @@ function Admin()
         }},
         { label: '&Export', func: function () {
             base.switchTo(new Export());
+        }},
+        { label: 'Zap', func: function () {
+            // Note:  Zap does not have a one-key shortcut, for safety.
+            base.switchTo(new Zap());
         }}
     ]});
     o.appendChild(o.menu);

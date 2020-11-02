@@ -72,6 +72,11 @@ ExternalImport.prototype.activate = function () {
                 table: 'externalImport',
                 textField: 'description',
                 required: true
+            },
+            {
+                field: 'zap',
+                label: 'Zap table first?',
+                input: InputBool
             }
         ]];
         var options = {}
@@ -95,7 +100,14 @@ ExternalImport.prototype.import = function (r) {
         rMap.map.forEach(function (mapEnt) {
             map[mapEnt.from] = mapEnt.to;
         });
-        table[rMap.table].externalImport(r.file, rMap.type, map, home);
+        if (r.zap) {
+            table[rMap.table].zap(doImport);
+        } else {
+            doImport();
+        }
+        function doImport() {
+            table[rMap.table].externalImport(r.file, rMap.type, map, home);
+        }
     });
 };
 

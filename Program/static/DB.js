@@ -170,3 +170,8 @@ DBTable.prototype.externalImport = function (file, type, map, cb) {
         throw new Error('unknown import type '+type);
     }
 };
+
+DBTable.prototype.zap = function  (cb) {
+    var o = this;
+    rpc.DBzap(o.dbName, o.tName, cb);
+};

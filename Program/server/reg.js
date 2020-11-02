@@ -92,6 +92,10 @@ methods.DBdelete = async function (dbName, tName, k, r) {
     return ((await getTable(dbName, tName)).delete(k, r));
 };
 
+methods.DBzap = async function (dbName, tName) {
+    return ((await getTable(dbName, tName)).zap());
+};
+
 methods.DBinc = async function (dbName, tName, k, field, limitField) {
     return ((await getTable(dbName, tName)).inc(k, field, limitField));
 };

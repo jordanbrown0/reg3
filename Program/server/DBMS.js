@@ -564,6 +564,12 @@ Table.prototype.import = function (k, rImport) {
     }
 };
 
+Table.prototype.zap = function () {
+    var o = this;
+    o.records = {};
+    o.cachedSort = null;
+    o.write();
+};
 
 var databases = {};
 var DBMS = {};

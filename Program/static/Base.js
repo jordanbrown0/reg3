@@ -89,7 +89,6 @@ Base.prototype.addNav = function (a) {
         if (!e) {
             return;
         }
-        log(e);
         o.navBar.add(e);
         o.navKey.add(e);
         o.navTouch.add(e);
