@@ -170,6 +170,14 @@ verbs.match = function (r, args) {
                     found = true;
                     break;
                 }
+            } else if (typeof(v) == 'number') {
+                // Note that v (the value from the record) is
+                // a number, but pat (the search parameter) is
+                // a string, so this needs to be ==.
+                if (v == pat) {
+                    found = true;
+                    break;
+                }
             } else if (v instanceof Array) {
                 if (v.some(function (av) {
                     return (typeof (av) == 'string'
