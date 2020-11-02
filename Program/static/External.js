@@ -1,3 +1,29 @@
+function External()
+{
+    var o = this;
+    External.sup.constructor.call(o, 'div');
+    o.menu = new Menu({ items: [
+        { label: 'Import mapping', func: function () {
+            base.switchTo(new ExternalImportManager());
+        }},
+        { label: '&Import', func: function () {
+            base.switchTo(new ExternalImport());
+        }}
+    ]});
+    o.appendChild(o.menu);
+}
+extend(DElement, External);
+
+External.prototype.activate = function () {
+    var o = this;
+    o.menu.activate();
+    base.addNav([
+        { label: 'Cancel', key: 'Escape', func: function () { home(); } }
+    ]);
+};
+
+External.prototype.title = 'External import/export';
+
 var externalImportSchema = [
     [
         { field: 'description', label: 'Description', default: '', required: true },

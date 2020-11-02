@@ -27,11 +27,8 @@ function Admin()
         { label: 'Corrections', func: function () {
             base.switchTo(new CorrectionsManager());
         }},
-        { label: 'External import mapping', func: function () {
-            base.switchTo(new ExternalImportManager());
-        }},
-        { label: 'External import', func: function () {
-            base.switchTo(new ExternalImport());
+        { label: 'E&xternal import/export', func: function () {
+            base.switchTo(new External());
         }},
         { label: 'ser&ver manager', func: function () {
             base.switchTo(new ServerManager());
