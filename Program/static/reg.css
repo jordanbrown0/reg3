@@ -99,6 +99,10 @@ input.Disabled {
     cursor: pointer;
 }
 
+.Menu .Item {
+    font-size: larger;    
+}
+
 .SearchBox {
     margin-left: 0.5em;
 }
