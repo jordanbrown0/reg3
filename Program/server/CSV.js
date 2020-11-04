@@ -1,14 +1,22 @@
 // Read CSV files
 const fs = require('fs');
+const Import = require('./Import');
+const { assert } = require('./utils');
 
 function CSV(fileName, params) {
     var o = this;
     o.fileName = fileName;
-    map = params.map || {};
-    o.map = {};
-    for (var csvName in map) {
-        o.map[csvName.toLowerCase()] = map[csvName];
-    }
+    assert(params.map, 'No map');
+    o.map = [];
+    params.map.forEach(function (ent) {
+        var cnvfunc = Import.converters[ent.conversion];
+        assert(cnvfunc, 'Bad conversion '+ent.conversion);
+        o.map.push({
+            from: ent.from.toLowerCase(),
+            to: ent.to,
+            convert: cnvfunc            
+        });
+    });
     o.headers = params.headers;
 }
 
@@ -121,28 +129,30 @@ CSV.prototype.all = async function(cb) {
         }
         function emitRecord() {
             var j;
-            var n;
             if (o.headers) {
                 if (!fieldNames) {
-                    fieldNames = r;
-                    for (j = 0; j < fieldNames.length; j++) {
-                        n = fieldNames[j].toLowerCase();
-                        if (o.map[n]) {
-                            fieldNames[j] = o.map[n];
-                        }
+                    // First line, gather headers and skip.
+                    fieldNames = [];
+                    for (j = 0; j < r.length; j++) {
+                        fieldNames[j] = r[j].toLowerCase();
                     }
                     r = [];
                     return;
                 }
-                var obj = {};
+                // Translate Array into { name: val } object.
+                var tmp = {};
                 for (j = 0; j < r.length; j++) {
-                    n = fieldNames[j] || j.toString();
-                    obj[n] = r[j];
+                    tmp[fieldNames[j]] = r[j];
                 }
-                cb(obj);
-            } else {
-                cb(r);
+                r = tmp;
             }
+            // Now we have either a { name: val } object or
+            // an Array, which is effectively a { num: val } object.
+            var obj = {}
+            o.map.forEach(function (m) {
+                obj[m.to] = m.convert(r[m.from]);
+            });
+            cb(obj);
             r = [];
         }
     });

@@ -107,7 +107,7 @@ methods.DBlistTables = async function (dbName) {
 methods.importDBF = async function (dbName, tName, filename, map) {
     var t = await getTable(dbName, tName);
     var t0 = Date.now();
-    var dbf = new DBF(filename, {map: map, autoLower: true});
+    var dbf = new DBF(filename, {map: map});
     await dbf.load();
     t.sync(false);
     await dbf.all(function (r) {

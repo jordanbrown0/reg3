@@ -1,16 +1,25 @@
 const fs = require('fs');
+const { assert } = require('./utils');
+const Import = require('./Import');
 
 function DBF(name, params) {
     var o = this;
     o.fn = name;
+    assert(params.map, 'No map');
     // dBASE field names are upper case in the database but are case
     // insensitive.  We allow our map to be case insensitive too by
     // uppercasing the names specified.
-    map = params.map || {};
-    o.map = {};
-    for (var dbfName in map) {
-        o.map[dbfName.toUpperCase()] = map[dbfName];
-    }
+    o.map = [];
+    params.map.forEach(function (ent) {
+        var cnvfunc = Import.converters[ent.conversion];
+        assert(cnvfunc, 'Bad conversion '+ent.conversion);
+        o.map.push({
+            from: ent.from.toUpperCase(),
+            to: ent.to,
+            convert: cnvfunc            
+        });
+    });
+
     o.autoLower = params.autoLower;
 }
 
@@ -33,9 +42,9 @@ DBF.prototype.load = async function () {
     o.lastmod = new Date(buf.readUInt8(1)+2000, buf.readUInt8(2), buf.readUInt8(3));
     o.nRec = buf.readUInt32LE(4);
     o.recSize = buf.readUInt16LE(10);
-    o.fields = [
-        { off: 0, name: '_deleted', type: 'd', length: 1, dec: 0 }
-    ];
+    o.fields = {
+        _deleted: { off: 0, name: '_deleted', type: 'd', length: 1, dec: 0 }
+    };
     var recOff = 1;
     for (var off = 32; buf.readUInt8(off) != 0x0d; off += 32) {
         rec = {
@@ -46,19 +55,7 @@ DBF.prototype.load = async function () {
             dec: buf.readUInt8(off+17)
         }
         recOff += rec.length;
-        switch(o.map[rec.name]) {
-        case undefined:
-            if (o.autoLower) {
-                rec.name = rec.name.toLowerCase();
-            }
-            break;
-        case null:
-            continue;
-        default:
-            rec.name = o.map[rec.name];
-            break;
-        }
-        o.fields.push(rec);
+        o.fields[rec.name] = rec;
     }
     if (recOff != o.recSize) {
         throw new Error('fields did not total to record size');
@@ -70,21 +67,29 @@ DBF.prototype.read = async function(n) {
     var buf = Buffer.alloc(o.recSize);
     var res = await o.fd.read(buf, 0, buf.length, o.hdrSize + n*o.recSize);
     var ret = {};
-    o.fields.forEach(function (f) {
-        var s = buf.toString('ascii', f.off, f.off+f.length).trimEnd()
-        switch (f.type) {
-        case 'N':
-            ret[f.name] = parseFloat(s);
-            break;
-        case 'd':
-            if (s) {
-                rec[f.name] = true;
+    o.map.forEach(function (m) {
+        var v = null;
+        var f = o.fields[m.from];
+        if (f) {
+            v = buf.toString('ascii', f.off, f.off+f.length).trimEnd();
+            switch (f.type) {
+            case 'N':
+                v = Import.converters.number(v);
+                break;
+            case 'd':
+                v = v ? true : undefined;
+                break;
+            case 'D':
+                // NEEDSWORK
+                break;
+            case 'L':
+                v = "TY".includes(v.toUpperCase());
+                break;
+            default:
+                break;
             }
-            break;
-        default:
-            ret[f.name] = s;
-            break;
         }
+        ret[m.to] = m.convert(v);
     });
     return (ret);
 };

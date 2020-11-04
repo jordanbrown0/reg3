@@ -47,7 +47,13 @@ var externalImportSchema = [
                 input: InputObject,
                 schema: [
                     { field: 'from', input: InputText, required: true },
-                    { field: 'to', input: InputText, required: true }
+                    { field: 'to', input: InputText, required: true },
+                    { field: 'conversion', input: InputSelect,
+                        options: {
+                            number: 'Number',
+                            date: 'Date'
+                        }
+                    }
                 ]
             }
         }
@@ -122,17 +128,13 @@ ExternalImport.prototype.activate = function () {
 ExternalImport.prototype.import = function (r) {
     var o = this;
     table.externalImport.get(r.map, function (rMap) {
-        var map = {};
-        rMap.map.forEach(function (mapEnt) {
-            map[mapEnt.from] = mapEnt.to;
-        });
         if (r.zap) {
             table[rMap.table].zap(doImport);
         } else {
             doImport();
         }
         function doImport() {
-            table[rMap.table].externalImport(r.file, rMap.type, map, home);
+            table[rMap.table].externalImport(r.file, rMap.type, rMap.map, home);
         }
     });
 };
