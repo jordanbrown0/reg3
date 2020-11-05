@@ -51,7 +51,8 @@ var externalImportSchema = [
                     { field: 'conversion', input: InputSelect,
                         options: {
                             number: 'Number',
-                            date: 'Date'
+                            datev2: 'Reg v2 date',
+                            dateMS: 'Member Solutions date'
                         }
                     }
                 ]
