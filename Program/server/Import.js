@@ -1,3 +1,5 @@
+const { mkdate } = require('./utils.js');
+
 var Import = {};
 
 Import.converters = {};
@@ -26,9 +28,9 @@ Import.converters.datev2 = function (v) {
         return (undefined);
     }
 
-    var [ , month, day, year, hour, minute, ampm ] = result;
+    var [ , month, day, year, hour, minute, second ] = result;
 
-    return (ret);
+    return (mkdate(year, month, day, hour, minute, second));
 };
 
 // Convert a Member Solutions m/d/y h:m{am|pm}
@@ -55,14 +57,7 @@ Import.converters.dateMS = function (v) {
     }
     hour = hour.toString();
 
-    v = year.padStart(4, '0')
-        + '-' + month.padStart(2, '0')
-        + '-' + day.padStart(2, '0')
-        + 'T' + hour.padStart(2, '0')
-        + ':' + minute.padStart(2, '0')
-        + ':00';
-
-    return (v);
+    return (mkdate(year, month, day, hour, minute));
 };
 
 module.exports = exports = Import;
