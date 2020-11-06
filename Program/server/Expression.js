@@ -3,6 +3,7 @@
 // A expression is true if the verb returns true.
 // It is undefined to specify more than one verb; use the "and" or "or"
 // verbs.
+const { assert, mkdate } = require('./utils.js');
 
 var trace = false;
 function log() {
@@ -11,13 +12,15 @@ function log() {
     }
 }
 
-function Expression(e) {
+function Expression(e, params) {
     var o = this;
     o.e = e;
-    o.variables = {};
+    o.params = params || {};
+    o.variables = o.params.init || {};
 }
 
 Expression.trace = function (t) {
+    var old = trace;
     var old = trace;
     if (t !== undefined) {
         trace = t;
@@ -35,6 +38,7 @@ Expression.prototype.exec = function (r, e) {
     }
     if (e instanceof Object) {
         for (var verb in e) {
+            assert(verbs[verb], 'Unknown verb "'+verb+'"');
             var args = e[verb];
             if (!(args instanceof Array)) {
                 args = [ args ];
@@ -60,7 +64,7 @@ Expression.prototype.getVariables = function () {
 var verbs = {};
 
 // { c: [ constant ]}
-// The "c" verb returns a constant value.  Note that the argument is *not
+// The "c" verb returns a constant value.  Note that the argument is *not*
 // evaluated as an expression.
 // Mostly this verb is not necessary, because constants are evaluated as
 // themselves.
@@ -90,6 +94,8 @@ verbs.f = function (r, args) {
 // Sets the specified field to the specified value.
 // Returns the value.
 // Does NOT write the record to persistent storage!
+// Does NOT bump the record version!
+// Does, however, mark the record as dirty.
 verbs.setf = function (r, args) {
     var o = this;
     
@@ -97,6 +103,7 @@ verbs.setf = function (r, args) {
     var val = o.exec(r, args[1]);
 
     r[name] = val;
+    r._dirty = true;
     return (val);
 };
 
@@ -217,40 +224,64 @@ verbs.eq = function (r, vals) {
 // { gt: [ v1, ..., vN ] }
 // The "gt" verb returns true if all v[i] > v[i+1].
 // Returns true if there is only one argument.
+// Non-null/empty values are greater than null/empty values.
 verbs.gt = function (r, vals) {
     var o = this;
     return (o.compare(r, vals, function (a, b) {
-        return (a > b);
+        return (
+            ( a == b ) ? false :
+            ( a == null ) ? false :
+            ( b == null ) ? true :
+            (a > b)
+        );
     }));
 };
 
 // { ge: [ v1, ..., vN ] }
 // The "ge" verb returns true if all v[i] >= v[i+1].
 // Returns true if there is only one argument.
+// Non-null/empty values are greater than null/empty values.
 verbs.ge = function (r, vals) {
     var o = this;
     return (o.compare(r, vals, function (a, b) {
-        return (a >= b);
+        return (
+            ( a == b ) ? true :
+            ( a == null) ? false :
+            ( b == null ) ? true :
+            (a > b)
+        );
     }));
 };
 
 // { lt: [ v1, ..., vN ] }
 // The "lt" verb returns true if all v[i] < v[i+1].
 // Returns true if there is only one argument.
+// Non-null/empty values are less than null/empty values.
 verbs.lt = function (r, vals) {
     var o = this;
     return (o.compare(r, vals, function (a, b) {
-        return (a < b);
+        return (
+            ( a == b ) ? false :
+            ( a == null ) ? false :
+            ( b == null ) ? true :
+            (a < b)
+        );
     }));
 };
 
 // le: [ v1, ..., vN ]
 // The "le" verb returns true if all v[i] <= v[i+1].
 // Returns true if there is only one argument.
+// Non-null/empty values are less than null/empty values.
 verbs.le = function (r, vals) {
     var o = this;
     return (o.compare(r, vals, function (a, b) {
-        return (a <= b);
+        return (
+            ( a == b ) ? true :
+            ( a == null ) ? false :
+            ( b == null ) ? true :
+            (a < b)
+        );
     }));
 };
 
@@ -355,19 +386,10 @@ verbs.array = function (r, args) {
 verbs.dateTime = function (r, vals) {
     var o = this;
     var d = new Date();
-    return (
-        d.getFullYear().toString().padStart(4, '0')
-        + '-'
-        + (d.getMonth()+1).toString().padStart(2, '0')
-        + '-'
-        + d.getDate().toString().padStart(2, '0')
-        + 'T'
-        + d.getHours().toString().padStart(2, '0')
-        + ':'
-        + d.getMinutes().toString().padStart(2, '0')
-        + ':'
-        + d.getSeconds().toString().padStart(2, '0')
-    );
+    return (mkdate(
+        d.getFullYear(), d.getMonth()+1, d.getDate(),
+        d.getHours(), d.getMinutes(), d.getSeconds()
+    ));
 };
 
 // { date: [] }
@@ -377,13 +399,9 @@ verbs.dateTime = function (r, vals) {
 verbs.date = function (r, args) {
     var o = this;
     var d = new Date();
-    return (
-        d.getFullYear().toString().padStart(4, '0')
-        + '-'
-        + (d.getMonth()+1).toString().padStart(2, '0')
-        + '-'
-        + d.getDate().toString().padStart(2, '0')
-    );
+    return (mkdate(
+        d.getFullYear(), d.getMonth()+1, d.getDate()
+    ));
 };
 
 verbs.left = function (r, args) {

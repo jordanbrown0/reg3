@@ -21,11 +21,14 @@ Import.converters.datev2 = function (v) {
     if (!v) {
         return (undefined);
     }
-    v = v.substr(6,10)
-        + '-' + v.substr(0,2)
-        + '-' + v.substr(3,5)
-        + 'T' + v.substr(11,19);
-    return (v);
+    var result = v.match('^([0-9]+)/([0-9]+)/([0-9]+) ([0-9]+):([0-9]+):([0-9]+)$');
+    if (!result) {
+        return (undefined);
+    }
+
+    var [ , month, day, year, hour, minute, ampm ] = result;
+
+    return (ret);
 };
 
 // Convert a Member Solutions m/d/y h:m{am|pm}

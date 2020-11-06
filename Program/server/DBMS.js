@@ -350,22 +350,31 @@ Table.prototype.list = function (params) {
 
 Table.prototype.reduce = function (params) {
     var o = this;
+    var dirty = false;
     if (!params) {
         params = {};
     }
-    var expr = new Expression(params.expr);
+    var expr = new Expression(params.expr, {init: params.init});
     function doRec(k) {
         var r = o.records[k];
         if (r._deleted) {
             return (true);
         }
         expr.exec(r);
+        if (r._dirty) {
+            delete r._dirty;
+            dirty = true;
+            o.bump(r);
+        }
         return (true);
     }
     for (var k in o.records) {
         if (!doRec(k)) {
             break;
         }
+    }
+    if (dirty) {
+        o.write();
     }
     return (expr.getVariables());
 };
@@ -490,6 +499,7 @@ Table.prototype.add = function (k, r, expr) {
     }
     if (expr) {
         (new Expression(expr)).exec(r);
+        delete r._dirty;
     }
     o.bump(r);
     o.records[k] = r;

@@ -50,6 +50,7 @@ var externalImportSchema = [
                     { field: 'to', input: InputText, required: true },
                     { field: 'conversion', input: InputSelect,
                         options: {
+                            '': '',
                             number: 'Number',
                             datev2: 'Reg v2 date',
                             dateMS: 'Member Solutions date'
@@ -90,40 +91,38 @@ extend(DElement, ExternalImport);
 ExternalImport.prototype.activate = function () {
     var o = this;
     
-    db.reg.listTables(function (tables) {
-        var schema = [[
-            {
-                field: 'file',
-                input: InputText,
-                label: 'Import from server file',
-                required: true
-            },
-            {
-                field: 'map',
-                label: 'Import map',
-                input: InputDBPicker,
-                table: 'externalImport',
-                textField: 'description',
-                required: true
-            },
-            {
-                field: 'zap',
-                label: 'Zap table first?',
-                input: InputBool
-            }
-        ]];
-        var options = {}
-        var editor = new Editor(options, {
-            schema: schema,
-            doneButton: 'Import',
-            done: function () {
-                o.import(options);
-            },
-            cancel: home
-        });
-        o.appendChild(editor);
-        editor.activate();
+    var schema = [[
+        {
+            field: 'file',
+            input: InputText,
+            label: 'Import from server file',
+            required: true
+        },
+        {
+            field: 'map',
+            label: 'Import map',
+            input: InputDBPicker,
+            table: 'externalImport',
+            textField: 'description',
+            required: true
+        },
+        {
+            field: 'zap',
+            label: 'Zap table first?',
+            input: InputBool
+        }
+    ]];
+    var options = {}
+    var editor = new Editor(options, {
+        schema: schema,
+        doneButton: 'Import',
+        done: function () {
+            o.import(options);
+        },
+        cancel: home
     });
+    o.appendChild(editor);
+    editor.activate();
 };
 
 ExternalImport.prototype.import = function (r) {

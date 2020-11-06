@@ -40,6 +40,10 @@ function Admin()
         { label: '&Export', func: function () {
             base.switchTo(new Export());
         }},
+        { label: 'Renumber', func: function () {
+            // Note:  Renumber does not have a one-key shortcut, for safety.
+            base.switchTo(new Renumber());
+        }},
         { label: 'Zap', func: function () {
             // Note:  Zap does not have a one-key shortcut, for safety.
             base.switchTo(new Zap());
