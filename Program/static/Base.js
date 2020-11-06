@@ -10,11 +10,13 @@ function Base()
         // onfocus: function () { console.log('Base focus'); },
         // onblur: function () { console.log('Base blur'); }
     });
-    o.clock = new DElement('span', { id: 'headerClock'});
+    o.clock = new DElement('div');
+    o.numberLeft = new DElement('div', 'test');
+    o.rightTitle = new DElement('span', { id: 'headerClock' }, o.clock, o.numberLeft);
     o.title = new DElement('span', { id: 'headerTitle'});
     o.header = new DElement('div', { className: 'Header' },
         o.title,
-        o.clock
+        o.rightTitle
     );
     o.body = new DElement('div', { className: 'Body' });
     o.active = new DElement('div');
@@ -107,6 +109,18 @@ Base.prototype.tick = function () {
     var o = this;
     rpc.eval(null, {dateTime: []}, function (d) {
         o.clock.replaceChildren(LDate.fromJSON(d).toDisplay({seconds: false}));
+        Server.get(function (svr) {
+            var left = svr.lastNumber - svr.nextNumber + 1;
+            var s;
+            if (svr.lastNumber == null || svr.nextNumber == null) {
+                s = 'Member numbers not configured';
+            } else if (left <= 0) {
+                s = 'No member numbers left';
+            } else {
+                s = left + ' member numbers left';
+            }
+            o.numberLeft.replaceChildren(s);
+        });
     });
 };
 

@@ -296,6 +296,7 @@ body {
     text-align: left;
     font-size: larger;
     font-weight: bolder;
+    vertical-align: top;
 }
 
 .Base .Body {
