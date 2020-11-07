@@ -36,6 +36,7 @@ var externalImportSchema = [
             input: InputSelect,
             options: {
                 DBF: 'DBF - dBASE',
+                CSVh: 'CSV - Comma Separated (Excel compatible), with headers',
                 CSV: 'CSV - Comma Separated (Excel compatible)'
             }
         },

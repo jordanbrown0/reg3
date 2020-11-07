@@ -163,8 +163,11 @@ DBTable.prototype.externalImport = function (file, type, map, cb) {
     case 'DBF':
         rpc.importDBF(o.dbName, o.tName, file, map, cb);
         break;
-    case 'CSV':
+    case 'CSVh':
         rpc.importCSV(o.dbName, o.tName, file, map, true, cb);
+        break;
+    case 'CSV':
+        rpc.importCSV(o.dbName, o.tName, file, map, false, cb);
         break;
     default:
         throw new Error('unknown import type '+type);
