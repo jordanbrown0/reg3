@@ -5,6 +5,9 @@ var Import = {};
 Import.converters = {};
 
 Import.converters.null = function (v) {
+    if (v === null || v === undefined || v === '') {
+        return (undefined);
+    }
     return (v);
 };
 Import.converters.undefined = Import.converters.null;

@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { assert } = require('./utils');
+const { assert, mkdate } = require('./utils');
 const Import = require('./Import');
 
 function DBF(name, params) {
@@ -80,7 +80,12 @@ DBF.prototype.read = async function(n) {
                 v = v ? true : undefined;
                 break;
             case 'D':
-                // NEEDSWORK
+                if (v) {
+                    var year = parseInt(v.slice(0, 4));
+                    var month = parseInt(v.slice(4, 6));
+                    var day = parseInt(v.slice(6, 8));
+                    v = mkdate(year, month, day);
+                }
                 break;
             case 'L':
                 v = "TY".includes(v.toUpperCase());
