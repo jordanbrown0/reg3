@@ -6,7 +6,8 @@ function ReportMenu()
             { label: '&Tallies of members', page: ReportTallies },
             { label: '&List', page: ReportList },
             { label: '&Duplicates', page: ReportDupsSetup },
-            { label: '&Classes', page: ReportClasses }
+            { label: '&Classes', page: ReportClasses },
+            { label: '&Upgrades', page: ReportUpgrades }
         ]
     });
 }

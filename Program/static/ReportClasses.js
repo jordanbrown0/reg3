@@ -1,10 +1,3 @@
-        // { field: 'onBadge', label: 'Print on badge' },
-        // { field: 'phoneLabel', label: 'Print phone number on second label',
-            // input: InputBool },
-        // { field: 'order', label: 'Order', input: InputInt, required: true },
-        // { field: 'start', label: 'Start date', input: InputDate },
-        // { field: 'end', label: 'End date', input: InputDate },
-
 function ReportClasses()
 {
     var o = this;
