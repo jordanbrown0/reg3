@@ -1,64 +1,28 @@
 function Admin()
 {
     var o = this;
-    Admin.sup.constructor.call(o, 'div');
-    o.menu = new Menu({ items: [
-        { label: '&Classes', func: function () {
-            base.switchTo(new ClassManager());
-        }},
-        { label: '&Global configuration', func: function () {
-            base.switchTo(new GlobalEdit());
-        }},
-        { label: '&Printer management', func: function () {
-            base.switchTo(new PrinterManager());
-        }},
-        { label: '&Station configuration', func: function () {
-            base.switchTo(new StationEdit());
-        }},
-        { label: '&Q station manager', func: function () {
-            base.switchTo(new StationManager());
-        }},
-        { label: '&Upgrades', func: function () {
-            base.switchTo(new UpgradesManager());
-        }},
-        { label: 'Categories', func: function () {
-            base.switchTo(new CategoriesManager());
-        }},
-        { label: 'Corrections', func: function () {
-            base.switchTo(new CorrectionsManager());
-        }},
-        { label: 'E&xternal import/export', func: function () {
-            base.switchTo(new External());
-        }},
-        { label: 'ser&ver manager', func: function () {
-            base.switchTo(new ServerManager());
-        }},
-        { label: '&Test printer', func: label_test },
-        { label: '&Import', func: function () {
-            base.switchTo(new Import());
-        }},
-        { label: '&Export', func: function () {
-            base.switchTo(new Export());
-        }},
-        { label: 'Renumber', func: function () {
+    Admin.sup.constructor.call(o, {
+        items: [
+            { label: '&Classes', page: ClassManager },
+            { label: '&Global configuration', page: GlobalEdit },
+            { label: '&Printer management', page:  PrinterManager },
+            { label: '&Station configuration', page: StationEdit },
+            { label: '&Q station manager', page: StationManager },
+            { label: '&Upgrades', page: UpgradesManager },
+            { label: 'Categories', page: CategoriesManager },
+            { label: 'Corrections', page: CorrectionsManager },
+            { label: 'E&xternal import/export', page: External },
+            { label: 'ser&ver manager', page: ServerManager },
+            { label: '&Test printer', func: label_test },
+            { label: '&Import', page: Import },
+            { label: '&Export', page: Export },
             // Note:  Renumber does not have a one-key shortcut, for safety.
-            base.switchTo(new Renumber());
-        }},
-        { label: 'Zap', func: function () {
+            { label: 'Renumber', page: Renumber },
             // Note:  Zap does not have a one-key shortcut, for safety.
-            base.switchTo(new Zap());
-        }}
-    ]});
-    o.appendChild(o.menu);
+            { label: 'Zap', page: Zap }
+        ]
+    });
 }
-extend(DElement, Admin);
-
-Admin.prototype.activate = function () {
-    var o = this;
-    o.menu.activate();
-    base.addNav([
-        { label: 'Cancel', key: 'Escape', func: function () { home(); } }
-    ]);
-};
+extend(MenuPage, Admin);
 
 Admin.prototype.title = 'Administration';

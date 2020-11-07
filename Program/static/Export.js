@@ -8,18 +8,16 @@ extend(DElement, Export);
 Export.prototype.activate = function () {
     var o = this;
     
-    base.addNav([
-        { label: 'Cancel', key: 'Escape', func: function () { home(); } },
-        { label: 'Export &All', func: function () {
-            db.reg.export();
-        } }
-    ]);
     db.reg.listTables(function (tables) {
         o.bools = new InputSelectMulti({options: tables});
         o.appendChild(o.bools);
 
         base.addNav([
-            { label: 'Export &Selected', func: function () {
+            { label: 'Cancel', key: 'Escape', func: function () { home(); } },
+            { label: '&All', func: function () {
+                db.reg.export();
+            } },
+            { label: '&Selected', func: function () {
                 o.exportSelected();
             } }
         ]);

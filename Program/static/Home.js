@@ -5,12 +5,8 @@ function Home()
     var items = [];
     items.push(
         // { title: title() },
-        { label: '&Previously registered',
-            func: function () { base.switchTo(new MemberManager()); }
-        },
-        { label: '&New member', perms: 'newMember',
-            func: function () { base.switchTo(new NewMember()); }
-        }
+        { label: '&Previously registered', page: MemberManager },
+        { label: '&New member', perms: 'newMember', page: NewMember }
     );
     if (lastKey) {
         var lf = joinTruthy([lastRec.last, lastRec.first], ', ');
@@ -21,12 +17,8 @@ function Home()
         });
     }
     items.push(
-        { label: '&Reports', perms: 'reports',
-            func: function () { base.switchTo(new ReportMenu()); }
-        },
-        { label: '&Administration', perms: 'admin',
-            func: function () { base.switchTo(new Admin()); }
-        }
+        { label: '&Reports', perms: 'reports', page: ReportMenu },
+        { label: '&Administration', perms: 'admin', page: Admin }
     );
 
     o.menu = new Menu({ items: items });
@@ -37,8 +29,8 @@ extend(DElement, Home);
 Home.prototype.activate = function () {
     var o = this;
     base.addNav([
-        { key: '!', func: function () { base.switchTo(new Admin()); } },
-        { key: '?', func: function () { base.switchTo(new DebugControl()); } }
+        { key: '!', page: Admin },
+        { key: '?', page: DebugControl }
     ]);
     o.menu.activate();
     pageTitle.set(cfg.convention);
@@ -63,4 +55,3 @@ function home()
 {
     base.switchTo(new Home());
 }
-
