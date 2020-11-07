@@ -195,6 +195,26 @@ html, body {
     text-align: right;
 }
 
+.Report #amount {
+    text-align: right;
+}
+
+.Report #badgeOK {
+    text-align: center;
+}
+
+.Report #metaclass {
+    text-align: center;
+}
+
+.Report #phoneLabel {
+    text-align: center;
+}
+
+.Report #order {
+    text-align: right;
+}
+
 .ReportList th, .ReportDups th {
     text-align: left;
 }
