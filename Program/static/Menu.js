@@ -35,3 +35,20 @@ Menu.prototype.activate = function () {
     });
     base.addNav(keys);
 };
+
+function MenuPage(params)
+{
+    var o = this;
+    MenuPage.sup.constructor.call(o, 'div');
+    o.menu = new Menu(params);
+    o.appendChild(o.menu);
+}
+extend(DElement, MenuPage);
+
+MenuPage.prototype.activate = function () {
+    var o = this;
+    o.menu.activate();
+    base.addNav([
+        { label: 'Cancel', key: 'Escape', func: function () { home(); } }
+    ]);
+};

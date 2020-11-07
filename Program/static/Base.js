@@ -125,17 +125,22 @@ Base.prototype.tick = function () {
 };
 
 Base.prototype.processNav = function (item) {
+    var o = this;
     if (item.perms && !cfg.permissions.includes(item.perms)) {
         return (undefined);
     }
     var label = item.label;
     var t = {
         id: item.id,
-        func: item.func,
         touch: item.touch,
         title: item.title,
         label: item.label
     };
+    if (item.func) {
+        t.func = item.func;
+    } else if (item.page) {
+        t.func = function () { o.switchTo(new item.page()); }
+    }
     if (typeof(item.label) == 'string') {
         t.label = new DElement('span');
         for (var i = 0; i < label.length; i++) {

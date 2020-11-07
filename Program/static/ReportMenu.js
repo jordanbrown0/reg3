@@ -1,29 +1,15 @@
 function ReportMenu()
 {
     var o = this;
-    ReportMenu.sup.constructor.call(o, 'div');
-    o.menu = new Menu({ items: [
-        { label: '&Tallies of members', func: function () {
-            base.switchTo(new ReportTallies());
-        }},
-        { label: '&List', func: function () {
-            base.switchTo(new ReportList());
-        }},
-        { label: '&Duplicates', func: function () {
-            base.switchTo(new ReportDupsSetup());
-        }}
-    ]});
-    o.appendChild(o.menu);
+    ReportMenu.sup.constructor.call(o, {
+        items: [
+            { label: '&Tallies of members', page: ReportTallies },
+            { label: '&List', page: ReportList },
+            { label: '&Duplicates', page: ReportDupsSetup }
+        ]
+    });
 }
-extend(DElement, ReportMenu);
-
-ReportMenu.prototype.activate = function () {
-    var o = this;
-    o.menu.activate();
-    base.addNav([
-        { label: 'Cancel', key: 'Escape', func: function () { home(); } }
-    ]);
-};
+extend(MenuPage, ReportMenu);
 
 ReportMenu.prototype.title = 'Reports';
 
