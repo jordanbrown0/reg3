@@ -19,18 +19,19 @@ NavKey.prototype.clear = function () {
     var o = this;
     o.keyHandlers = {};
 };
-
+// NEEDSWORK handle enable/disable
+// by storing pointer to the NavObject, not to the function.
 NavKey.prototype.add = function (e) {
     var o = this;
     if (e.key) {
         var kn = e.key.length == 1 ? e.key.toUpperCase() : e.key;
-        o.keyHandlers[kn] = e.func;
+        o.keyHandlers[kn] = e;
         // Allow Shift+x in addition to x.
         // NEEDSWORK:  Won't interact properly when kn already includes
         // a modifier, because the "Shift" won't be added in the right
         // place.
         if (kn.indexOf('Shift') < 0) {
-            o.keyHandlers['Shift'+kn] = e.func;
+            o.keyHandlers['Shift'+kn] = e;
         }
     }
 };
@@ -47,10 +48,10 @@ NavKey.prototype.getKeyHandler = function (e) {
 NavKey.prototype.onkeydown = function (e) {
     var o = this;
     var h = o.getKeyHandler(e)
-    if (h) {
+    if (h && !h.disabled) {
         Debug.keyboard('handle keydown', e.key);
         e.preventDefault();
-        h(e);
+        h.func(e);
     } else {
         if (o.shouldIgnore(e)) {
             Debug.keyboard('ignore', e.key);

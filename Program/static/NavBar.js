@@ -13,9 +13,10 @@ NavBar.prototype.clear = function () {
 
 NavBar.prototype.add = function (e) {
     var o = this;
+    console.log(e);
     if (e.label) {
         var label = e.label;
-        o.content.appendChild(new Button(label, {
+        e.button = new Button(label, {
             onclick: function () {
                 if (isRPCActive()) {
                     log('button ignored because RPC active');
@@ -23,6 +24,7 @@ NavBar.prototype.add = function (e) {
                     e.func();
                 }
             }
-        }));
+        });
+        o.content.appendChild(e.button);
     }
 };

@@ -26,8 +26,9 @@ function NavTouch()
             return;
         }
         var evtype = dx > 0 ? 'swipeRight' : 'swipeLeft';
-        if (o.handlers[evtype]) {
-            o.handlers[evtype]();
+        var h = o.handlers[evtype];
+        if (h && !h.disabled) {
+            h.func();
         }
     };
 }
@@ -40,6 +41,6 @@ NavTouch.prototype.clear = function () {
 NavTouch.prototype.add = function (e) {
     var o = this;
     if (e.touch) {
-        o.handlers[e.touch] = e.func;
+        o.handlers[e.touch] = e;
     }
 };

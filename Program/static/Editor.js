@@ -45,12 +45,11 @@ Editor.prototype.activate = function () {
         }
     ]);
     if (o.params.schema.length > 1) {
-        base.addNav([
-            { label: '<', key: 'PageUp', touch: 'swipeRight',
-            func:  function () { o.prev(); } },
-            { label: '>', key: 'PageDown', touch: 'swipeLeft',
-            func:  function () { o.next(); } }
-        ]);
+        o.navPrev = { label: '<', key: 'PageUp', touch: 'swipeRight',
+            func:  function () { o.prev(); } };
+        o.navNext = { label: '>', key: 'PageDown', touch: 'swipeLeft',
+            func:  function () { o.next(); } };
+        base.addNav([ o.navPrev, o.navNext ]);
     }
     o.pages = [];
     var prev = null;
@@ -97,8 +96,23 @@ Editor.prototype.switchEditPage = function(page) {
     o.page = page;
     o.editor.removeChildren();
     o.editor.appendChild(page);
+    if (o.navNext) {
+        console.log(o.navNext);
+        if (o.page.next) {
+            o.navNext.enable();
+        } else {
+            o.navNext.disable();
+        }
+    }
+    if (o.navPrev) {
+        if (o.page.prev) {
+            o.navPrev.enable();
+        } else {
+            o.navPrev.disable();
+        }
+    }
     page.activate();
-}
+};
 
 Editor.prototype.done = function () {
     var o = this;

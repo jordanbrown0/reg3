@@ -87,8 +87,7 @@ Base.prototype.switchToNoDeactivate = function (n) {
 Base.prototype.addNav = function (a) {
     var o = this;
     a.forEach(function (e) {
-        e = o.processNav(e);
-        if (!e) {
+        if (!o.processNav(e)) {
             return;
         }
         o.navBar.add(e);
@@ -124,51 +123,49 @@ Base.prototype.tick = function () {
     });
 };
 
+// NEEDSWORK perhaps this should move to NavObject.js.
 Base.prototype.processNav = function (item) {
     var o = this;
     if (item.perms && !cfg.permissions.includes(item.perms)) {
-        return (undefined);
+        return (false);
+    }
+
+    // NEEDSWORK MDN cautions against use of setPrototypeOf for
+    // performance reasons.  Maybe that's not really a factor for
+    // us.  It would be a nuisance to have to convey a new object
+    // back out to callers.
+    Object.setPrototypeOf(item, NavObject.prototype);
+
+    if (item.page) {
+        item.func = function () { o.switchTo(new item.page()); }
     }
     var label = item.label;
-    var t = {
-        id: item.id,
-        touch: item.touch,
-        title: item.title,
-        label: item.label
-    };
-    if (item.func) {
-        t.func = item.func;
-    } else if (item.page) {
-        t.func = function () { o.switchTo(new item.page()); }
-    }
-    if (typeof(item.label) == 'string') {
-        t.label = new DElement('span');
+    var key = item.key;
+    if (typeof(label) == 'string') {
+        item.label = new DElement('span');
         for (var i = 0; i < label.length; i++) {
             var c = label.charAt(i);
             if (c == '&' && i+1 < label.length) {
                 i++;
                 c = label.charAt(i);
                 if (c != '&') {
-                    t.label.appendChild(new DElement('u', c));
-                    t.key = c;
+                    item.label.appendChild(new DElement('u', c));
+                    item.key = c;
                     continue;
                 }
             }
-            t.label.appendChild(c);
+            item.label.appendChild(c);
         }
         if (item.label2) {
-            t.label.appendChild(item.label2);
+            item.label.appendChild(item.label2);
         }
-        if (item.key) {
-            t.label.appendChild(' (');
-            t.label.appendChild(new DElement('u', item.key));
-            t.label.appendChild(')');
+        if (key) {
+            item.label.appendChild(' (');
+            item.label.appendChild(new DElement('u', key));
+            item.label.appendChild(')');
         }
     }
-    if (item.key) {
-        t.key = item.key;
-    }
-    return (t);
+    return (true);
 };
 
 // We have a custom implementation of Tab and Backtab that confines them to the

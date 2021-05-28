@@ -12,8 +12,7 @@ Menu.prototype.activate = function () {
     var keys = [];
     
     o.params.items.forEach(function (item) {
-        item = base.processNav(item);
-        if (!item) {
+        if (!base.processNav(item)) {
             return;
         }
         var ent;

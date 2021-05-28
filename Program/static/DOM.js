@@ -227,6 +227,16 @@ DElement.prototype.replaceChildren = function (/* args */) {
     return (o.appendChild.apply(o, arguments));
 };
 
+DElement.prototype.disable = function () {
+    var o = this;
+    o.n.disabled = true;
+};
+
+DElement.prototype.enable = function () {
+    var o = this;
+    o.n.disabled = false;
+};
+
 function DOMFunction(t) {
     window[t] = function () {
         var args = Array.prototype.slice.call(arguments);
