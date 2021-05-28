@@ -236,6 +236,15 @@ var getClassName = function (obj) {
 	return (getClassName(obj));
 };
 
+function isEmpty(obj) {
+    for (var f in obj) {
+        return false;
+    }
+    return true;
+}
+
+// --- Polyfills ---
+
 // https://github.com/uxitten/polyfill/blob/master/string.polyfill.js
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
 if (!String.prototype.padStart) {

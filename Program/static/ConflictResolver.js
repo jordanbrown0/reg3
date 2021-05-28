@@ -37,9 +37,10 @@ ConflictResolver.prototype.activate = function () {
     var o = this;
     var c = o.c;
 
+    o.navResolve = { label: 'Resolve', func: function () { o.resolve(); } };
     base.addNav([
         { label: 'Cancel', key: 'Escape', func: function () { home(); } },
-        { label: 'Resolve', func: function () { o.resolve(); } }
+        o.navResolve
     ]);
     if (o.params.skipped) {
         base.addNav([
@@ -114,6 +115,9 @@ ConflictResolver.prototype.activate = function () {
                     {type: 'radio', name: f, id: side+f, onchange: function () {
                         c.result[f] = rec[f];
                         delete o.unresolved[f];
+                        if (isEmpty(o.unresolved)) {
+                            o.navResolve.enable();
+                        }
                         row.removeClass('Difference');
                     }});
                 row.appendChild(td(radio));
@@ -144,6 +148,11 @@ ConflictResolver.prototype.activate = function () {
         if (!(f in left)) {
             emit(f);
         }
+    }
+    if (isEmpty(o.unresolved)) {
+        o.navResolve.enable();
+    } else {
+        o.navResolve.disable();
     }
 };
 
