@@ -155,18 +155,23 @@ extend(DElement, UpgradeAdHocPicker2);
 UpgradeAdHocPicker2.prototype.activate = function () {
     var o = this;
     var schema = [[
-        { field: 'from', label: 'From class', input: InputClass, readOnly: true },
+        { field: 'from', label: 'From class', input: InputClass,
+            readOnly: true },
         { field: 'to', label: 'To class', input: InputClass, readOnly: true },
-        { field: 'currentAmount', label: 'Paid so far', input: InputCurrency, readOnly: true },
-        { field: 'classAmount', label: 'Class cost', input: InputCurrency, readOnly: true },
+        { field: 'currentAmount', label: 'Paid so far', input: InputCurrency,
+            readOnly: true },
+        { field: 'classAmount', label: 'Class cost', input: InputCurrency,
+            readOnly: true },
         { field: 'upgradeAmount', label: 'Upgrade cost', input: InputCurrency }
     ]];
+    var currentAmount = o.params.member.amount || 0;
+    var classAmount = o.params.class.amount || 0;
     var r = {
         from: o.params.member.class,
         to: o.params.class.code,
-        currentAmount: o.params.member.amount,
-        classAmount: o.params.class.amount,
-        upgradeAmount: o.params.class.amount - o.params.member.amount
+        currentAmount: currentAmount,
+        classAmount: classAmount,
+        upgradeAmount: classAmount - currentAmount
     };
     var editor = new Editor(r, {
         schema: schema,

@@ -37,7 +37,6 @@ var globalSchema = [
         }
     ],
 ];
-var globalDefault;
 
 function GlobalEdit()
 {

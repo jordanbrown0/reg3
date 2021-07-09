@@ -361,6 +361,21 @@ verbs.add = function (r, args) {
     return (ret);
 };
 
+// { concat: [ s, ... ] }
+// The "concat" verb returns the concatenation of its arguments.
+// Null or undefined arguments are treated as empty strings.
+verbs.concat = function (r, args) {
+    var o = this;
+    var ret = '';
+    for (var i = 0; i < args.length; i++) {
+        var val = o.exec(r, args[i]);
+	if (val !== null && val !== undefined) {
+	    ret += val;
+	}
+    }
+    return (ret);
+};
+
 // { array: [ v, ... ] }
 // Evaluates each argument, and returns the results as an array.
 //

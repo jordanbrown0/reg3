@@ -69,6 +69,8 @@ function StationEdit(k, params) {
 
 extend(DBEdit, StationEdit);
 
+StationEdit.prototype.title = 'Configure station...';
+
 StationEdit.prototype.activate = function () {
     var o = this;
     Printers.refresh(function () {
@@ -76,7 +78,13 @@ StationEdit.prototype.activate = function () {
     });
 };
 
-StationEdit.prototype.title = 'Configure station...';
+StationEdit.prototype.done = function () {
+    var o = this;
+    getAllConfig(function (cfg_) {
+        cfg = cfg_;
+        StationEdit.sup.done.call(o);
+    });
+};
 
 // NEEDSWORK:  A > S > StationEdit should maybe create record if needed.
 

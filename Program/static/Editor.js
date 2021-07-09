@@ -14,6 +14,7 @@ function Editor(r, params)
     o.r = r;
     o.params = Object.assign({
         cancelButton: 'Cancel',
+        doneButton: 'Done',
         r: r
     }, params);
 

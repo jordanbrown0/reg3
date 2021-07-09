@@ -52,6 +52,19 @@ function ReportTallyNew()
                     header: 'New Memberships by Date'
                 }));
             }},
+            { label: 'Date and Class', func: function () {
+                base.switchTo(new ReportTally({
+                    expr: {
+                        concat: [
+                            { left: [ {f: 'entered'}, 10 ] },
+                            ' ',
+                            {f: 'class'}
+                        ]
+                    },
+                    empty: 'unknown',
+                    header: 'New Memberships by Date and Class'
+                }));
+            }},
             { label: '&Hour', func: function () {
                 base.switchTo(new ReportTally({
                     expr: {left: [ {f: 'entered'}, 13 ]},

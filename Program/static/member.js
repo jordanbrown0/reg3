@@ -164,9 +164,6 @@ MemberDisplay.prototype.activate = function () {
         }
 
         base.addNav([
-            { label: '&Change', func: function () {
-                base.switchTo(new MemberEdit(o.k));
-            } },
             { label: '&Upgrade', perms: 'upgrade', func: function () {
                 base.switchTo(new MemberUpgrade(o.k));
             } }
@@ -200,6 +197,7 @@ MemberDisplay.prototype.activate = function () {
             schema: memberSchema,
             readOnly: true,
             cancel: home,
+            doneButton: 'Change',
             done: function () {
                 base.switchTo(new MemberEdit(o.k));
             }

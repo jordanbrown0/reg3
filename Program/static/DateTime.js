@@ -278,7 +278,7 @@ LDate.prototype.toDisplayTime = function (opts) {
 // Given an LDate, return it in display form.  Note that both date and time
 // are optional; an empty LDate will result in an empty string.
 LDate.prototype.toDisplay = function (opts) {
-	var o = this;
+    var o = this;
     opts = opts || {};
 
     return (joinTruthy([o.toDisplayDate(opts), o.toDisplayTime(opts)], ' '));
