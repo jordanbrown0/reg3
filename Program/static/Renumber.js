@@ -32,12 +32,12 @@ Renumber.prototype.activate = function () {
                 table.members.reduce({
                     expr: {
                         if: [
-                            { gt: [ { f: 'number' }, { get: 'last' } ] },
-                            { set: [ 'last', { f: 'number' } ] }
+                            { gt: [ { f: 'number' }, { get: 'highest' } ] },
+                            { set: [ 'highest', { f: 'number' } ] }
                         ]
                     }
                 }, function (ret) {
-                    options.start = ret.last || 0;
+                    options.start = ret.highest || 0;
                     o.renumber(options);
                 });
             }

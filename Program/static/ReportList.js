@@ -29,13 +29,13 @@ ReportList.prototype.body = function (cb) {
     table.members.list({}, function (recs) {
         var body = [];
         recs.toArray()
-            .sort(compareFunction(['last', 'first']))
+            .sort(compareFunction(['lname', 'fname']))
             .forEach(function (r) {
                 body.push(tr(
-                    td(r.last || ''),
-                    td(r.first || ''),
+                    td(r.lname || ''),
+                    td(r.fname || ''),
                     td(joinTruthy(
-                        [ r.addr1, r.addr2, r.city, r.state, r.postcode, r.country ],
+                        [ r.addr1, r.addr2, r.city, r.state, r.zip, r.country ],
                         ' / '
                     ))
                 ));

@@ -13,7 +13,7 @@ Member.setTitle = function () {
         if (o.r.amount != undefined) {
             d += ' - ' + cfg.currencyPrefix + o.r.amount + cfg.currencySuffix;
         }
-        var s = joinTruthy([o.r.first, o.r.last], ' ') + ' - ';
+        var s = joinTruthy([o.r.fname, o.r.lname], ' ') + ' - ';
         if (o.r.void) {
             s += 'Void, was ';
         }
@@ -38,7 +38,7 @@ function MemberManager() {
                 status = '';
             }
 
-            var name = joinTruthy([ r.last, r.first ], ', ');
+            var name = joinTruthy([ r.lname, r.fname ], ', ');
             var badge = joinTruthy([ r.badge1, r.badge2 ], ' ');
             if (badge) {
                 name = joinTruthy([name, '(' + badge + ')'], ' ');
@@ -72,15 +72,15 @@ MemberManager.prototype.title = 'Look up previously registered member...';
 var memberSchema = [
     [
         { title: 'General' },
-        { field: 'first', label: 'First name' },
-        { field: 'last', label: 'Last name' },
+        { field: 'fname', label: 'First name' },
+        { field: 'lname', label: 'Last name' },
         { field: 'badge1', label: 'Badge name' },
         { field: 'badge2', label: '' },
         { field: 'addr1', label: 'Address' },
         { field: 'addr2', label: '' },
         { field: 'city', label: 'City' },
         { field: 'state', label: 'State' },
-        { field: 'postcode', label: 'Postcode' },
+        { field: 'zip', label: 'Postcode' },
         { field: 'country', label: 'Country' },
         { field: 'phone', label: 'Phone' },
         { field: 'position', label: 'Position' },
@@ -388,7 +388,7 @@ NewMemberEditor.prototype.activate = function () {
                     addr2: lastRec.addr2,
                     city: lastRec.city,
                     state: lastRec.state,
-                    postcode: lastRec.postcode,
+                    zip: lastRec.zip,
                     country: lastRec.country
                 });
             } }

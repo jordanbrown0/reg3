@@ -9,7 +9,7 @@ function Home()
         { label: '&New member', perms: 'newMember', page: NewMember }
     );
     if (lastKey) {
-        var lf = joinTruthy([lastRec.last, lastRec.first], ', ');
+        var lf = joinTruthy([lastRec.lname, lastRec.fname], ', ');
         items.push({
             label: '&Fix last member',
             label2: ' (' + lf + ')',

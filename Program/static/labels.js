@@ -189,8 +189,8 @@ function label_badge(r, done, err) {
                 name1 = r.badge1;
                 name2 = r.badge2;
             } else {
-                name1 = r.first;
-                name2 = r.last;
+                name1 = r.fname;
+                name2 = r.lname;
             }
             
             if (name1 && name2) {

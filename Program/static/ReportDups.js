@@ -4,7 +4,7 @@ var reportDupsSchema = [[
         label: 'Sort fields',
         input: InputMulti,
         required: true,
-        default: ['last', 'first'],
+        default: ['lname', 'fname'],
         params: {
             input: InputText,
             required: true
@@ -16,8 +16,8 @@ var reportDupsSchema = [[
         input: InputMulti,
         required: true,
         default: [
-            { field: 'last', prefix: null },
-            { field: 'first', prefix: 3 }
+            { field: 'lname', prefix: null },
+            { field: 'fname', prefix: 3 }
         ],
         params: {
             input: InputObject,
@@ -113,10 +113,10 @@ ReportDups.prototype.body = function (cb) {
     }
     function line(r) {
         return(tr(
-            td(r.last || ''),
-            td(r.first || ''),
+            td(r.lname || ''),
+            td(r.fname || ''),
             td(joinTruthy(
-                [ r.addr1, r.addr2, r.city, r.state, r.postcode, r.country ],
+                [ r.addr1, r.addr2, r.city, r.state, r.zip, r.country ],
                 ' / '
             ))
         ));
