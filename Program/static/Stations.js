@@ -80,8 +80,7 @@ StationEdit.prototype.activate = function () {
 
 StationEdit.prototype.done = function () {
     var o = this;
-    getAllConfig(function (cfg_) {
-        cfg = cfg_;
+    Config.get(function () {
         StationEdit.sup.done.call(o);
     });
 };

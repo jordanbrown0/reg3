@@ -1,7 +1,8 @@
 var debug = {
     rpc: false,
     keyboard: false,
-    dom: false
+    dom: false,
+    config: true
 };
 
 var Debug = {};

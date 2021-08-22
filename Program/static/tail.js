@@ -10,8 +10,7 @@ window.onload = function () {
             }
         }
         // And finally... prime the configuration.
-        getAllConfig(function (cfg_) {
-            cfg = cfg_;
+        Config.get(function () {
             log('Init done');
             base.activate();
             home();

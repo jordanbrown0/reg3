@@ -32,15 +32,16 @@ Home.prototype.activate = function () {
         { key: '!', page: Admin },
         { key: '?', page: DebugControl }
     ]);
-    o.menu.activate();
-    pageTitle.set(cfg.convention);
-    Home.sup.activate.call();
+    Config.refresh(function () {
+        o.menu.activate();
+        pageTitle.set(cfg.convention);
+        Home.sup.activate.call();
+    });
 };
 
 Home.prototype.deactivate = function (cb) {
     var o = this;
-    getAllConfig(function (cfg_) {
-        cfg = cfg_;
+    Config.refresh(function () {
         pageTitle.set(cfg.convention);
         Home.sup.deactivate.call(o, cb);
     });

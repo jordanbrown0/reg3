@@ -1,7 +1,8 @@
 var debugControlSchema = [[
     { field: 'rpc', label: 'RPC', input: InputBool },
     { field: 'keyboard', label: 'Keyboard', input: InputBool },
-    { field: 'dom', label: 'DOM', input: InputBool }
+    { field: 'dom', label: 'DOM', input: InputBool },
+    { field: 'config', label: 'Config', input: InputBool }
 ]];
 
 function DebugControl()

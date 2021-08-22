@@ -98,7 +98,6 @@ Editor.prototype.switchEditPage = function(page) {
     o.editor.removeChildren();
     o.editor.appendChild(page);
     if (o.navNext) {
-        console.log(o.navNext);
         if (o.page.next) {
             o.navNext.enable();
         } else {
@@ -174,6 +173,34 @@ Editor.setReadOnly = function (schema, f, ro) {
             }
         });
     });
+};
+
+Editor.getSchema = function (name, orig) {
+    var schemaCopy = [];
+    for (var i = 0; i < orig.length; i++) {
+        var page = orig[i];
+        var pageCopy = [];
+        for (var j = 0; j < page.length; j++) {
+            pageCopy[j] = page[j];
+        }
+        schemaCopy[i] = pageCopy;
+    }
+    if (cfg.schema && cfg.schema[name]) {
+        var schema = cfg.schema[name];
+        schema.forEach(function (page) {
+            var num = page.page - 1;
+            if (!schemaCopy[num]) {
+                schemaCopy[num] = [
+                    { title: page.title }
+                ];
+            }
+            var p = schemaCopy[num];
+            page.fields.forEach(function (f) {
+                p.push(f);
+            });
+        });
+    }
+    return schemaCopy;
 };
 
 function EditorPage(schema, params) {

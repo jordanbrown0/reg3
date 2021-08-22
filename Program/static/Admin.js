@@ -69,6 +69,7 @@ function AdminMember()
             { label: '&Upgrades', page: UpgradesManager },
             { label: 'Categories', page: CategoriesManager },
             { label: 'Corrections', page: CorrectionsManager },
+            { label: '&Fields', page: FieldsManager },
             { label: 'E&xternal import/export', page: External },
             // Note:  Renumber does not have a one-key shortcut, for safety.
             { label: 'Renumber', page: Renumber },

@@ -3,6 +3,41 @@ var lastRec = undefined;
 
 var Member = {};
 
+Member.schema = [
+    [
+        { title: 'General' },
+        { field: 'fname', label: 'First name' },
+        { field: 'lname', label: 'Last name' },
+        { field: 'badge1', label: 'Badge name' },
+        { field: 'badge2', label: '' },
+        { field: 'addr1', label: 'Address' },
+        { field: 'addr2', label: '' },
+        { field: 'city', label: 'City' },
+        { field: 'state', label: 'State' },
+        { field: 'zip', label: 'Postcode' },
+        { field: 'country', label: 'Country' },
+        { field: 'phone', label: 'Phone' },
+        { field: 'notes', label: 'Notes' }
+    ],
+    [
+        { title: 'Membership' },
+        { field: 'entered', label: 'Entered', readOnly: true,
+            input: InputDateTime },
+        { field: 'pickedup', label: 'Picked up', readOnly: true,
+            input: InputDateTime },
+        { field: 'class', label: 'Class', readOnly: true, input: InputClass },
+        { field: 'amount', label: 'Amount paid', readOnly: true,
+            input: InputCurrency },
+        { field: 'number', label: 'Number', readOnly: true, input: InputInt }
+    ],
+    [
+        { title: 'Categories' },
+        { field: 'categories', label: 'Categories', input: InputSelectMultiDB,
+            table: 'categories', keyField: 'name', textField: 'description'}
+    ]
+];
+
+
 // Shared between MemberEdit and MemberDisplay
 // Maybe should be part of a superclass.
 Member.setTitle = function () {
@@ -19,6 +54,23 @@ Member.setTitle = function () {
         }
         s += d;
         o.titleSpan.replaceChildren(s);
+    }
+};
+
+Member.getSchema = function () {
+    return Editor.getSchema('members', Member.schema);
+};
+
+Member.correct = function (r) {
+    var corrections = cfg.corrections['members'] || {};
+    for (var f in corrections) {
+        var cf = corrections[f];
+        if (cf) {
+            var to = cf[r[f].toLowerCase()];
+            if (to) {
+                r[f] = to;
+            }
+        }
     }
 };
 
@@ -69,41 +121,6 @@ MemberManager.prototype.activate = function () {
 
 MemberManager.prototype.title = 'Look up previously registered member...';
 
-var memberSchema = [
-    [
-        { title: 'General' },
-        { field: 'fname', label: 'First name' },
-        { field: 'lname', label: 'Last name' },
-        { field: 'badge1', label: 'Badge name' },
-        { field: 'badge2', label: '' },
-        { field: 'addr1', label: 'Address' },
-        { field: 'addr2', label: '' },
-        { field: 'city', label: 'City' },
-        { field: 'state', label: 'State' },
-        { field: 'zip', label: 'Postcode' },
-        { field: 'country', label: 'Country' },
-        { field: 'phone', label: 'Phone' },
-        { field: 'position', label: 'Position' },
-        { field: 'notes', label: 'Notes' }
-    ],
-    [
-        { title: 'Membership' },
-        { field: 'entered', label: 'Entered', readOnly: true,
-            input: InputDateTime },
-        { field: 'pickedup', label: 'Picked up', readOnly: true,
-            input: InputDateTime },
-        { field: 'class', label: 'Class', readOnly: true, input: InputClass },
-        { field: 'amount', label: 'Amount paid', readOnly: true,
-            input: InputCurrency },
-        { field: 'number', label: 'Number', readOnly: true, input: InputInt }
-    ],
-    [
-        { title: 'Categories' },
-        { field: 'categories', label: 'Categories', input: InputSelectMultiDB,
-            table: 'categories', keyField: 'name', textField: 'description'}
-    ]
-];
-
 function MemberDisplay(k)
 {
     var o = this;
@@ -115,6 +132,7 @@ extend(DElement, MemberDisplay);
 
 MemberDisplay.prototype.activate = function () {
     var o = this;
+    var schema = Member.getSchema();
 
     table.members.get(o.k, gotRec);
     
@@ -194,7 +212,7 @@ MemberDisplay.prototype.activate = function () {
         }
 
         var editor = new Editor(r, {
-            schema: memberSchema,
+            schema: schema,
             readOnly: true,
             cancel: home,
             doneButton: 'Change',
@@ -264,27 +282,15 @@ extend(DElement, MemberEdit);
 
 MemberEdit.prototype.activate = function () {
     var o = this;
+    var schema = Member.getSchema();
 
-    var corrections = {};
-    table.corrections.list({filter: {eq: [{f: 'table'}, 'members']}},
-        gotCorrections);
-        
-    function gotCorrections(corRecs) {
-        corRecs.forEach(function (k, cr) {
-            var field = cr.field;
-            corrections[field] = {};
-            cr.corrections.forEach(function (c) {
-                corrections[field][c.from.toLowerCase()] = c.to;
-            });
-        });
-        table.members.get(o.k, gotRec);
-    }
+    table.members.get(o.k, gotRec);
     
     function gotRec(r) {
         o.r = r;
         o.setTitle();
         o.editor = new Editor(r, {
-            schema: memberSchema,
+            schema: schema,
             doneButton: 'Save',
             done: done,
             cancel: home
@@ -297,15 +303,7 @@ MemberEdit.prototype.activate = function () {
         if (working(true)) {
             return;
         }
-        for (var f in corrections) {
-            var cf = corrections[f];
-            if (cf) {
-                var to = cf[o.r[f].toLowerCase()];
-                if (to) {
-                    o.r[f] = to;
-                }
-            }
-        }
+        Member.correct(o.r);
         table.members.put(o.k, o.r, null,
             function (rNew) { base.switchTo(new MemberDisplay(o.k)); }
         );
@@ -351,14 +349,16 @@ extend(DElement, NewMemberEditor);
 
 NewMemberEditor.prototype.activate = function () {
     var o = this;
+    var schema = Member.getSchema();
 
     var editor = new Editor(o.r, {
-        schema: memberSchema,
+        schema: schema,
         doneButton: 'Add',
         done: function () {
             if (working(true)) {
                 return;
             }
+            Member.correct(o.r);
             Server.newMembershipNumber(function (n) {
                 if (!n) {
                     alert('No membership numbers available!');
@@ -445,6 +445,6 @@ MemberUpgrade.prototype.activate = function () {
 
 init.push(function memberInit() {
     table.members = new DBTable(db.reg, 'members',
-        { defaults: Editor.defaults(memberSchema) }
+        { defaults: Editor.defaults(Member.schema) }
     );
 });

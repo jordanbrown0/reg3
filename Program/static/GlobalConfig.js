@@ -34,6 +34,12 @@ var globalSchema = [
             default: [160,140,120,100],
             required: true,
             params: { required: true }
+        },
+        { field: 'ttl',
+            label: 'How often to check configuration',
+            input: InputInt,
+            default: 60,
+            required: true,
         }
     ],
 ];
@@ -56,8 +62,7 @@ GlobalEdit.prototype.get = function (cb) {
 
 GlobalEdit.prototype.done = function () {
     var o = this;
-    getAllConfig(function (cfg_) {
-        cfg = cfg_;
+    Config.get(function () {
         GlobalEdit.sup.done.call(o);
     });
 };

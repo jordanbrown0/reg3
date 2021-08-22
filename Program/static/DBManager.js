@@ -142,7 +142,14 @@ DBEdit.prototype.put = function (cb) {
 };
 
 DBEdit.prototype.done = function () {
-    home();
+    var o = this;
+    if (o.params.reconfig) {
+        Config.get(function () {
+            home();
+        });
+    } else {
+        home();
+    }
 };
 
 DBEdit.prototype.cancel = function () {

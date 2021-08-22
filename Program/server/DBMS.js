@@ -181,7 +181,12 @@ DB.prototype.writeStream = function (stream, tables) {
 
 DB.prototype.listTables = function () {
     var o = this;
-    return (Object.keys(o.tables));
+    var ret = {};
+    for (var tName in o.tables) {
+        var t = o.tables[tName];
+        ret[tName] = { version: t.version };
+    }
+    return (ret);
 };
 
 function Table(db, name) {
@@ -192,6 +197,7 @@ function Table(db, name) {
     o.serial = 0;
     o.syncFlag = true;
     o.cachedSort = null;
+    o.version = 0;
 }
 
 // NEEDSWORK perhaps we should intern the field names to reduce memory
@@ -223,6 +229,7 @@ Table.prototype.sync = function (b) {
 
 Table.prototype.write = function () {
     var o = this;
+    o.version++;
     if (!o.syncFlag) {
         return;
     }

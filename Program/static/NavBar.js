@@ -13,7 +13,6 @@ NavBar.prototype.clear = function () {
 
 NavBar.prototype.add = function (e) {
     var o = this;
-    console.log(e);
     if (e.label) {
         var label = e.label;
         e.button = new Button(label, {
