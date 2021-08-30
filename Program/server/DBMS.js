@@ -179,6 +179,21 @@ DB.prototype.writeStream = function (stream, tables) {
     console.log('\nexport finished', nrecs, 'records took', (Date.now()-t0)+'ms');
 };
 
+DB.prototype.writeRec = function (tName, k, r) {
+    var o = this;
+    var t0 = Date.now();
+    var fd = fs.openSync(o.filename, 'a', 0o600);
+    var rec = {
+        t: tName,
+        k: k,
+        r: r
+    };
+    fs.writeSync(fd, JSON.stringify(rec));
+    fs.writeSync(fd, '\n');
+    fs.closeSync(fd);
+    console.log('wrote',o.name,'record took', (Date.now()-t0)+'ms');
+};
+
 DB.prototype.listTables = function () {
     var o = this;
     var ret = {};
@@ -234,6 +249,15 @@ Table.prototype.write = function () {
         return;
     }
     o.db.write();
+};
+
+Table.prototype.writeRec = function (k) {
+    var o = this;
+    o.version++;
+    if (!o.syncFlag) {
+        return;
+    }
+    o.db.writeRec(o.name, k, o.records[k]);
 };
 
 Table.prototype.forEach = function (cb) {
@@ -437,7 +461,7 @@ Table.prototype.delete = function(k, r) {
     o.check_version(k, r);
     o.bump(r);
     o.records[k] = {_version: r._version, _deleted: true};
-    o.write();
+    o.writeRec(k);
     o.cachedSort = null;
     return (o.records[k]);
 };
@@ -455,7 +479,7 @@ Table.prototype.put = function(k, r, expr) {
     }
     o.bump(r);
     o.records[k] = r;
-    o.write();
+    o.writeRec(k);
     o.cachedSort = null;
 };
 
@@ -475,7 +499,7 @@ Table.prototype.inc = function (k, field, limitField) {
     var ret = r[field];
     r[field]++;
     o.bump(r);
-    o.write();
+    o.writeRec(k);
     o.cachedSort = null;
     return (ret);
 };
@@ -510,7 +534,7 @@ Table.prototype.add = function (k, r, expr) {
     }
     o.bump(r);
     o.records[k] = r;
-    o.write();
+    o.writeRec(k);
     o.cachedSort = null;
     return (k);
 };
