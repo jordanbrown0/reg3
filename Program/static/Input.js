@@ -44,6 +44,7 @@ Input.prototype.setError = function () {
     var o = this;
     o.content.addClass('ErrorValue');
 };
+
 Input.prototype.clearError = function () {
     var o = this;
     o.content.removeClass('ErrorValue');
@@ -54,6 +55,10 @@ Input.prototype.focus = function () {
     o.content.focus();
 };
 
+Input.prototype.correct = function () {
+};
+
+// Input widgets based on <input> elements.
 function InputInput(type, params) {
     var o = this;
 
@@ -63,6 +68,9 @@ function InputInput(type, params) {
             if (o.params.oninput) {
                 o.params.oninput();
             }
+        },
+        onblur: function () {
+            o.correct();
         },
         autocomplete: 'off'
     });
@@ -81,6 +89,16 @@ function InputInput(type, params) {
 }
 
 extend(Input, InputInput);
+
+InputInput.prototype.correct = function () {
+    var o = this;
+    if (o.params.corrections) {
+        var c = o.params.corrections[o.get()];
+        if (c) {
+            o.set(c);
+        }
+    }
+};
 
 function InputText(params) {
     var o = this;
@@ -304,7 +322,7 @@ InputDateTime.prototype.set = function (value) {
     InputDateTime.sup.set.call(o, s);
 };
 
-// <select> object aren't willing to accept values that don't
+// <select> objects aren't willing to accept values that don't
 // match any of their options.  We may get our existing value
 // before we get the options, so save away the existing value
 // to restore once we get the options.

@@ -88,12 +88,13 @@ Editor.prototype.prev = function () {
     o.switchEditPage(o.page.prev);
 };
 
-// NEEDSWORK:  disable page-flip buttons at ends.
 Editor.prototype.switchEditPage = function(page) {
     var o = this;
     if (!page) {
         return;
     }
+    o.correct();
+
     o.page = page;
     o.editor.removeChildren();
     o.editor.appendChild(page);
@@ -121,7 +122,9 @@ Editor.prototype.done = function () {
         o.params.done();
         return;
     }
-    
+
+    o.correct();
+
     var errors = o.validate();
 
     if (errors.length > 0) {
@@ -149,6 +152,14 @@ Editor.prototype.validate = function () {
         page.validate().forEach(function (err) { errors.push(err) });
     });
     return (errors);
+};
+
+Editor.prototype.correct = function () {
+    var o = this;
+
+    o.pages.forEach(function (page) {
+        page.correct();
+    });
 };
 
 // NEEDSWORK this should operate by calling EditorPage.defaults and thence
@@ -257,6 +268,13 @@ EditorPage.prototype.validate = function () {
     return (errors);
 };
 
+EditorPage.prototype.correct = function () {
+    var o = this;
+    o.entries.forEach(function (e) {
+        e.correct();
+    });
+};
+
 function EditorTitle(schema_ent)
 {
     var o = this;
@@ -299,6 +317,12 @@ function EditorEntry(schemaEntry, params)
         o.addClass('Disabled');
     }
     
+    if (o.params.correctionsTable
+        && cfg.corrections
+        && cfg.corrections[o.params.correctionsTable]) {
+        o.params.corrections =
+            cfg.corrections[o.params.correctionsTable][o.params.id];
+    }
     o.input = new o.params.input(o.params);
     o.appendChild(td(o.input, {className: 'Value'}));
 
@@ -349,4 +373,9 @@ EditorEntry.prototype.validate = function () {
         });
     });
     return (errors);
+};
+
+EditorEntry.prototype.correct = function () {
+    var o = this;
+    o.input.correct();
 };

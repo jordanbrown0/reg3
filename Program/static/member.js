@@ -61,19 +61,6 @@ Member.getSchema = function () {
     return Editor.getSchema('members', Member.schema);
 };
 
-Member.correct = function (r) {
-    var corrections = cfg.corrections['members'] || {};
-    for (var f in corrections) {
-        var cf = corrections[f];
-        if (cf) {
-            var to = cf[r[f].toLowerCase()];
-            if (to) {
-                r[f] = to;
-            }
-        }
-    }
-};
-
 function MemberManager() {
     var o = this;
     MemberManager.sup.constructor.call(o, 'div', {className: 'MemberManager' });
@@ -291,6 +278,7 @@ MemberEdit.prototype.activate = function () {
         o.setTitle();
         o.editor = new Editor(r, {
             schema: schema,
+            correctionsTable: 'members',
             doneButton: 'Save',
             done: done,
             cancel: home
@@ -303,7 +291,6 @@ MemberEdit.prototype.activate = function () {
         if (working(true)) {
             return;
         }
-        Member.correct(o.r);
         table.members.put(o.k, o.r, null,
             function (rNew) { base.switchTo(new MemberDisplay(o.k)); }
         );
@@ -353,12 +340,12 @@ NewMemberEditor.prototype.activate = function () {
 
     var editor = new Editor(o.r, {
         schema: schema,
+        correctionTable: 'members',
         doneButton: 'Add',
         done: function () {
             if (working(true)) {
                 return;
             }
-            Member.correct(o.r);
             Server.newMembershipNumber(function (n) {
                 if (!n) {
                     alert('No membership numbers available!');
