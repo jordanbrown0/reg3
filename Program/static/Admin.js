@@ -51,8 +51,9 @@ function AdminConfig()
         items: [
             { label: '&Global configuration', page: GlobalEdit },
             { label: '&Station configuration', page: StationEdit },
-            { label: '&Q station manager', page: StationManager },
-            { label: 'ser&ver manager', page: ServerManager },
+            { label: 'Ser&ver configuration', page: ServerEdit },
+            { label: 'Station manager', page: StationManager },
+            { label: 'Server manager', page: ServerManager },
         ]
     });
 }

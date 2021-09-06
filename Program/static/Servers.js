@@ -49,7 +49,7 @@ ServerManager.prototype.header = function () {
 function ServerEdit(k, params) {
     var o = this;
     ServerEdit.sup.constructor.call(o,
-        k || server_id,
+        k || serverID,
         params || { table: table.servers, schema: serverSchema }
     );
 }
