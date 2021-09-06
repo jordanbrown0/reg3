@@ -2,7 +2,7 @@ var debug = {
     rpc: false,
     keyboard: false,
     dom: false,
-    config: true
+    config: false
 };
 
 var Debug = {};
