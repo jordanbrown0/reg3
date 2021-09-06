@@ -53,6 +53,18 @@ Member.setTitle = function () {
             s += 'Void, was ';
         }
         s += d;
+        if (o.r.pickedup) {
+            var datestr =
+                LDate.fromJSON(o.r.pickedup).toDisplay({seconds: false});
+            // NEEDSWORK picked up should get a class and be red
+            s = new DElement('div', s,
+                new DElement(
+                    'div',
+                    'Picked up '+datestr,
+                    {className: 'PickedUp'}
+                )
+            );
+        }
         o.titleSpan.replaceChildren(s);
     }
 };
