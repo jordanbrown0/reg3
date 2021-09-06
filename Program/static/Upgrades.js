@@ -155,9 +155,10 @@ extend(DElement, UpgradeAdHocPicker2);
 UpgradeAdHocPicker2.prototype.activate = function () {
     var o = this;
     var schema = [[
-        { field: 'from', label: 'From class', input: InputClass,
+        { field: 'from', label: 'From class', input: InputClassLookup,
             readOnly: true },
-        { field: 'to', label: 'To class', input: InputClass, readOnly: true },
+        { field: 'to', label: 'To class', input: InputClassLookup,
+            readOnly: true },
         { field: 'currentAmount', label: 'Paid so far', input: InputCurrency,
             readOnly: true },
         { field: 'classAmount', label: 'Class cost', input: InputCurrency,

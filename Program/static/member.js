@@ -25,7 +25,8 @@ Member.schema = [
             input: InputDateTime },
         { field: 'pickedup', label: 'Picked up', readOnly: true,
             input: InputDateTime },
-        { field: 'class', label: 'Class', readOnly: true, input: InputClass },
+        { field: 'class', label: 'Class', readOnly: true,
+            input: InputClassLookup },
         { field: 'amount', label: 'Amount paid', readOnly: true,
             input: InputCurrency },
         { field: 'number', label: 'Number', readOnly: true, input: InputInt }
@@ -36,7 +37,6 @@ Member.schema = [
             table: 'categories', keyField: 'name', textField: 'description'}
     ]
 ];
-
 
 // Shared between MemberEdit and MemberDisplay
 // Maybe should be part of a superclass.
@@ -56,7 +56,6 @@ Member.setTitle = function () {
         if (o.r.pickedup) {
             var datestr =
                 LDate.fromJSON(o.r.pickedup).toDisplay({seconds: false});
-            // NEEDSWORK picked up should get a class and be red
             s = new DElement('div', s,
                 new DElement(
                     'div',

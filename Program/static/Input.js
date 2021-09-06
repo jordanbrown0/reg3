@@ -462,7 +462,7 @@ InputDBLookup.prototype.set = function (value) {
     o.t.getOrNull(value, function (r) {
         var displayValue;
         if (!r) {
-            displayValue = '(missing)';
+            displayValue = 'Bad: '+value;
         } else if (o.params.textField instanceof Function) {
             displayValue = o.params.textField(r);
         } else {
@@ -471,6 +471,17 @@ InputDBLookup.prototype.set = function (value) {
         InputDBLookup.sup.set.call(o, displayValue);
     });
 };
+
+function InputClassLookup(params)
+{
+    var o = this;
+    params = Object.assign({}, params, {
+        table: table.classes,
+        textField: 'description'
+    });
+    InputClassLookup.sup.constructor.call(o, params);
+}
+extend(InputDBLookup, InputClassLookup);
 
 // One might think that <select multiple> would do what we want, but I don't
 // like the Ctrl/Shift-click UI at all.
