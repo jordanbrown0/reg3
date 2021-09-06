@@ -128,8 +128,8 @@ DB.prototype.sync = function (b) {
 };
 
 // NEEDSWORK should perhaps be async function.  Or perhaps should even be
-// on a timer rather than sync with the RPC request.
-// But more likely is to move to an incremental-write strategy.
+// on a timer rather than sync with the RPC request.  This is less of an issue
+// with the move to incremental write for most cases.
 DB.prototype.write = function() {
     var o = this;
     
@@ -138,10 +138,9 @@ DB.prototype.write = function() {
     }
     
     var t0 = Date.now();
-    // NEEDSWORK atomic replace
     console.log('\nwriting', o.filename);
     var nrec = 0;
-    var fd = fs.openSync(o.filename, 'w', 0o600);
+    var fd = fs.openSync(o.filename+'.new', 'w', 0o600);
     for (var tName in o.tables) {
         var t = o.tables[tName];
         t.forEach(function (k, r) {
@@ -156,6 +155,7 @@ DB.prototype.write = function() {
         });
     }
     fs.closeSync(fd);
+    fs.renameSync(o.filename+'.new', o.filename);
     console.log('wrote',o.name,nrec,'records took', (Date.now()-t0)+'ms');
 };
 
@@ -667,7 +667,7 @@ DBMS.init = async function () {
     if (r && r.id) {
         serverID = r.id;
     } else {
-        serverID = Date.now();
+        serverID = Date.now().toString();
         if (r) {
             r.id = serverID;
             t.put(rkey, r, null);
