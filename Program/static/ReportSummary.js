@@ -75,22 +75,27 @@ ReportSummary.prototype.title = 'Reports';
 
 ReportSummary.prototype.label = function () {
     var o = this;
-    getPrinterInfo(gotInfo, function () {});
+    Printers.getPrinter(cfg.label, gotPrinter, function () {});
 
-    function gotInfo(ret) {
+    function gotPrinter(p) {
+        // Check for printing disabled.
+        if (!p) {
+            return;
+        }
+
         var toppx = 0;
-        var bottompx = ret.caps.vertres;
+        var bottompx = p.vertres;
         var leftpx = 0;
-        var rightpx = ret.caps.horzres;
+        var rightpx = p.horzres;
 
         var size = 10;    // Points
         var column = 1/3; // Fraction of label
         var gutter = 4;   // Points
         var col1 = 2;     // inset of column break as multiple of size
 
-        var columnpx = column * ret.caps.horzres;
-        var gutterpx = gutter * ret.caps.dpix/72;
-        var sizepx = size * ret.caps.dpiy/72;
+        var columnpx = column * p.horzres;
+        var gutterpx = gutter * p.dpix/72;
+        var sizepx = size * p.dpiy/72;
         var col1px = col1 * sizepx;
 
         var xpx = leftpx;
@@ -108,7 +113,6 @@ ReportSummary.prototype.label = function () {
             items.push({ x: xpx+col1px, y: ypx, halign: 'right', text: r.v||0 });
             items.push({ x: xpx+col1px+gutterpx, y: ypx, text: r.t });
         });
-        rpc.label_print(ret.printer, items, function () { });
-
+        p.print(items, function () { });
     }
 };

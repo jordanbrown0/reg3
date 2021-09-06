@@ -1,34 +1,35 @@
 function label_test() {
     var s = 'TEST';
     var size;
-    var caps;
-    var printer;
+    var p;
 
-    getPrinterInfo(gotInfo);
+    Printers.getPrinter(cfg.label, gotPrinter);
     
-    function gotInfo(res) {
-        printer = res.printer;
-        caps = res.caps;
-        size = caps.dpiy / 2;
-        rpc.label_measureText(printer, cfg.font, size, s, gotDims);
+    function gotPrinter(p_) {
+        p = p_;
+        // Check for printing disabled.
+        if (!p) {
+            home();
+            return;
+        }
+
+        size = p.dpiy / 2;
+        p.measure(cfg.font, size, s, gotDims);
     }
     function gotDims(dims) {
-        var x = caps.horzres/2 - dims.cx/2;
-        var y = caps.vertres/2 + dims.cy/2;
-        rpc.label_print(printer, [
-            { x: x, y: y, font: cfg.font, size:size, text: s }
-        ], home);
+        var x = p.horzres/2 - dims.cx/2;
+        var y = p.vertres/2 + dims.cy/2;
+        p.print([{ x: x, y: y, font: cfg.font, size:size, text: s }], home);
     }
 }
 
 function label_badge(r, done, err) {
     var items = [];
-    var caps;
+    var p;
     var allLimits;
     var nameLimits;
     var cityLimits;
     var numberLimits;
-    var printer;
     var cl;
     var list;
     var t0 = Date.now();
@@ -48,17 +49,16 @@ function label_badge(r, done, err) {
             return;
         }
         cl = c;
-        getPrinterInfo(gotInfo, err);
+        Printers.getPrinter(cfg.label, gotPrinter, err);
     }
     
-    function gotInfo(res) {
+    function gotPrinter(p_) {
+        p = p_;
         // Check for printing disabled.
-        if (!res) {
+        if (!p) {
             done();
             return;
         }
-        caps = res.caps;
-        printer = res.printer;
         copies = cfg.badgeCopies;
     
         var right = [];
@@ -71,71 +71,71 @@ function label_badge(r, done, err) {
 
         allLimits = {
             x: 0,
-            y: caps.vertres,
-            h: caps.horzres,
-            v: caps.vertres
+            y: p.vertres,
+            h: p.horzres,
+            v: p.vertres
         };
         
         if (!cfg.badgeCity.print && right.length == 0) {
             nameLimits = {
                 x: 0,
-                h: caps.horzres,
-                v: caps.vertres,
-                y: caps.vertres
+                h: p.horzres,
+                v: p.vertres,
+                y: p.vertres
             };
             list = [drawName];
         } else if (!cfg.badgeCity.print && right.length > 0) {
             // NEEDSWORK these should be measured rather than constants.
             numberLimits = {
-                x: caps.horzres * .91,
-                h: caps.horzres * .09,
-                y: caps.vertres,
-                v: caps.vertres
+                x: p.horzres * .91,
+                h: p.horzres * .09,
+                y: p.vertres,
+                v: p.vertres
             };
             
             nameLimits = {
                 x: 0,
-                h: caps.horzres * .9,
-                v: caps.vertres,
-                y: caps.vertres
+                h: p.horzres * .9,
+                v: p.vertres,
+                y: p.vertres
             };
             list = right.concat(drawName);
         } else if (cfg.badgeCity.print && right.length == 0) {
             // NEEDSWORK these should be measured not constants.
             cityLimits = {
                 x: 0,
-                h: caps.horzres,
-                y: caps.vertres,
-                v: caps.vertres * .09
+                h: p.horzres,
+                y: p.vertres,
+                v: p.vertres * .09
             };
             
             nameLimits = {
                 x: 0,
-                h: caps.horzres,
-                v: caps.vertres * .9,
-                y: caps.vertres * .9
+                h: p.horzres,
+                v: p.vertres * .9,
+                y: p.vertres * .9
             };
             list = [drawName, drawCity];
         } else { // cfg.badgeCity.print && cfg.badgeNumber
             numberLimits = {
-                x: caps.horzres * .91,
-                h: caps.horzres * .09,
-                y: caps.vertres,
-                v: caps.vertres
+                x: p.horzres * .91,
+                h: p.horzres * .09,
+                y: p.vertres,
+                v: p.vertres
             };
 
             cityLimits = {
                 x: 0,
-                h: caps.horzres * .90,
-                y: caps.vertres,
-                v: caps.vertres * .09
+                h: p.horzres * .90,
+                y: p.vertres,
+                v: p.vertres * .09
             };
             
             nameLimits = {
                 x: 0,
-                h: caps.horzres * .90,
-                v: caps.vertres * .9,
-                y: caps.vertres * .9
+                h: p.horzres * .90,
+                v: p.vertres * .9,
+                y: p.vertres * .9
             };
             list = right.concat(drawName, drawCity);
         }
@@ -156,7 +156,7 @@ function label_badge(r, done, err) {
             var t1 = Date.now();
             if (copies > 0) {
                 copies--;
-                rpc.label_print(printer, items, print);
+                p.print(items, print);
             } else {
                 log('time to print badge', Date.now()-t1);
                 drawPhone();
@@ -176,7 +176,7 @@ function label_badge(r, done, err) {
             }
         }
         function printPhone() {
-            rpc.label_print(printer, items, done);
+            p.print(items, done);
         }
         function drawName() {
             var name1;
@@ -297,8 +297,7 @@ function label_badge(r, done, err) {
     }
 
     function drawMaybe(limits, item, yes, no) {
-        rpc.label_measureText(printer, item.font, item.size, item.text,
-            drawMaybeGotDims);
+        p.measure(item.font, item.size, item.text, drawMaybeGotDims);
         function drawMaybeGotDims(dims) {
             if (dims.cx > limits.h) {
                 no();
@@ -343,46 +342,3 @@ function label_badge(r, done, err) {
     }
 }
 
-function getPrinterInfo(cb, abort) {
-    var printer;
-        
-    if (cfg.noPrint) {
-        alert('Would print label now');
-        cb(null);
-        return;
-    }
-    if (!cfg.label) {
-        alert('No printer configured!');
-        abort();
-        return;
-    }
-    Printers.get(cfg.label, gotPrinter);
-
-    function gotPrinter(p) {
-        printer = p.windows;
-        rpc.printers(gotPrinters);
-    }
-
-    // It seems surprising and unfortunate that this is the only
-    // way to retrieve this information.  I bet there's a "get status
-    // of printer by name" function that I haven't found yet.
-    function gotPrinters(plist) {
-        var p;
-        while (p = plist.pop()) {
-            if (p.printerName == printer) {
-                if (p.attributes.WORK_OFFLINE) {
-                    alert('Label printer is offline');
-                    abort();
-                    return;
-                }
-                rpc.label_getDeviceCaps(printer, gotCaps);
-                return;
-            }
-        }
-        throw new Error('Selected printer is in list, but not in enumeration');
-    }
-    
-    function gotCaps(res) {
-        cb({printer: printer, caps: res});
-    }
-}

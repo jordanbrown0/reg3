@@ -134,6 +134,77 @@ Printers.get = function (id, cb) {
     table.printers.getOrNull(id, function (r) { cb(r); });
 };
 
+Printers.getPrinter = function (id, cb, abort) {
+    if (cfg.noPrint) {
+        alert('Would print label now');
+        cb(null);
+        return;
+    }
+    if (!id) {
+        alert('No printer configured!');
+        abort();
+        return;
+    }
+    var p = new Printer(id);
+    p.init(function () {
+            cb(p);
+    });
+};
+
+function Printer(id) {
+    var o = this;
+    o.id = id;
+}
+
+Printer.prototype.init = function (cb) {
+    var o = this;
+
+    Printers.get(o.id, gotPrinter);
+
+    function gotPrinter(pRec) {
+        o.winName = pRec.windows;
+        rpc.printers(gotPrinters);
+    }
+
+    // It seems surprising and unfortunate that this is the only
+    // way to retrieve this information.  I bet there's a "get status
+    // of printer by name" function that I haven't found yet.
+    // NEEDSWORK but even so, we should have an RPC request that does it.
+    function gotPrinters(plist) {
+        var pEnt;
+        while (pEnt = plist.pop()) {
+            if (pEnt.printerName == o.winName) {
+                if (pEnt.attributes.WORK_OFFLINE) {
+                    alert('Label printer is offline');
+                    abort();
+                    return;
+                }
+                rpc.label_getDeviceCaps(o.winName, gotCaps);
+                return;
+            }
+        }
+        throw new Error('Selected printer is in list, but not in enumeration');
+    }
+    
+    function gotCaps(caps) {
+        o.dpix = caps.dpix;
+        o.dpiy = caps.dpiy;
+        o.horzres = caps.horzres;
+        o.vertres = caps.vertres;
+        cb();
+    }
+};
+
+Printer.prototype.print = function (items, cb) {
+    var o = this;
+    rpc.label_print(o.winName, items, cb);
+}
+
+Printer.prototype.measure = function (font, size, text, cb) {
+    var o = this;
+    rpc.label_measureText(o.winName, font, size, text, cb);
+};
+
 init.push(function printerInit() {
     table.printers = new DBTable(db.reg, 'printers',
         { defaults: Editor.defaults(printerSchema) }
