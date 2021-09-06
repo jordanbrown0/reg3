@@ -1,4 +1,4 @@
-function label_test(done) {
+function label_test() {
     var cfg;
     var s = 'TEST';
     var size;
@@ -19,7 +19,7 @@ function label_test(done) {
         var y = caps.vertres/2 + dims.cy/2;
         rpc.label_print(printer, [
             { x: x, y: y, font: cfg.font, size:size, text: s }
-        ], done);
+        ], home);
     }
 }
 
