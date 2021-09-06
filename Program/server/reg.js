@@ -37,8 +37,8 @@ const sprintf = require('sprintf-js').sprintf;
 const Expression = require('./Expression');
 const { assert } = require('./utils');
 
-// NEEDSWORK:  general trace mechanism
-var rpcVerbose = false;
+// NEEDSWORK:  general trace mechanism (controlled from client UI?)
+var rpcVerbose = 0;
 var showBusy = true;
 
 var methods = {};
@@ -182,7 +182,6 @@ function getFont(fontname, fontsize) {
 
 methods.label_print = function (p, a) {
     var hdc = label.createDc2({device: p});
-    label.setTextAlign(hdc, label.TA_LEFT + label.TA_BOTTOM);
     label.setBkMode(hdc, label.bkModeTransparent);
     label.beginPrint(hdc);
     label.startPage(hdc);
@@ -194,9 +193,24 @@ methods.label_print = function (p, a) {
             font = e.font;
         }
         if (e.size) {
-            size = e.size;
+            size = Math.round(e.size);
         }
+
         if (e.text != null) {
+            var align = label.TA_BOTTOM;
+            switch (e.halign) {
+            case 'left':
+            default:
+                align += label.TA_LEFT;
+                break;
+            case 'right':
+                align += label.TA_RIGHT;
+                break;
+            case 'center':
+                align += label.TA_CENTER;
+                break;
+            }
+            label.setTextAlign(hdc, align);
             label.selectObject(hdc, getFont(font, size));
             label.textOut(hdc, Math.round(e.x), Math.round(e.y),
                 e.text.toString());
@@ -239,13 +253,24 @@ async function busyCall(f) {
 async function methodCallMiddleware(req, res, next)
 {
     await busyCall(async function () {
-        if (rpcVerbose) {
-            console.log('<==', req.body);
+        var body = req.body;
+        switch(rpcVerbose) {
+        case 1:
+            console.log('<==', body.name);
+            break;
+        case 2:
+            console.log('<==', body);
+            break;
         }
-        var ret = await methodCall(req.body);
-        if (rpcVerbose) {
+
+        var ret = await methodCall(body);
+
+        switch (rpcVerbose) {
+        case 2:
             console.log('==>', ret);
+            break;
         }
+
         res.json(ret);
     });
 }
@@ -326,13 +351,20 @@ restExportMethods.exportDB = async function (res, dbName, tables) {
 // a file.
 async function exportMiddleware(req, res, next) {
     await busyCall(async function () {
-        var request = JSON.parse(req.body['request']);
-        if (rpcVerbose) {
-            console.log('<==', request);
+        var body = JSON.parse(req.body['request']);
+        switch(rpcVerbose) {
+        case 1:
+            console.log('<==', body.name);
+            break;
+        case 2:
+            console.log('<==', body);
+            break;
         }
-        await exportMethodCall(request, res);
-        if (rpcVerbose) {
+        await exportMethodCall(body, res);
+        switch (rpcVerbose) {
+        case 2:
             console.log('==> file');
+            break;
         }
     });
 }
@@ -384,12 +416,14 @@ async function importMiddleware(req, res, next) {
         if (rpcVerbose) {
             console.log('<==', req.url);
         }
-
         ret = await importMethodCall(req.params, req);
         
-        if (rpcVerbose) {
+        switch (rpcVerbose) {
+        case 2:
             console.log('==>', ret);
+            break;
         }
+
         res.json(ret);
         res.end();
     });
@@ -436,16 +470,19 @@ process.stdin.on('data', function (c) {
         process.exit();
         break;
     case 'r':
-        rpcVerbose = !rpcVerbose;
-        console.log(rpcVerbose
-            ? 'Tracing RPC'
-            : 'Not tracing RPC');
+        rpcVerbose = (rpcVerbose+1) %3;
+        var rpcmsgs = [
+            'Not tracing RPC',
+            'RPC method names only',
+            'Full RPC tracing'
+        ];
+        console.log(rpcmsgs[rpcVerbose]);
         break;
     case 'b':
         showBusy = !showBusy;
         console.log(showBusy
-            ? 'Showing busy percentage'
-            : 'Not showing busy percentage');
+            ? 'Showing busy percentage / memory usage'
+            : 'Not showing busy percentage / memory usage');
         break;
     case 'e':
         var exprTrace = !Expression.trace();
@@ -458,7 +495,7 @@ process.stdin.on('data', function (c) {
         console.log('q - quit');
         console.log('r - toggle RPC tracing');
         console.log('e - toggle expression tracing');
-        console.log('b - toggle busy monitor');
+        console.log('b - toggle busy/memory monitor');
         break;
     default:
         console.log('Huh?  Press ? for a list of commands.');
