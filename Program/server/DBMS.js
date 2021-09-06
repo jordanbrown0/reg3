@@ -190,6 +190,7 @@ DB.prototype.writeRec = function (tName, k, r) {
     };
     fs.writeSync(fd, JSON.stringify(rec));
     fs.writeSync(fd, '\n');
+    fs.fsyncSync(fd);
     fs.closeSync(fd);
     console.log('wrote',o.name,'record took', (Date.now()-t0)+'ms');
 };
