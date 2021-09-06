@@ -93,9 +93,9 @@ ReportSummary.prototype.label = function () {
         var gutter = 4;   // Points
         var col1 = 2;     // inset of column break as multiple of size
 
-        var columnpx = column * p.horzres;
-        var gutterpx = gutter * p.dpix/72;
-        var sizepx = size * p.dpiy/72;
+        var columnpx = p.xfract(column);
+        var gutterpx = p.points(gutter);
+        var sizepx = p.points(size);
         var col1px = col1 * sizepx;
 
         var xpx = leftpx;

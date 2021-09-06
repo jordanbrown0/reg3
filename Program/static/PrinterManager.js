@@ -205,6 +205,22 @@ Printer.prototype.measure = function (font, size, text, cb) {
     rpc.label_measureText(o.winName, font, size, text, cb);
 };
 
+Printer.prototype.points = function (points) {
+    return points * o.dpiy/72;
+};
+
+Printer.prototype.inches = function (inches) {
+    return inches * o.dpiy;
+};
+
+Printer.prototype.xfract = function (f) {
+    return o.horzres * f;
+};
+
+Printer.prototype.yfract = function (f) {
+    return o.vertres * f;
+};
+
 init.push(function printerInit() {
     table.printers = new DBTable(db.reg, 'printers',
         { defaults: Editor.defaults(printerSchema) }
