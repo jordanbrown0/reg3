@@ -1,5 +1,4 @@
 function label_test() {
-    var cfg;
     var s = 'TEST';
     var size;
     var caps;
@@ -8,7 +7,6 @@ function label_test() {
     getPrinterInfo(gotInfo);
     
     function gotInfo(res) {
-        cfg = res.cfg;
         printer = res.printer;
         caps = res.caps;
         size = caps.dpiy / 2;
@@ -25,7 +23,6 @@ function label_test() {
 
 function label_badge(r, done, err) {
     var items = [];
-    var cfg;
     var caps;
     var allLimits;
     var nameLimits;
@@ -61,7 +58,6 @@ function label_badge(r, done, err) {
             return;
         }
         caps = res.caps;
-        cfg = res.cfg;
         printer = res.printer;
         copies = cfg.badgeCopies;
     
@@ -387,6 +383,6 @@ function getPrinterInfo(cb, abort) {
     }
     
     function gotCaps(res) {
-        cb({cfg: cfg, printer: printer, caps: res});
+        cb({printer: printer, caps: res});
     }
 }
