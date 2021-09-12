@@ -79,7 +79,7 @@ function rpcError(e) {
         rpcActive[ser].xhr.abort();
         delete rpcActive[ser];
     }
-    
+
     rpcFailed = true;
 
     // This is kind of un-generic.  Perhaps the application

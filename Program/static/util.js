@@ -356,7 +356,7 @@ if (typeof Object.assign !== 'function') {
       for (var index = 1; index < arguments.length; index++) {
         var nextSource = arguments[index];
 
-        if (nextSource !== null && nextSource !== undefined) { 
+        if (nextSource !== null && nextSource !== undefined) {
           for (var nextKey in nextSource) {
             // Avoid bugs when hasOwnProperty is shadowed
             if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
@@ -434,7 +434,7 @@ if (!String.prototype.includes) {
 
     if (search instanceof RegExp) {
       throw TypeError('first argument must not be a RegExp');
-    } 
+    }
     if (start === undefined) { start = 0; }
     return this.indexOf(search, start) !== -1;
   };

@@ -14,7 +14,7 @@ function CSV(fileName, params) {
         o.map.push({
             from: ent.from.toLowerCase(),
             to: ent.to,
-            convert: cnvfunc            
+            convert: cnvfunc
         });
     });
     o.headers = params.headers;
@@ -30,7 +30,7 @@ CSV.prototype.all = async function(cb) {
     const CRLFMAYBE = 3;
     const QUOTEQUOTE = 4;
     const QUOTECRLFMAYBE = 5;
-    
+
     var fieldNames = null;
     var state = NORMAL;
     var curField = '';
@@ -115,7 +115,7 @@ CSV.prototype.all = async function(cb) {
         }
 
         emitSubstring();
-        
+
         // Emit (append to curField) a substring starting at start and
         // ending before the current character.  Then skip over that
         // character.
@@ -156,7 +156,7 @@ CSV.prototype.all = async function(cb) {
             r = [];
         }
     });
-    
+
     return (new Promise(function (resolve, reject) {
         stream.on('end', function () {
             // Note:  we ignore a final line that does not end in a newline.

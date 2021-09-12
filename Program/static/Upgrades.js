@@ -23,7 +23,7 @@ function UpgradesManager() {
         canAdd: true,
         canDelete: true
     };
-    
+
     UpgradesManager.sup.constructor.call(o, params);
 }
 extend(DBManager, UpgradesManager);
@@ -92,7 +92,7 @@ UpgradePicker.prototype.summarize = function (k, r) {
 
 UpgradePicker.prototype.getFilter = function () {
     var o = this;
-    
+
     var f = { and: [
         { eq: [ {f: 'from' }, o.params.member.class ] },
         Class.getFilter(cfg)

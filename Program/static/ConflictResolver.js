@@ -47,7 +47,7 @@ ConflictResolver.prototype.activate = function () {
             { label: 'Skip', func: function () { o.skip(); } }
         ]);
     }
-    
+
     var table = new DElement('table', {border: 1});
     o.appendChild(table);
     var tName = c.tName;
@@ -55,7 +55,7 @@ ConflictResolver.prototype.activate = function () {
     var right = c.import;
     var f;
     o.unresolved = {};
-    
+
     function equalObject(a, b) {
         var e;
 
@@ -92,7 +92,7 @@ ConflictResolver.prototype.activate = function () {
         }
         return (a === b);
     }
-    
+
     function emit(f) {
         if (f.startsWith('_')) {
             return;
@@ -100,7 +100,7 @@ ConflictResolver.prototype.activate = function () {
         var row = tr();
 
         row.appendChild(td(f));
-        
+
         var lf = left[f] ? left[f].toString() : new EntityNode('nbsp');
         var rf = right[f] ? right[f].toString() : new EntityNode('nbsp');
         if (equal(left[f], right[f])) {
@@ -126,7 +126,7 @@ ConflictResolver.prototype.activate = function () {
                     td(new DElement('label', label, { htmlFor: side+f }))
                 );
             }
-            
+
             emitRadio(left, f, 'l', lf);
             emitRadio(right, f, 'r', rf);
             o.unresolved[f] = true;

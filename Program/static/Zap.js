@@ -7,7 +7,7 @@ extend(DElement, Zap);
 
 Zap.prototype.activate = function () {
     var o = this;
-    
+
     var schema = [[
         {
             field: 'table',

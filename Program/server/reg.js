@@ -187,7 +187,7 @@ methods.label_print = function (p, a) {
     label.startPage(hdc);
     var font = 'Helvetica';
     var size = 18;
-    
+
     a.forEach(function (e) {
         if (e.font) {
             font = e.font;
@@ -216,7 +216,7 @@ methods.label_print = function (p, a) {
                 e.text.toString());
         }
     });
-    
+
     label.endPage(hdc);
     label.endPrint(hdc);
     label.deleteDc(hdc);
@@ -239,7 +239,7 @@ async function busyCall(f) {
     var tStart = hrtime();
 
     await f();
-    
+
     var tEnd = hrtime();
     if (tPrev) {
         var idle = tStart - tPrev;
@@ -295,7 +295,7 @@ function tick() {
 }
 
 setInterval(tick, busyTick).unref();
- 
+
 async function methodCall(req)
 {
     assert(req.name, 'No req.name');
@@ -417,7 +417,7 @@ async function importMiddleware(req, res, next) {
             console.log('<==', req.url);
         }
         ret = await importMethodCall(req.params, req);
-        
+
         switch (rpcVerbose) {
         case 2:
             console.log('==>', ret);
@@ -435,7 +435,7 @@ async function importMethodCall(params, stream) {
     if (!method) {
         return ({error: 'No such import method '+params.name});
     }
-    
+
     var retval;
     try {
         retval = await method(params, stream);

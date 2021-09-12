@@ -43,9 +43,9 @@ FieldsManager.prototype.summarize = function (k, r) {
 
 FieldsManager.get = function (cb) {
     var ret = [];
-    
+
     table.fields.list({}, got);
-    
+
     function got(recs) {
         recs.forEach(function (k, r) {
             ret.push(r);

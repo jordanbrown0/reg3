@@ -4,14 +4,14 @@ function List(params)
     List.sup.constructor.call(o, 'div', {className: 'List'});
 
     assertParams(params, 'table', 'pick', 'cancel');
-    
+
     o.params = Object.assign({
         summarize: function (k, r) {
             return (r.values().join(' / '));
         },
         limit: 10
     }, params);
-    
+
     o.search = [];
     o.searching = false;
     o.pending = false;
@@ -51,14 +51,14 @@ List.prototype.activate = function () {
 
 List.prototype.refresh = function () {
     var o = this;
-    
+
     if (o.searching) {
         o.pending = true;
         return;
     }
     o.searching = true;
     o.pending = false;
-    
+
     var filter = o.params.filter
         ? { and: [ o.params.filter, { match: o.search } ] }
         : { match: o.search };
@@ -81,7 +81,7 @@ List.prototype.refresh = function () {
                 o.table.appendChild(tr(th(o.params.header)));
             }
         }
-        
+
         function row(k, r) {
             var summary = o.params.summarize(k, r);
             var contents;
@@ -97,7 +97,7 @@ List.prototype.refresh = function () {
             // NEEDSWORK this should probably be a distinct class
             return { key: k, element: contents, rec: r };
         };
-        
+
         o.rows = [];
         o.selected = null;
         recs.forEach(function (k, r) {

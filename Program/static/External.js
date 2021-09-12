@@ -79,7 +79,7 @@ extend(DElement, ExternalImport);
 
 ExternalImport.prototype.activate = function () {
     var o = this;
-    
+
     var schema = [[
         {
             field: 'file',

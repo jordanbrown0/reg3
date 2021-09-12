@@ -79,7 +79,7 @@ function InputInput(type, params) {
     }
 
     InputInput.sup.constructor.call(o, content, params);
-    
+
     if (params.readOnly) {
         o.content.setAttribute('readOnly', '');
     }
@@ -165,7 +165,7 @@ function InputCurrency(params) {
 
     params.prefix = cfg.currencyPrefix;
     params.suffix = cfg.currencySuffix;
-        
+
     InputCurrency.sup.constructor.call(o, params);
 }
 
@@ -343,8 +343,8 @@ function InputSelect(params)
     InputSelect.sup.constructor.call(o, content, params);
     if (params.options) {
         o.setOptions(params.options);
-    }       
-    
+    }
+
     if (params.readOnly) {
         o.content.setAttribute('disabled', '');
     }
@@ -491,7 +491,7 @@ function InputSelectMulti(params)
     var content = new DElement('table', {
         id: params.id,
     });
-    
+
     InputSelectMulti.sup.constructor.call(o, content, params);
     o.children = {};
     if (params.options) {
@@ -536,7 +536,7 @@ InputSelectMulti.prototype.addOption = function (key, text) {
             o.value[key] = input.get();
         }
     });
-    
+
     var input = new InputBool(boolParams);
     o.children[key] = input;
     o.content.appendChild(
@@ -544,7 +544,7 @@ InputSelectMulti.prototype.addOption = function (key, text) {
             td(input),
             td(text)
         )
-    );  
+    );
 };
 
 InputSelectMulti.prototype.setOptions = function (opts) {
@@ -620,7 +620,7 @@ function InputMulti(params) {
     var content = new DElement('table', {
         id: params.id,
     });
-    
+
     InputMulti.sup.constructor.call(o, content, params);
 
     o.set([]);
@@ -740,7 +740,7 @@ function InputObject(params) {
     if (params.id) {
         content.setProperties({id: params.id});
     }
-    
+
     InputObject.sup.constructor.call(o, content, params);
 
     o.first = null;

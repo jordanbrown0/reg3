@@ -4,7 +4,7 @@ function label_test() {
     var p;
 
     Printers.getPrinter(cfg.label, gotPrinter);
-    
+
     function gotPrinter(p_) {
         p = p_;
         // Check for printing disabled.
@@ -51,7 +51,7 @@ function label_badge(r, done, err) {
         cl = c;
         Printers.getPrinter(cfg.label, gotPrinter, err);
     }
-    
+
     function gotPrinter(p_) {
         p = p_;
         // Check for printing disabled.
@@ -60,7 +60,7 @@ function label_badge(r, done, err) {
             return;
         }
         copies = cfg.badgeCopies;
-    
+
         var right = [];
         if (cfg.badgeNumber) {
             right.push(drawNumber);
@@ -75,7 +75,7 @@ function label_badge(r, done, err) {
             h: p.horzres,
             v: p.vertres
         };
-        
+
         if (!cfg.badgeCity.print && right.length == 0) {
             nameLimits = {
                 x: 0,
@@ -92,7 +92,7 @@ function label_badge(r, done, err) {
                 y: p.vertres,
                 v: p.vertres
             };
-            
+
             nameLimits = {
                 x: 0,
                 h: p.horzres * .9,
@@ -108,7 +108,7 @@ function label_badge(r, done, err) {
                 y: p.vertres,
                 v: p.vertres * .09
             };
-            
+
             nameLimits = {
                 x: 0,
                 h: p.horzres,
@@ -130,7 +130,7 @@ function label_badge(r, done, err) {
                 y: p.vertres,
                 v: p.vertres * .09
             };
-            
+
             nameLimits = {
                 x: 0,
                 h: p.horzres * .90,
@@ -141,7 +141,7 @@ function label_badge(r, done, err) {
         }
 
         draw();
-        
+
         function draw() {
             if (list.length > 0) {
                 list.shift()();
@@ -151,7 +151,7 @@ function label_badge(r, done, err) {
                 print();
             }
         }
-        
+
         function print() {
             var t1 = Date.now();
             if (copies > 0) {
@@ -188,7 +188,7 @@ function label_badge(r, done, err) {
                 name1 = r.fname;
                 name2 = r.lname;
             }
-            
+
             if (name1 && name2) {
                 drawTwoNames();
                 return;
@@ -197,7 +197,7 @@ function label_badge(r, done, err) {
                 return;
             }
             draw();
-        
+
             function drawTwoNames() {
                 var s = [name1, name2].join(' ');
                 drawMaybe(nameLimits, {

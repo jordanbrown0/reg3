@@ -97,7 +97,7 @@ ReportDups.prototype.body = function (cb) {
             });
         cb(body);
     });
-    
+
     function maybeDup(r1, r2) {
         return (o.params.compare.every(function (ent) {
             var a = r1[ent.field];

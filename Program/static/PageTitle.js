@@ -7,7 +7,7 @@ extend(DElement, PageTitle);
 
 PageTitle.prototype.set = function (e) {
     var o = this;
-    
+
     o.removeChildren();
     o.appendChild(e);
 };

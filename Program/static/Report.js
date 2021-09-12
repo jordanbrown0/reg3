@@ -13,9 +13,9 @@ Report.prototype.activate = function () {
         { label: 'Done', key: 'Enter', func: home },
         { key: 'Escape', func: home }
     ]);
-    
+
     o.focus();
-    
+
     var tbody = new DElement('tbody');
     tbody.appendChild('Working...');
 

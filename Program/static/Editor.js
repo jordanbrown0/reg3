@@ -300,12 +300,12 @@ function EditorTitle(schema_ent)
 extend(DElement, EditorTitle);
 
 function EditorEntry(schemaEntry, params)
-{       
+{
     var o = this;
-    
+
     EditorEntry.sup.constructor.call(o, 'tr');
     o.schemaEntry = schemaEntry;
-    
+
     o.appendChild(td(schemaEntry.label || new EntityNode('nbsp'),
         {className: 'Label'}));
 
@@ -325,7 +325,7 @@ function EditorEntry(schemaEntry, params)
     if (o.params.readOnly) {
         o.addClass('Disabled');
     }
-    
+
     if (o.params.correctionsTable
         && cfg.corrections
         && cfg.corrections[o.params.correctionsTable]) {

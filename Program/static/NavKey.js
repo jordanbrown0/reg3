@@ -136,7 +136,7 @@ var inputTypes = [ 'text', 'password', 'date' ];
 NavKey.prototype.shouldIgnore = function (e) {
     var o = this;
     var kn = o.getKeyName(e);
-    
+
     var NO=-1, MAYBE=0, YES=1;
     var ignore = NO;
 
@@ -154,7 +154,7 @@ NavKey.prototype.shouldIgnore = function (e) {
     if (ignore != MAYBE) {
         return (ignore == YES);
     }
-    
+
     // Now comes the hard part.  We need to suppress the rest, *unless*
     // we're in a text editing field.  But note:  simply being in an input
     // isn't enough, because checkboxes and radio buttons don't eat these
@@ -190,7 +190,7 @@ NavKey.prototype.getKeyName = function (e) {
 
     // Alphabetical order
     var mods = [ 'Alt', 'Control', 'OS', 'Shift' ];
-    
+
     // Don't add modifiers to modifiers.
     if (mods.includes(kn)) {
         return (kn);

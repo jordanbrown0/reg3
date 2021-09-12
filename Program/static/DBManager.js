@@ -85,7 +85,7 @@ DBManager.prototype.sort = null;
 
 function DBEdit(k, params) {
     var o = this;
-    
+
     DBEdit.sup.constructor.call(o,'div');
     o.k = k;
     o.params = params;

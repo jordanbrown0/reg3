@@ -32,7 +32,7 @@ LDate.fromJSON = function (value) {
     if (!value) {
         return (new LDate());
     }
-    
+
     if (value.indexOf('T') < 0) {
         // ECMAScript specifies that date-only strings are interpreted
         // as UTC, while date+time strings without time zone specifiers
@@ -99,7 +99,7 @@ LDate.fromEditableTime = function (s) {
     if (!s) {
         return (null);
     }
-    
+
     var hms = s.split(':');
     if (hms.length < 2 || hms.length > 3) {
         throw (new TimeParseError('Invalid time'));
@@ -168,7 +168,7 @@ LDate.fromEditable = function (s) {
     if (!s) {
         return (null);
     }
-    
+
     var dt = s.split(' ');
     if (dt.length < 1 || dt.length > 2) {
         throw (new DateTimeParseError('Invalid date+time'));
@@ -194,7 +194,7 @@ LDate.prototype.toEditableDate = function (opts) {
     if (!('year' in o)) {
         return ('');
     }
-    
+
     return (
         o.month.toString().padStart(2, '0')
         + '/'
@@ -209,11 +209,11 @@ LDate.prototype.toEditableDate = function (opts) {
 LDate.prototype.toEditableTime = function (opts) {
     var o = this;
     opts = opts || {};
-    
+
     if (!('hours' in o)) {
         return ('');
     }
-    
+
     var ret =
         o.hours.toString().padStart(2, '0')
         + ':'
@@ -259,7 +259,7 @@ LDate.prototype.toDisplayTime = function (opts) {
     if (!('hours' in o)) {
         return ('');
     }
-    
+
     var hh = o.hours;
     var ampm = hh < 12 ? 'AM' : 'PM';
     hh %= 12;

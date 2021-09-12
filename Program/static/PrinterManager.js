@@ -86,9 +86,9 @@ var Printers = {};
 Printers.refresh = function (cb) {
     var id;
     var printers;
-    
+
     Server.id(gotId);
-    
+
     function gotId(idRet) {
         id = idRet;
         rpc.printers(gotWindowsPrinters);
@@ -97,7 +97,7 @@ Printers.refresh = function (cb) {
         printers = printersRet;
         table.printers.list({filter: { eq: [ {f: 'server'}, id ] } }, gotDBPrinters);
     }
-    
+
     function gotDBPrinters(recs) {
         var k, found;
         var newPrinters = [];
@@ -185,7 +185,7 @@ Printer.prototype.init = function (cb) {
         }
         throw new Error('Selected printer is in list, but not in enumeration');
     }
-    
+
     function gotCaps(caps) {
         o.dpix = caps.dpix;
         o.dpiy = caps.dpiy;

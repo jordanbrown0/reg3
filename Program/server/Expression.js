@@ -98,7 +98,7 @@ verbs.f = function (r, args) {
 // Does, however, mark the record as dirty.
 verbs.setf = function (r, args) {
     var o = this;
-    
+
     var name = o.exec(r, args[0]);
     var val = o.exec(r, args[1]);
 

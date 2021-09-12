@@ -10,7 +10,7 @@ extend(DElement, Menu);
 Menu.prototype.activate = function () {
     var o = this;
     var keys = [];
-    
+
     o.params.items.forEach(function (item) {
         if (!base.processNav(item)) {
             return;

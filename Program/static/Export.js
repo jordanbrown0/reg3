@@ -7,7 +7,7 @@ extend(DElement, Export);
 
 Export.prototype.activate = function () {
     var o = this;
-    
+
     db.reg.listTables(function (tables) {
         o.bools = new InputSelectMulti({options: Object.keys(tables)});
         o.appendChild(o.bools);
@@ -26,7 +26,7 @@ Export.prototype.activate = function () {
 
 Export.prototype.exportSelected = function () {
     var o = this;
-    
+
     var selected = o.bools.get();
     db.reg.export(selected);
 };

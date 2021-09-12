@@ -16,7 +16,7 @@ function DBF(name, params) {
         o.map.push({
             from: ent.from.toUpperCase(),
             to: ent.to,
-            convert: cnvfunc            
+            convert: cnvfunc
         });
     });
 
@@ -25,7 +25,7 @@ function DBF(name, params) {
 
 DBF.prototype.load = async function () {
     var o = this;
-    
+
     o.fd = await fs.promises.open(o.fn, 'r');
     var buf = Buffer.alloc(10);
     var res = await o.fd.read(buf, 0, buf.length, 0);
@@ -36,7 +36,7 @@ DBF.prototype.load = async function () {
     var hdrSize = buf.readUInt16LE(8);
     buf = Buffer.alloc(hdrSize);
     res = await o.fd.read(buf, 0, buf.length, 0);
-    
+
     o.version = version;
     o.hdrSize = hdrSize;
     o.lastmod = new Date(buf.readUInt8(1)+2000, buf.readUInt8(2), buf.readUInt8(3));

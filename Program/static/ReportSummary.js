@@ -34,7 +34,7 @@ ReportSummary.prototype.body = function (cb) {
         atdExpr = { f: 'entered' };
     }
     table.members.reduce(
-        { expr: 
+        { expr:
             { if: [
                 { f: 'transferTo' },
                 { addto: [ 'transferred', 1 ]},

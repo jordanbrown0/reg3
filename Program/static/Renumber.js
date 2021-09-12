@@ -7,7 +7,7 @@ extend(DElement, Renumber);
 
 Renumber.prototype.activate = function () {
     var o = this;
-    
+
     var schema = [[
         {
             field: 'start',

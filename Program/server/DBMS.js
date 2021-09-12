@@ -37,7 +37,7 @@ DB.prototype.load = async function() {
         t.load(d.value.k, d.value.r);
         nrecs++;
     });
-    
+
     return (new Promise(function (resolve, reject) {
         pipeline.on('end', function () {
             o.loadInProgress = false;
@@ -85,7 +85,7 @@ DB.prototype.import = async function(stream) {
             conflicts.push(result);
         }
     });
-    
+
     return (new Promise(function (resolve, reject) {
         pipeline.on('end', function () {
             o.write();
@@ -132,11 +132,11 @@ DB.prototype.sync = function (b) {
 // with the move to incremental write for most cases.
 DB.prototype.write = function() {
     var o = this;
-    
+
     if (!o.syncFlag) {
         return;
     }
-    
+
     var t0 = Date.now();
     console.log('\nwriting', o.filename);
     var nrec = 0;
@@ -516,7 +516,7 @@ Table.prototype.inc = function (k, field, limitField) {
 Table.prototype.add = function (k, r, expr) {
     var o = this;
     var rOld;
-    
+
     r._version = {};
     if (k == null) {
         o.serial++;
