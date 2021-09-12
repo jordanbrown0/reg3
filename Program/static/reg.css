@@ -95,9 +95,10 @@ input.Disabled {
     color: lightgray;
 }
 
-.PickedUp {
+.MemberSubtitle {
     color: red;
     font-size: medium;
+    font-weight: normal;
 }
 
 .Menu {
@@ -105,7 +106,7 @@ input.Disabled {
 }
 
 .Menu .Item {
-    font-size: larger;    
+    font-size: larger;
 }
 
 .SearchBox {
@@ -311,13 +312,13 @@ body {
 
 .Base .Header #headerClock {
     display: inline-block;  /* NEEDSWORK: Why? */
-    width: 50%;
+    width: 20%;
     text-align: right;
 }
 
 .Base .Header #headerTitle {
     display: inline-block;  /* NEEDSWORK: Why? */
-    width: 50%;
+    width: 80%;
     text-align: left;
     font-size: larger;
     font-weight: bolder;

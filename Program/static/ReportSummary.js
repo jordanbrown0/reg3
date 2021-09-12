@@ -36,32 +36,37 @@ ReportSummary.prototype.body = function (cb) {
     table.members.reduce(
         { expr: 
             { if: [
-                { f: 'void' },
-                { addto: [ 'void', 1 ]},
-                [
-                    { if: [
-                        { f: 'pickedup' },
-                        { addto: [ 'warm', 1 ]},
-                        { addto: [ 'noShow', 1 ]}
-                    ]},
-                    { if: [
-                        atdExpr,
-                        { addto: [ 'atTheDoor', 1 ]},
-                        { addto: [ 'prereg', 1 ]}
-                    ]}
-                ]
+                { f: 'transferTo' },
+                { addto: [ 'transferred', 1 ]},
+                { if: [
+                    { f: 'void' },
+                    { addto: [ 'void', 1 ]},
+                    [
+                        { if: [
+                            { f: 'pickedup' },
+                            { addto: [ 'warm', 1 ]},
+                            { addto: [ 'noShow', 1 ]}
+                        ]},
+                        { if: [
+                            atdExpr,
+                            { addto: [ 'atTheDoor', 1 ]},
+                            { addto: [ 'prereg', 1 ]}
+                        ]}
+                    ]
+                ]}
             ]}
         },
         function (ret) {
             ret.grand = (ret.warm||0) + (ret.noShow||0);
             var body = [];
             o.lines = [
-                { v: ret.warm,      t: 'Warm bodies' },
-                { v: ret.noShow,    t: 'No show' },
-                { v: ret.prereg,    t: 'Preregistered' },
-                { v: ret.atTheDoor, t: 'At the door' },
-                { v: ret.grand,     t: 'Grand total' },
-                { v: ret.void,      t: 'Void' }
+                { v: ret.warm,          t: 'Warm bodies' },
+                { v: ret.noShow,        t: 'No show' },
+                { v: ret.prereg,        t: 'Preregistered' },
+                { v: ret.atTheDoor,     t: 'At the door' },
+                { v: ret.grand,         t: 'Grand total' },
+                { v: ret.transferred,   t: 'Transferred' },
+                { v: ret.void,          t: 'Void' }
             ];
             o.lines.forEach(function (r) {
                 body.push(tr(td(r.v||0, {className: 'Count'}), td(r.t)));

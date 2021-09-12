@@ -3,6 +3,10 @@ var lastRec = undefined;
 
 var Member = {};
 
+Member.name = function (r) {
+    return joinTruthy([r.fname, r.lname], ' ');
+};
+
 Member.schema = [
     [
         { title: 'General' },
@@ -29,7 +33,13 @@ Member.schema = [
             input: InputClassLookup },
         { field: 'amount', label: 'Amount paid', readOnly: true,
             input: InputCurrency },
-        { field: 'number', label: 'Number', readOnly: true, input: InputInt }
+        { field: 'number', label: 'Number', readOnly: true, input: InputInt },
+        { field: 'transferFrom', label: 'Transferred from', readOnly: true,
+            input: InputDBLookup, table: 'members', textField: Member.name
+        },
+        { field: 'transferTo', label: 'Transferred to', readOnly: true,
+            input: InputDBLookup, table: 'members', textField: Member.name
+        }
     ],
     [
         { title: 'Categories' },
@@ -42,30 +52,36 @@ Member.schema = [
 // Maybe should be part of a superclass.
 Member.setTitle = function () {
     var o = this;
-    Class.getDescription(o.r.class, gotDesc);
-    
-    function gotDesc(d) {
-        if (o.r.amount != undefined) {
-            d += ' - ' + cfg.currencyPrefix + o.r.amount + cfg.currencySuffix;
-        }
-        var s = joinTruthy([o.r.fname, o.r.lname], ' ') + ' - ';
-        if (o.r.void) {
-            s += 'Void, was ';
-        }
-        s += d;
-        if (o.r.pickedup) {
-            var datestr =
-                LDate.fromJSON(o.r.pickedup).toDisplay({seconds: false});
-            s = new DElement('div', s,
-                new DElement(
-                    'div',
-                    'Picked up '+datestr,
-                    {className: 'PickedUp'}
-                )
-            );
-        }
-        o.titleSpan.replaceChildren(s);
+    var title = new DElement('div');
+
+    title.appendChild(Member.name(o.r) + ' - ');
+    if (o.r.transferTo) {
+        var transferSpan = new DElement('span');
+        title.appendChild('Transferred to ', transferSpan);
+        table.members.get(o.r.transferTo, function (r) {
+            transferSpan.appendChild(Member.name(r));
+        });
+    } else if (o.r.void) {
+        title.appendChild('Void');
+    } else {
+        var classSpan = new DElement('span');
+        title.appendChild(classSpan);
+        Class.getDescription(o.r.class, function (d) {
+            if (o.r.amount != undefined) {
+                d += ' - ' + cfg.currencyPrefix + o.r.amount + cfg.currencySuffix;
+            }
+            classSpan.appendChild(d);
+        });
     }
+
+    var subtitle = new DElement('div', {className: 'MemberSubtitle'});
+
+    if (o.r.pickedup) {
+        var datestr = LDate.fromJSON(o.r.pickedup).toDisplay({seconds: false});
+        subtitle.appendChild('Picked up '+datestr);
+    }
+
+    o.titleSpan.replaceChildren(title, subtitle);
 };
 
 Member.getSchema = function () {
@@ -80,7 +96,9 @@ function MemberManager() {
         table: table.members,
         summarize: function (k, r) {
             var status;
-            if (r.void) {
+            if (r.transferTo) {
+                status = 'T';
+            } else if (r.void) {
                 status = 'X';
             } else if (r.pickedup) {
                 status = '*';
@@ -101,7 +119,7 @@ function MemberManager() {
             ));
         },
         footer: tr({ id: 'footer' },
-            td({colSpan: 2}, '* membership has been picked up')
+            td({colSpan: 2}, '* picked up / T transferred / X void')
         ),
         pick: function (k) {
             base.switchTo(new MemberDisplay(k));
@@ -133,58 +151,73 @@ MemberDisplay.prototype.activate = function () {
     var schema = Member.getSchema();
 
     table.members.get(o.k, gotRec);
-    
+
     function gotRec(r) {
         o.r = r;
-        
+
         lastKey = o.k;
         lastRec = r;
 
         o.setTitle();
 
-        if (cfg.offlinePrint) {
+        if (!r.void) {
             base.addNav([
-                { label: '&Print', func: function () {
+                { label: 'Change', key: 'Enter', func: function () {
                     if (working(true)) {
                         return;
                     }
-                    o.print(home);
+                    base.switchTo(new MemberEdit(o.k));
                 } }
             ]);
-        } else if (!r.pickedup && cfg.offlineMarkPickedUp) {
-            base.addNav([
-                { label: '&Picked Up', func: function () {
-                    if (working(true)) {
-                        return;
-                    }
-                    o.markPickedUp(function () {
-                        base.switchTo(new MemberDisplay(o.k));
-                    });
-                } }
-            ]);
-        }
-        
-        if (r.pickedup) {
-            base.addNav([
-                { label: 'Un-pick-up', perms: 'unmark',
-                    func: function () {
+            if (cfg.offlinePrint) {
+                base.addNav([
+                    { label: '&Print', func: function () {
                         if (working(true)) {
                             return;
                         }
-                        o.unmark(function () {
+                        o.print(home);
+                    } }
+                ]);
+            } else if (!r.pickedup && cfg.offlineMarkPickedUp) {
+                base.addNav([
+                    { label: '&Picked Up', func: function () {
+                        if (working(true)) {
+                            return;
+                        }
+                        o.markPickedUp(function () {
                             base.switchTo(new MemberDisplay(o.k));
                         });
+                    } }
+                ]);
+            }
+
+            if (r.pickedup) {
+                base.addNav([
+                    { label: 'Un-pick-up', perms: 'unmark',
+                        func: function () {
+                            if (working(true)) {
+                                return;
+                            }
+                            o.unmark(function () {
+                                base.switchTo(new MemberDisplay(o.k));
+                            });
+                        }
                     }
-                }
+                ]);
+            }
+
+            base.addNav([
+                { label: '&Upgrade', perms: 'upgrade', func: function () {
+                    base.switchTo(new MemberUpgrade(o.k));
+                } }
+            ]);
+
+            base.addNav([
+                { label: '&Transfer', perms: 'transfer', func: function () {
+                    base.switchTo(new MemberTransfer(o.k, o.r));
+                } }
             ]);
         }
-
-        base.addNav([
-            { label: '&Upgrade', perms: 'upgrade', func: function () {
-                base.switchTo(new MemberUpgrade(o.k));
-            } }
-        ]);
-
         if (r.void) {
             base.addNav([
                 { label: 'Unvoid', perms: 'void', func: function () {
@@ -213,10 +246,6 @@ MemberDisplay.prototype.activate = function () {
             schema: schema,
             readOnly: true,
             cancel: home,
-            doneButton: 'Change',
-            done: function () {
-                base.switchTo(new MemberEdit(o.k));
-            }
         });
         o.appendChild(editor);
         editor.activate();
@@ -253,7 +282,7 @@ MemberDisplay.prototype.markPickedUp = function (cb) {
 
 MemberDisplay.prototype.unmark = function (cb) {
     var o = this;
-    
+
     if (o.r.pickedup) {
         o.r.pickedup = '';
         table.members.put(o.k, o.r, null, function (rNew) { cb(); });
@@ -264,7 +293,7 @@ MemberDisplay.prototype.unmark = function (cb) {
 
 MemberDisplay.prototype.setVoid = function (v, cb) {
     var o = this;
-    
+
     o.r.void = v;
     table.members.put(o.k, o.r, null, function (rNew) { cb(); });
 };
@@ -283,7 +312,7 @@ MemberEdit.prototype.activate = function () {
     var schema = Member.getSchema();
 
     table.members.get(o.k, gotRec);
-    
+
     function gotRec(r) {
         o.r = r;
         o.setTitle();
@@ -297,7 +326,7 @@ MemberEdit.prototype.activate = function () {
         o.appendChild(o.editor);
         o.editor.activate();
     }
-    
+
     function done() {
         if (working(true)) {
             return;
@@ -339,7 +368,7 @@ NewMember.prototype.activate = function () {
 
 function NewMemberEditor(r) {
     var o = this;
-    o.titlespan = new DElement('span');
+    o.classInfo = new DElement('span');
     o.r = r;
     NewMemberEditor.sup.constructor.call(o,'div');
 }
@@ -357,20 +386,8 @@ NewMemberEditor.prototype.activate = function () {
             if (working(true)) {
                 return;
             }
-            Server.newMembershipNumber(function (n) {
-                if (!n) {
-                    alert('No membership numbers available!');
-                    working(false);
-                    return;
-                }
-                o.r.number = n;
-                var timestampExpr = cfg.offlineRealTime
-                    ? { dateTime: [] }
-                    : cfg.offlineAsOf;
-                var serverDate = { setf: [ 'entered', timestampExpr ] };
-                table.members.add(null, o.r, serverDate, function (k) {
-                    base.switchTo(new MemberDisplay(k));
-                });
+            o.add(function (k) {
+                base.switchTo(new MemberDisplay(k));
             });
         },
         cancel: home
@@ -396,17 +413,78 @@ NewMemberEditor.prototype.activate = function () {
     Class.getDescription(o.r.class, gotDesc);
 
     function gotDesc(d) {
-        var s = 'New member - ' + d;
         if (o.r.amount != undefined) {
-            s += ' - ' + cfg.currencyPrefix + o.r.amount + cfg.currencySuffix;
+            d += ' - ' + cfg.currencyPrefix + o.r.amount + cfg.currencySuffix;
         }
-        o.titlespan.replaceChildren(s);
+        o.classInfo.replaceChildren(d);
     }
+};
+
+NewMemberEditor.prototype.add = function (cb) {
+    var o = this;
+
+    if (o.r.number) {
+        addRec();
+    } else {
+        Server.newMembershipNumber(gotNumber);
+    }
+
+    function gotNumber(n) {
+        if (!n) {
+            alert('No membership numbers available!');
+            working(false);
+            return;
+        }
+        o.r.number = n;
+        addRec();
+    }
+
+    function addRec() {
+        var timestampExpr = cfg.offlineRealTime
+            ? { dateTime: [] }
+            : cfg.offlineAsOf;
+        var serverDate = { setf: [ 'entered', timestampExpr ] };
+        table.members.add(null, o.r, serverDate, cb);
+    };
 };
 
 NewMemberEditor.prototype.title = function () {
     var o = this;
-    return (o.titlespan);
+    return (new DElement('span', 'New member -', o.classInfo));
+};
+
+function MemberTransfer(k, r) {
+    var o = this;
+    o.rTransferFrom = r;
+    var r2 = deepishCopy(r);
+    r2.transferFrom = k;
+    MemberTransfer.sup.constructor.call(o, r2);
+}
+
+extend(NewMemberEditor, MemberTransfer);
+
+MemberTransfer.prototype.title = function () {
+    var o = this;
+    return (new DElement('span', 'Transfer - ', o.classInfo));
+};
+
+MemberTransfer.prototype.add = function () {
+    var o = this;
+
+    // First, add the new record.
+    MemberTransfer.sup.add.call(o, function (k) {
+        // The new record has been added, and its key is k.
+        // Record that as the transfer-to of the old record, and mark it void.
+        o.rTransferFrom.transferTo = k;
+        o.rTransferFrom.void = true;
+        // Write the old record.
+        table.members.put(o.r.transferFrom, o.rTransferFrom, null,
+            function (rNew) {
+                // Continue on to edit the new record.
+                base.switchTo(new MemberDisplay(k));
+            }
+        );
+    });
 };
 
 function MemberUpgrade(k) {

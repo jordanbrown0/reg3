@@ -9,10 +9,10 @@ function Home()
         { label: '&New member', perms: 'newMember', page: NewMember }
     );
     if (lastKey) {
-        var lf = joinTruthy([lastRec.lname, lastRec.fname], ', ');
+        var lastRecName = Member.name(lastRec);
         items.push({
             label: '&Fix last member',
-            label2: ' (' + lf + ')',
+            label2: ' (' + lastRecName + ')',
             func: function () { base.switchTo(new MemberDisplay(lastKey)); }
         });
     }

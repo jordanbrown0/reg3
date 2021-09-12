@@ -12,11 +12,16 @@ function Editor(r, params)
         className: 'Editor',
     });
     o.r = r;
-    o.params = Object.assign({
+    o.params = {
         cancelButton: 'Cancel',
-        doneButton: 'Done',
         r: r
-    }, params);
+    }
+    if (params.done) {
+        Object.assign(o.params, {
+            doneButton: 'Done'
+        });
+    }
+    Object.assign(o.params, params);
 
     if (o.params.readOnly) {
         o.addClass('Disabled');
@@ -29,14 +34,18 @@ extend(DElement, Editor);
 
 Editor.prototype.activate = function () {
     var o = this;
-    base.addNav([
-        {
-            label: o.params.doneButton,
-            key: 'Enter',
-            func: function () {
-                o.done();
+    if (o.params.done) {
+        base.addNav([
+            {
+                label: o.params.doneButton,
+                key: 'Enter',
+                func: function () {
+                    o.done();
+                }
             }
-        },
+        ]);
+    }
+    base.addNav([
         {
             label: o.params.cancelButton,
             key: 'Escape',

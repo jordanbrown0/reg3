@@ -179,6 +179,7 @@ var stationSchema = [
                 { reports: 'Reports' },
                 { upgrade: 'Process upgrades' },
                 { adHocUpgrades: 'Ad hoc upgrades (requires "Process upgrades")' },
+                { transfer: 'Process transfers' },
                 { unmark: 'Mark membership as not-picked-up' },
                 { void: 'Void / unvoid memberships' }
             ],

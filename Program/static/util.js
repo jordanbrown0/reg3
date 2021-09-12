@@ -301,6 +301,27 @@ function isEmpty(obj) {
     return true;
 }
 
+function deepishCopy(obj) {
+    if (obj instanceof Function) {
+        return obj;
+    }
+    if (obj instanceof Array) {
+        var a = [];
+        for (var i in obj) {
+            a[i] = deepishCopy(obj[i]);
+        }
+        return a;
+    }
+    if (obj instanceof Object) {
+        var newobj = {};
+        for (var k in obj) {
+            newobj[k] = deepishCopy(obj[k]);
+        }
+        return newobj;
+    }
+    return obj;
+}
+
 // --- Polyfills ---
 
 // https://github.com/uxitten/polyfill/blob/master/string.polyfill.js
