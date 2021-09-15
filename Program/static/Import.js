@@ -6,7 +6,7 @@ function Import()
     var fileInput = new DElement('input', {
         type: 'file',
         onchange: function () {
-            db.reg.import(fileInput.n.files.item(0),
+            db.reg.importResync(fileInput.n.files.item(0),
                 function (conflicts) {
                     base.switchTo(new ConflictListResolver(conflicts));
                 }

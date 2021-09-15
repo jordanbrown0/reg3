@@ -15,7 +15,7 @@ Export.prototype.activate = function () {
         base.addNav([
             { label: 'Cancel', key: 'Escape', func: function () { home(); } },
             { label: '&All', func: function () {
-                db.reg.export();
+                db.reg.exportResync();
             } },
             { label: '&Selected', func: function () {
                 o.exportSelected();
@@ -28,7 +28,7 @@ Export.prototype.exportSelected = function () {
     var o = this;
 
     var selected = o.bools.get();
-    db.reg.export(selected);
+    db.reg.exportResync(selected);
 };
 
 Export.prototype.title = 'Export...';

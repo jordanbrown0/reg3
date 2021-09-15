@@ -149,24 +149,45 @@ WaitServer.prototype.title = "Uh oh...";
 // Pseudo-REST support
 //
 // This is kind of half RPC and half REST.
-// For upload, you PUT a file and get back RPC results.
-// For download, you POST an RPC request and download a file.
 //
-// One might imagine a mechanism that would carry a file
-// and request in a multi-part POST or PUT, and would carry
+// For upload, you PUT a multi-part form with a request and a file.
+// NEEDSWORK:  This really belongs better integrated into the primary RPC
+// mechanism, since it is now mostly the same.
+//
+// For download, you POST an RPC request and download a file.
+// One might imagine a mechanism that return
 // a file and response in a multi-part response.  However,
 // while the protocol would allow it I don't think the browser
-// would cooperate in either direction.
+// would cooperate.
+// This might be part of the picture:
+// function download(filename, text) {
+//   var element = document.createElement('a');
+//   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+//   element.setAttribute('download', filename);
+//   element.style.display = 'none';
+//   document.body.appendChild(element);
+//   element.click();
+//   document.body.removeChild(element);
+// }
 //
 var REST = {};
 
-REST.importDB = function (dbName, file, cb) {
-    RESTupload('/REST/importDB/'+dbName, file, cb);
+REST.importResync = function (dbName, file, cb) {
+    RESTupload('importResync', file, [dbName], cb);
 };
 
-RESTupload = function (url, file, success) {
+REST.importDBF = function (file, dbName, tName, map, cb) {
+    RESTupload('importDBF', file, [dbName, tName, map], cb);
+};
+
+REST.importCSV = function (file, dbName, tName, map, headers, cb) {
+    RESTupload('importCSV', file, [dbName, tName, map, headers], cb);
+};
+
+RESTupload = function (m, file, args, success) {
+    Debug.rpc(m, 'file', args);
     var x = new XMLHttpRequest();
-    x.open('PUT', url);
+    x.open('PUT', '/CallMulti');
     x.onload = function () {
         var r = JSON.parse(x.responseText);
         Debug.rpc('REST <==', r);
@@ -182,12 +203,17 @@ RESTupload = function (url, file, success) {
     };
     x.onerror = rpcError;
     Debug.rpc('REST ==>', file.name);
-    x.send(file);
+    var formData = new FormData();
+    if (file) {
+        formData.append('file', file);
+    }
+    formData.append('request', JSON.stringify({name: m, params: args}));
+    x.send(formData);
 };
 
-REST.exportDB = function (name) {
+REST.exportResync = function (name) {
     var args = Array.prototype.slice.call(arguments);
-    RESTdownload('exportDB', args);
+    RESTdownload('exportResync', args);
 };
 
 RESTdownload = function (method, params) {

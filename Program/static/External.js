@@ -83,8 +83,8 @@ ExternalImport.prototype.activate = function () {
     var schema = [[
         {
             field: 'file',
-            input: InputText,
-            label: 'Import from server file',
+            input: InputFile,
+            label: 'Import from file',
             required: true
         },
         {

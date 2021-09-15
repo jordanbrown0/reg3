@@ -66,7 +66,7 @@ DB.prototype.load = async function() {
 };
 
 // NEEDSWORK:  Should this be single-threaded?
-DB.prototype.import = async function(stream) {
+DB.prototype.importResync = async function(stream) {
     var o = this;
     var t0 = Date.now();
     var nrec = 0;
@@ -80,7 +80,7 @@ DB.prototype.import = async function(stream) {
     pipeline.on('data', function (d) {
         nrec++;
         var t = o.getTable(d.value.t);
-        var result = t.import(d.value.k, d.value.r);
+        var result = t.importResync(d.value.k, d.value.r);
         if (result) {
             conflicts.push(result);
         }
@@ -138,7 +138,6 @@ DB.prototype.write = function() {
     }
 
     var t0 = Date.now();
-    console.log('\nwriting', o.filename);
     var nrec = 0;
     var fd = fs.openSync(o.filename+'.new', 'w', 0o600);
     for (var tName in o.tables) {
@@ -156,7 +155,7 @@ DB.prototype.write = function() {
     }
     fs.closeSync(fd);
     fs.renameSync(o.filename+'.new', o.filename);
-    console.log('wrote',o.name,nrec,'records took', (Date.now()-t0)+'ms');
+    console.log('\nwrote',o.name,nrec,'records took', (Date.now()-t0)+'ms');
 };
 
 DB.prototype.writeStream = function (stream, tables) {
@@ -561,7 +560,7 @@ Table.prototype.bump = function (r) {
 //     result:  blank (but appropriately versioned) record that the caller
 //         should fill in with the results of the merge, then put.
 //
-Table.prototype.import = function (k, rImport) {
+Table.prototype.importResync = function (k, rImport) {
     var o = this;
     var rExist = o.records[k];
     if (rExist) {
@@ -631,6 +630,12 @@ DBMS.getDB = async function (name) {
     }
     assert(!db.loadInProgress, 'still loading!');
     return (db);
+};
+
+DBMS.getTable = async function (dbName, tName) {
+    var db = await DBMS.getDB(dbName);
+    var t = db.getTable(tName);
+    return (t);
 };
 
 var serverID = undefined;

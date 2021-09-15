@@ -1,3 +1,7 @@
+// This is not used at the moment; DBFstream.js is used.
+// But it's a lot simpler than DBFstream, and it can do random
+// access, so I don't want to just throw it away.
+
 const fs = require('fs');
 const { assert, mkdate } = require('./utils');
 const Import = require('./Import');
@@ -66,6 +70,11 @@ DBF.prototype.read = async function(n) {
     var o = this;
     var buf = Buffer.alloc(o.recSize);
     var res = await o.fd.read(buf, 0, buf.length, o.hdrSize + n*o.recSize);
+    return (o.convert(buf));
+};
+
+DBF.prototype.convert = function (buf) {
+    var o = this;
     var ret = {};
     o.map.forEach(function (m) {
         var v = null;

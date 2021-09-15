@@ -30,12 +30,15 @@ const cookieParser = require('cookie-parser');
 const app = express();
 // const bodyParser = require('body-parser');
 const DBMS = require('./DBMS');
-const DBF = require('./DBF');
+const DBF = require('./DBFstream');
 const CSV = require('./CSV');
 const label = require('myclinic-drawer-printer').api;
 const sprintf = require('sprintf-js').sprintf;
 const Expression = require('./Expression');
 const { assert } = require('./utils');
+const multer = require('multer');
+const upload = multer({ dest: 'Temp/' });
+const fs = require('fs');
 
 // NEEDSWORK:  general trace mechanism (controlled from client UI?)
 var rpcVerbose = 0;
@@ -61,54 +64,54 @@ methods.DBload = async function (dbName) {
 };
 
 methods.DBadd = async function (dbName, tName, k, r, expr) {
-    return ((await getTable(dbName, tName)).add(k, r, expr));
+    return ((await DBMS.getTable(dbName, tName)).add(k, r, expr));
 };
 
 methods.DBlist = async function (dbName, tName, params) {
-    return ((await getTable(dbName, tName)).list(params));
+    return ((await DBMS.getTable(dbName, tName)).list(params));
 }
 
 methods.DBreduce = async function (dbName, tName, params) {
-    return ((await getTable(dbName, tName)).reduce(params));
+    return ((await DBMS.getTable(dbName, tName)).reduce(params));
 }
 
 methods.DBget = async function(dbName, tName, k) {
-    return ((await getTable(dbName, tName)).get(k));
+    return ((await DBMS.getTable(dbName, tName)).get(k));
 };
 
 methods.DBgetOrAdd = async function(dbName, tName, k, rDef, expr) {
-    return ((await getTable(dbName, tName)).getOrAdd(k, rDef, expr));
+    return ((await DBMS.getTable(dbName, tName)).getOrAdd(k, rDef, expr));
 };
 
 methods.DBgetOrNull = async function(dbName, tName, k) {
-    return ((await getTable(dbName, tName)).getOrNull(k));
+    return ((await DBMS.getTable(dbName, tName)).getOrNull(k));
 };
 
 methods.DBput = async function (dbName, tName, k, r, expr) {
-    return ((await getTable(dbName, tName)).put(k, r, expr));
+    return ((await DBMS.getTable(dbName, tName)).put(k, r, expr));
 };
 
 methods.DBdelete = async function (dbName, tName, k, r) {
-    return ((await getTable(dbName, tName)).delete(k, r));
+    return ((await DBMS.getTable(dbName, tName)).delete(k, r));
 };
 
 methods.DBzap = async function (dbName, tName) {
-    return ((await getTable(dbName, tName)).zap());
+    return ((await DBMS.getTable(dbName, tName)).zap());
 };
 
 methods.DBinc = async function (dbName, tName, k, field, limitField) {
-    return ((await getTable(dbName, tName)).inc(k, field, limitField));
+    return ((await DBMS.getTable(dbName, tName)).inc(k, field, limitField));
 };
 
 methods.DBlistTables = async function (dbName) {
     return ((await DBMS.getDB(dbName)).listTables());
 };
 
-methods.importDBF = async function (dbName, tName, filename, map) {
-    var t = await getTable(dbName, tName);
+methods.importDBF = async function (file, dbName, tName, map) {
+    var t = await DBMS.getTable(dbName, tName);
     var t0 = Date.now();
-    var dbf = new DBF(filename, {map: map});
-    await dbf.load();
+    var n = 0;
+    var dbf = new DBF(file.path, {map: map});
     t.sync(false);
     await dbf.all(function (r) {
         if (r._deleted) {
@@ -119,28 +122,35 @@ methods.importDBF = async function (dbName, tName, filename, map) {
             // Adding a tombstone would be pointless because this is a new
             // record, from our DBMS's point of view.
             // We'll just ignore dBASE deleted records for now.
-            // Is that the best answer?
+            // Is that the best answer? Issue #179.
             return;
         }
         delete r._deleted;
         t.add(null, r, null);
+        n++;
     });
     await dbf.close();
     t.sync(true);
-    console.log('took', Date.now()-t0);
+    console.log('imported',n,'records from', file.originalname,
+        'took', Date.now()-t0, 'ms');
 };
+methods.importDBF.file = true;
 
-methods.importCSV = async function (dbName, tName, filename, map, headers) {
-    var t = await getTable(dbName, tName);
+methods.importCSV = async function (file, dbName, tName, map, headers) {
+    var t = await DBMS.getTable(dbName, tName);
     var t0 = Date.now();
-    var csv = new CSV(filename, {map: map, headers: headers});
+    var n = 0;
+    var csv = new CSV(file.path, {map: map, headers: headers});
     t.sync(false);
     await csv.all(function (r) {
         t.add(null, r, null);
+        n++;
     });
     t.sync(true);
-    console.log('took', Date.now()-t0);
+    console.log('imported',n,'records from', file.originalname,
+        'took', Date.now()-t0, 'ms');
 };
+methods.importCSV.file = true;
 
 methods.defaultServerName = function () {
     return (global.process.env.COMPUTERNAME + ' ' + global.process.cwd());
@@ -231,24 +241,11 @@ methods.getServerID = async function () {
     return (await DBMS.getServerID());
 };
 
-var totalIdle = 0;
-var totalBusy = 0;
-var tPrev = null;
-
-async function busyCall(f) {
-    var tStart = hrtime();
-
-    await f();
-
-    var tEnd = hrtime();
-    if (tPrev) {
-        var idle = tStart - tPrev;
-        var busy = tEnd - tStart;
-        totalIdle += idle;
-        totalBusy += busy;
-    }
-    tPrev = tEnd;
-}
+methods.importResync = async function (file, dbName) {
+    var db = await DBMS.getDB(dbName);
+    return (await db.importResync(fs.createReadStream(file.path)));
+};
+methods.importResync.file = true;
 
 async function methodCallMiddleware(req, res, next)
 {
@@ -260,10 +257,17 @@ async function methodCallMiddleware(req, res, next)
             break;
         case 2:
             console.log('<==', body);
+            if (req.file) {
+                console.log('<==', req.file.path);
+            }
             break;
         }
 
-        var ret = await methodCall(body);
+        var ret = await methodCall(body, req.file);
+        
+        if (req.file) {
+            fs.unlinkSync(req.file.path);
+        }
 
         switch (rpcVerbose) {
         case 2:
@@ -275,39 +279,34 @@ async function methodCallMiddleware(req, res, next)
     });
 }
 
-var avgBusy = 0;
-var busyTick = 1000;    // ms
-
-function tick() {
-    const alpha = 0.2;
-    var newBusy = totalBusy / (busyTick*1000*1000);
-    totalBusy = 0;
-    totalIdle = 0;
-    avgBusy += alpha*(newBusy-avgBusy);
-    if (showBusy) {
-        process.stdout.write(
-            sprintf("\r%5.1f%% busy %4.0fM",
-                avgBusy*100,
-                global.process.memoryUsage().rss/1024/1024
-            )
-        );
-    }
+// This function accepts a multipart JSON-RPC request,
+// perhaps including a file, and returns a JSON-RPC response.
+async function multiMiddleware(req, res, next) {
+    req.body = JSON.parse(req.body.request);
+    next();
 }
 
-setInterval(tick, busyTick).unref();
-
-async function methodCall(req)
-{
-    assert(req.name, 'No req.name');
-    assert(req.params, 'No req.params');
-    var method = methods[req.name];
+// This function accepts a file and params, and returns a JSON-RPC response.
+async function methodCall(body, file) {
+    assert(body.name, 'No body.name');
+    assert(body.params, 'No body.params');
+    var method = methods[body.name];
     if (!method) {
-        return ({error: 'No such method '+req.name});
+        return ({error: 'No such method '+body.name});
     }
-    var params = req.params;
+    if (method.file && !file) {
+        return ({error: 'no file supplied'});
+    }
+    if (file && !method.file) {
+        return ({error: 'unwanted file supplied'});
+    }
+    var params = body.params;
+    if (file) {
+        params.unshift(file);
+    }
     if (method.length != params.length && !method.varargs) {
         var msg = sprintf("%s: argument mismatch, expected %d got %d",
-            req.name, method.length, params.length);
+            body.name, method.length, params.length);
         console.log(msg);
         return ({ error: msg });
     }
@@ -329,18 +328,12 @@ async function methodCall(req)
     return ({ response: retval });
 }
 
-async function getTable(dbName, tName) {
-    var db = await DBMS.getDB(dbName);
-    var t = db.getTable(tName);
-    return (t);
-};
-
 // These methods accept a result object (a subclass of a writable stream)
 // and an argument list from the caller, and must emit an appropriate file
 // onto the stream.
 var restExportMethods = {};
 
-restExportMethods.exportDB = async function (res, dbName, tables) {
+restExportMethods.exportResync = async function (res, dbName, tables) {
     assert(dbName, 'No dbName');
     res.attachment(dbName+'.json');
     var db = await DBMS.getDB(dbName);
@@ -403,56 +396,46 @@ async function exportMethodCall(req, res) {
     res.end();
 }
 
-var restImportMethods = {};
+var totalIdle = 0;
+var totalBusy = 0;
+var tPrev = null;
 
-restImportMethods.importDB = async function (params, stream) {
-    var db = await DBMS.getDB(params.db);
-    return (await db.import(stream));
-};
+async function busyCall(f) {
+    var tStart = hrtime();
 
-// This function accepts a file, and returns a JSON-RPC response.
-async function importMiddleware(req, res, next) {
-    await busyCall(async function () {
-        if (rpcVerbose) {
-            console.log('<==', req.url);
-        }
-        ret = await importMethodCall(req.params, req);
+    await f();
 
-        switch (rpcVerbose) {
-        case 2:
-            console.log('==>', ret);
-            break;
-        }
-
-        res.json(ret);
-        res.end();
-    });
+    var tEnd = hrtime();
+    if (tPrev) {
+        var idle = tStart - tPrev;
+        var busy = tEnd - tStart;
+        totalIdle += idle;
+        totalBusy += busy;
+    }
+    tPrev = tEnd;
 }
 
-// This function accepts a file, and returns a JSON-RPC response.
-async function importMethodCall(params, stream) {
-    var method = restImportMethods[params.name];
-    if (!method) {
-        return ({error: 'No such import method '+params.name});
-    }
+var avgBusy = 0;
+var busyTick = 1000;    // ms
 
-    var retval;
-    try {
-        retval = await method(params, stream);
-    } catch (e) {
-        // This is a programmer error.
-        // It would be good if we could *both* return an error *and*
-        // dump one on the Node.js console.
-        // Maybe we should have two exception classes, one for
-        // server-side programmer errors and one for caller errors.
-        console.log(e);
-        return ({ error: e.toString() });
+function tick() {
+    const alpha = 0.2;
+    var newBusy = totalBusy / (busyTick*1000*1000);
+    totalBusy = 0;
+    totalIdle = 0;
+    avgBusy += alpha*(newBusy-avgBusy);
+    if (showBusy) {
+        process.stdout.write(
+            sprintf("\r%5.1f%% busy %4.0fM",
+                avgBusy*100,
+                global.process.memoryUsage().rss/1024/1024
+            )
+        );
     }
-    if (retval === undefined) {
-        return ({});
-    }
-    return ({ response: retval });
 }
+
+// The .unref() keeps this from keeping the process alive.
+setInterval(tick, busyTick).unref();
 
 process.title = 'Registration Server';
 
@@ -508,11 +491,12 @@ DBMS.init().then(function () {
     app.route('/Call')
         .put(express.json())
         .put(methodCallMiddleware);
+    app.route('/CallMulti')
+        .put(upload.single('file'), multiMiddleware)
+        .put(methodCallMiddleware);
     app.route('/REST')
         .post(express.urlencoded({extended: true}))
         .post(exportMiddleware);
-    app.route('/REST/:name/:db')
-        .put(importMiddleware);
     app.use(cookieParser());
     app.use(assignCookie);
     app.use(express.static('./static'));

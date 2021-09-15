@@ -234,6 +234,19 @@ InputBool.prototype.set = function (value) {
     o.content.n.checked = value;
 };
 
+function InputFile(params)
+{
+    var o = this;
+    InputFile.sup.constructor.call(o, 'file', params);
+}
+
+extend(InputInput, InputFile);
+
+InputFile.prototype.get = function (value) {
+    var o = this;
+    return (o.content.n.files.item(0));
+};
+
 function InputDate(params)
 {
     var o = this;

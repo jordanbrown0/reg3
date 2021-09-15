@@ -164,29 +164,9 @@ CSV.prototype.all = async function(cb) {
             // end in a newline (which would generate a record) from an empty
             // line which does not end in a newline.
             stream.close();
-            console.log('finished import', o.fileName);
             resolve();
         });
     }));
 };
-
-
-    // o.fields.forEach(function (f) {
-        // var s = buf.toString('ascii', f.off, f.off+f.length).trimEnd()
-        // switch (f.type) {
-        // case 'N':
-            // ret[f.name] = parseFloat(s);
-            // break;
-        // case 'd':
-            // if (s) {
-                // rec[f.name] = true;
-            // }
-            // break;
-        // default:
-            // ret[f.name] = s;
-            // break;
-        // }
-    // });
-    // return (ret);
 
 module.exports = exports = CSV;

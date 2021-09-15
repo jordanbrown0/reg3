@@ -26,15 +26,15 @@ DB.prototype.listTables = function (cb) {
     rpc.DBlistTables(o.dbName, cb);
 };
 
-DB.prototype.import = function (file, cb) {
+DB.prototype.importResync = function (file, cb) {
     var o = this;
-    REST.importDB(o.dbName, file, cb);
+    REST.importResync(o.dbName, file, cb);
 };
 
-DB.prototype.export = function (tables) {
+DB.prototype.exportResync = function (tables) {
     var o = this;
     tables = tables || null;
-    REST.exportDB(o.dbName, tables);
+    REST.exportResync(o.dbName, tables);
 };
 
 // Params:
@@ -161,13 +161,13 @@ DBTable.prototype.externalImport = function (file, type, map, cb) {
     var o = this;
     switch(type) {
     case 'DBF':
-        rpc.importDBF(o.dbName, o.tName, file, map, cb);
+        REST.importDBF(file, o.dbName, o.tName, map, cb);
         break;
     case 'CSVh':
-        rpc.importCSV(o.dbName, o.tName, file, map, true, cb);
+        REST.importCSV(file, o.dbName, o.tName, map, true, cb);
         break;
     case 'CSV':
-        rpc.importCSV(o.dbName, o.tName, file, map, false, cb);
+        REST.importCSV(file, o.dbName, o.tName, map, false, cb);
         break;
     default:
         throw new Error('unknown import type '+type);
