@@ -4,7 +4,7 @@ const StreamValues = require('stream-json/streamers/StreamValues');
 const fs = require('fs');
 const Version = require('./version');
 const Expression = require('./Expression');
-const { assert } = require('./utils.js');
+const { assert, log } = require('./utils.js');
 const Concurrency = require('./Concurrency.js');
 
 var versionVerbose = false;
@@ -24,7 +24,7 @@ DB.prototype.load = async function() {
     var o = this;
     var t0 = Date.now();
     var nrecs = 0;
-    console.log('\nstarting load', o.name);
+    log('starting load', o.name);
     assert(!o.loadInProgress, 'DB.load entered reentrantly!');
     o.loadInProgress = true;
     var pipeline = new Chain([
@@ -42,7 +42,7 @@ DB.prototype.load = async function() {
         pipeline.on('end', function () {
             o.loadInProgress = false;
             pipeline.destroy();
-            console.log('\nfinished load',
+            log('finished load',
                 o.name,
                 nrecs, 'records took',
                 (Date.now()-t0)+'ms'
@@ -55,10 +55,10 @@ DB.prototype.load = async function() {
             o.loadInProgress = false;
             pipeline.destroy();
             if (e.code == 'ENOENT') {
-                console.log('nonexistent', o.name);
+                log('nonexistent', o.name);
                 resolve();
             } else {
-                console.log('load error', o.name);
+                log('load error', o.name);
                 reject(e);
             }
         });
@@ -89,7 +89,7 @@ DB.prototype.importResync = async function(stream) {
     return (new Promise(function (resolve, reject) {
         pipeline.on('end', function () {
             o.write();
-            console.log('\nfinished import',
+            log('finished import',
                 nrec, 'records',
                 conflicts.length, 'conflicts',
                 (Date.now()-t0)+'ms'
@@ -102,8 +102,8 @@ DB.prototype.importResync = async function(stream) {
         // files to be effectively truncated rather than
         // reported.
         pipeline.on('error', function (e) {
-            console.log('\nimport pipeline error');
-            console.log(e);
+            log('import pipeline error');
+            log(e);
             resolve();
         });
     }));
@@ -155,7 +155,7 @@ DB.prototype.write = function() {
     }
     fs.closeSync(fd);
     fs.renameSync(o.filename+'.new', o.filename);
-    console.log('\nwrote',o.name,nrec,'records took', (Date.now()-t0)+'ms');
+    log('wrote',o.name,nrec,'records took', (Date.now()-t0)+'ms');
 };
 
 DB.prototype.writeStream = function (stream, tables) {
@@ -175,7 +175,7 @@ DB.prototype.writeStream = function (stream, tables) {
             stream.write('\n');
         });
     });
-    console.log('\nexport finished', nrecs, 'records took', (Date.now()-t0)+'ms');
+    log('export finished', nrecs, 'records took', (Date.now()-t0)+'ms');
 };
 
 DB.prototype.writeRec = function (tName, k, r) {
@@ -191,7 +191,7 @@ DB.prototype.writeRec = function (tName, k, r) {
     fs.writeSync(fd, '\n');
     fs.fsyncSync(fd);
     fs.closeSync(fd);
-    console.log('wrote',o.name,'record took', (Date.now()-t0)+'ms');
+    log('wrote',o.name,'record took', (Date.now()-t0)+'ms');
 };
 
 DB.prototype.listTables = function () {
@@ -567,23 +567,23 @@ Table.prototype.importResync = function (k, rImport) {
         switch (Version.compare(rExist._version, rImport._version)) {
         case 0: // Equal
             if (versionVerbose) {
-                console.log('equal', o.name, k);
+                log('equal', o.name, k);
             }
             return (null);
         case 1: // Existing is newer
             if (versionVerbose) {
-                console.log('existing is newer', o.name, k);
+                log('existing is newer', o.name, k);
             }
             return (null);
         case 2: // Import is newer
             o.records[k] = rImport;
             if (versionVerbose) {
-                console.log('updated', o.name, k);
+                log('updated', o.name, k);
             }
             return (null);
         case 3: // Conflict
             if (versionVerbose) {
-                console.log('conflict', o.name, k);
+                log('conflict', o.name, k);
             }
             return ({
                 t: o.name,
@@ -598,7 +598,7 @@ Table.prototype.importResync = function (k, rImport) {
         }
     } else {
         if (versionVerbose) {
-            console.log('created', o.name, k);
+            log('created', o.name, k);
         }
         o.records[k] = rImport;
         return (null);
@@ -680,7 +680,7 @@ DBMS.init = async function () {
             t.add(rkey, { id: serverID }, null);
         }
     }
-    console.log('Server ID', serverID);
+    log('Server ID', serverID);
 };
 
 DBMS.getServerID = function () {

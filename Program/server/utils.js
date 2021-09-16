@@ -27,4 +27,20 @@ utils.mkdate = function (year, month, day, hours, minutes, seconds) {
     return (ret);
 }
 
+var logOnNewLine = true;
+
+utils.log = function () {
+    if (!logOnNewLine) {
+        process.stdout.write('\n');
+    }
+    console.log.apply(console, arguments);
+    logOnNewLine = true;
+};
+
+utils.status = function (s) {
+    process.stdout.write('\r');
+    process.stdout.write(s);
+    logOnNewLine = false;
+};
+
 module.exports = exports = utils;

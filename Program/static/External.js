@@ -28,6 +28,14 @@ var externalImportSchema = [
                 CSV: 'CSV - Comma Separated (Excel compatible)'
             }
         },
+        { field: 'encoding', label: 'Encoding', required: true,
+            input: InputSelect,
+            default: 'utf8',
+            options: {
+                latin1: 'ASCII / ISO 8859-1 / ISO Latin 1',
+                utf8: 'UTF-8'
+            }
+        },
         { field: 'map',
             label: 'Field map',
             input: InputMulti,
@@ -117,13 +125,14 @@ ExternalImport.prototype.activate = function () {
 ExternalImport.prototype.import = function (r) {
     var o = this;
     table.externalImport.get(r.map, function (rMap) {
+        var t = table[rMap.table];
         if (r.zap) {
-            table[rMap.table].zap(doImport);
+            t.zap(doImport);
         } else {
             doImport();
         }
         function doImport() {
-            table[rMap.table].externalImport(r.file, rMap.type, rMap.map, home);
+            t.externalImport(r.file, rMap, home);
         }
     });
 };

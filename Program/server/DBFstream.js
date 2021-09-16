@@ -1,66 +1,70 @@
 const fs = require('fs');
 const { assert, mkdate } = require('./utils');
-const Import = require('./Import');
+
+function DBFField(off, name, type, length, dec) {
+    var o = this;
+    o.off = off;
+    o.name = name.toLowerCase();
+    o.type = type;
+    o.length = length;
+    o.dec = dec;
+    o.convert = DBFConverters[o.type] || DBFConverters.def;
+}
+
+DBFField.fromBuffer = function (off, buf) {
+    let name = buf.toString('ascii', 0, buf.indexOf(0)).toLowerCase();
+    let type = buf.toString('ascii', 11, 12);
+    let length = buf.readUInt8(16);
+    let dec = buf.readUInt8(17);
+    return (new DBFField(off, name, type, length, dec));
+};
+
+DBFField.prototype.get = function (buf) {
+    var o = this;
+    return (o.convert(buf.toString('ascii', o.off, o.off+o.length).trimEnd()));
+};
+
+var DBFConverters = {};
+
+DBFConverters.def = function (v) {
+    return (v ? v : undefined);
+};
+
+DBFConverters.N = function (v) {
+    // NEEDSWORK duplicated in Import.js
+    v = parseFloat(v.replace(/[^-0-9.]/g,''));
+    if (isNaN(v)) {
+        return (undefined);
+    }
+    return (v);
+};
+
+DBFConverters.D = function (v) {
+    if (v) {
+        var year = parseInt(v.slice(0, 4));
+        var month = parseInt(v.slice(4, 6));
+        var day = parseInt(v.slice(6, 8));
+        return (mkdate(year, month, day));
+    }
+    return (undefined);
+};
+
+DBFConverters.L = function (v) {
+    return ("TY".includes(v.toUpperCase()));
+};
+
+DBFConverters.d = function (v) {
+    return (v ? true : undefined);
+};
 
 function DBFstream(name, params) {
     var o = this;
     o.fileName = name;
-    assert(params.map, 'No map');
-    // dBASE field names are upper case in the database but are case
-    // insensitive.  We allow our map to be case insensitive too by
-    // uppercasing the names specified.
-    o.map = [];
-    params.map.forEach(function (ent) {
-        var cnvfunc = Import.converters[ent.conversion];
-        assert(cnvfunc, 'Bad conversion '+ent.conversion);
-        o.map.push({
-            from: ent.from.toUpperCase(),
-            to: ent.to,
-            convert: cnvfunc
-        });
-    });
-
-    o.autoLower = params.autoLower;
 }
-
-DBFstream.prototype.convert = function (buf) {
-    var o = this;
-    var ret = {};
-    o.map.forEach(function (m) {
-        var v = null;
-        var f = o.fields[m.from];
-        if (f) {
-            v = buf.toString('ascii', f.off, f.off+f.length).trimEnd();
-            switch (f.type) {
-            case 'N':
-                v = Import.converters.number(v);
-                break;
-            case 'd':
-                v = v ? true : undefined;
-                break;
-            case 'D':
-                if (v) {
-                    var year = parseInt(v.slice(0, 4));
-                    var month = parseInt(v.slice(4, 6));
-                    var day = parseInt(v.slice(6, 8));
-                    v = mkdate(year, month, day);
-                }
-                break;
-            case 'L':
-                v = "TY".includes(v.toUpperCase());
-                break;
-            default:
-                break;
-            }
-        }
-        ret[m.to] = m.convert(v);
-    });
-    return (ret);
-};
 
 DBFstream.prototype.all = async function(cb) {
     var o = this;
-    o.stream = fs.createReadStream(o.fileName);
+    stream = fs.createReadStream(o.fileName);
 
     const PREHEADER = 0;
     const HEADER = 1;
@@ -71,7 +75,7 @@ DBFstream.prototype.all = async function(cb) {
     var have = 0;
     var chunks = [];
     
-    o.stream.on('data', function (chunk) {
+    stream.on('data', function (chunk) {
         chunks.push(chunk);
         have += chunk.length;
         while (have >= need) {
@@ -96,55 +100,53 @@ DBFstream.prototype.all = async function(cb) {
                 break;
                 
             case HEADER:
-                o.lastmod = new Date(buf.readUInt8(1)+2000, buf.readUInt8(2), buf.readUInt8(3));
+                o.lastmod = new Date(
+                    buf.readUInt8(1)+2000,
+                    buf.readUInt8(2),
+                    buf.readUInt8(3)
+                );
                 o.nRec = buf.readUInt32LE(4);
                 o.recSize = buf.readUInt16LE(10);
                 o.fields = {
-                    _deleted: { off: 0, name: '_deleted', type: 'd', length: 1, dec: 0 }
+                    _deleted: new DBFField(0, '_deleted', 'd', 1, 0)
                 };
-                var recOff = 1;
+                let recOff = 1;
                 for (var off = 32; buf.readUInt8(off) != 0x0d; off += 32) {
-                    rec = {
-                        off: recOff,
-                        name: buf.toString('ascii', off, buf.indexOf(0, off)),
-                        type: buf.toString('ascii', off+11, off+12),
-                        length: buf.readUInt8(off+16),
-                        dec: buf.readUInt8(off+17)
-                    }
-                    recOff += rec.length;
-                    o.fields[rec.name] = rec;
+                    let f = DBFField.fromBuffer(recOff,
+                        buf.subarray(off, off+32));
+                    o.fields[f.name] = f;
+                    recOff += f.length;
                 }
-                if (recOff != o.recSize) {
-                    throw new Error('fields did not total to record size');
-                }
+                assert(recOff == o.recSize,
+                    'fields did not total to record size');
                 need = o.recSize;
                 state = RECORD;
                 break;
 
             case RECORD:
-                cb(o.convert(buf));
+                // NEEDSWORK might need to look for ^Z or number of
+                // records here.
+                var r = {};
+                for (fn in o.fields) {
+                    r[fn] = o.fields[fn].get(buf);
+                }
+                cb(r);
                 break;
             }
         }
     });
 
     return (new Promise(function (resolve, reject) {
-        o.stream.on('end', function () {
-            // Note:  we ignore a final line that does not end in a newline.
-            // This avoids having to distinguish a data line that does not
-            // end in a newline (which would generate a record) from an empty
-            // line which does not end in a newline.
+        stream.on('end', function () {
+            // Note:  we ignore a partial record.
+            stream.close();
+            delete stream;
             resolve();
         });
     }));
 };
 
 DBFstream.prototype.close = function () {
-    var o = this;
-    if (o.stream) {
-        o.stream.close();
-        delete o.stream;
-    }
 };
 
 module.exports = exports = DBFstream;

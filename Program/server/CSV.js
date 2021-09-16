@@ -1,28 +1,17 @@
 // Read CSV files
 const fs = require('fs');
-const Import = require('./Import');
 const { assert } = require('./utils');
 
 function CSV(fileName, params) {
     var o = this;
     o.fileName = fileName;
-    assert(params.map, 'No map');
-    o.map = [];
-    params.map.forEach(function (ent) {
-        var cnvfunc = Import.converters[ent.conversion];
-        assert(cnvfunc, 'Bad conversion '+ent.conversion);
-        o.map.push({
-            from: ent.from.toLowerCase(),
-            to: ent.to,
-            convert: cnvfunc
-        });
-    });
     o.headers = params.headers;
+    o.encoding = params.encoding || 'utf8';
 }
 
 CSV.prototype.all = async function(cb) {
     var o = this;
-    const stream = fs.createReadStream(o.fileName);
+    const stream = fs.createReadStream(o.fileName, {encoding: o.encoding});
 
     const NORMAL = 0;
     const INQUOTE = 1;
@@ -35,12 +24,18 @@ CSV.prototype.all = async function(cb) {
     var state = NORMAL;
     var curField = '';
     var r = [];
-    stream.on('data', function (buf) {
-        var s = buf.toString('ascii');    // NEEDSWORK UTF-8?
+    stream.on('data', function (s) {
         var start = 0;
         var i;
         for (i = 0; i < s.length; i++) {
             var c = s[i];
+            if (c == '\uFEFF') {
+                // BOM / Zero-width non-breaking space
+                // Ignore it, and skip over it.
+                emitSubstring();
+                continue;
+            }
+
             switch (state) {
             case QUOTEQUOTEMAYBE:
                 switch (c) {
@@ -67,6 +62,7 @@ CSV.prototype.all = async function(cb) {
                 }
                 break;
             }
+
             switch(state) {
             case NORMAL:
                 switch (c) {
@@ -137,6 +133,7 @@ CSV.prototype.all = async function(cb) {
                         fieldNames[j] = r[j].toLowerCase();
                     }
                     r = [];
+                    console.log('fieldNames', fieldNames);
                     return;
                 }
                 // Translate Array into { name: val } object.
@@ -146,13 +143,7 @@ CSV.prototype.all = async function(cb) {
                 }
                 r = tmp;
             }
-            // Now we have either a { name: val } object or
-            // an Array, which is effectively a { num: val } object.
-            var obj = {}
-            o.map.forEach(function (m) {
-                obj[m.to] = m.convert(r[m.from]);
-            });
-            cb(obj);
+            cb(r);
             r = [];
         }
     });
@@ -167,6 +158,9 @@ CSV.prototype.all = async function(cb) {
             resolve();
         });
     }));
+};
+
+CSV.prototype.close = function () {
 };
 
 module.exports = exports = CSV;

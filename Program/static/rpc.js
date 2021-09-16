@@ -176,12 +176,8 @@ REST.importResync = function (dbName, file, cb) {
     RESTupload('importResync', file, [dbName], cb);
 };
 
-REST.importDBF = function (file, dbName, tName, map, cb) {
-    RESTupload('importDBF', file, [dbName, tName, map], cb);
-};
-
-REST.importCSV = function (file, dbName, tName, map, headers, cb) {
-    RESTupload('importCSV', file, [dbName, tName, map, headers], cb);
+REST.import = function (file, dbName, tName, params, cb) {
+    RESTupload('import', file, [dbName, tName, params], cb);
 };
 
 RESTupload = function (m, file, args, success) {

@@ -157,21 +157,9 @@ DBTable.prototype.applyDefaults = function (r) {
     }
 };
 
-DBTable.prototype.externalImport = function (file, type, map, cb) {
+DBTable.prototype.externalImport = function (file, params, cb) {
     var o = this;
-    switch(type) {
-    case 'DBF':
-        REST.importDBF(file, o.dbName, o.tName, map, cb);
-        break;
-    case 'CSVh':
-        REST.importCSV(file, o.dbName, o.tName, map, true, cb);
-        break;
-    case 'CSV':
-        REST.importCSV(file, o.dbName, o.tName, map, false, cb);
-        break;
-    default:
-        throw new Error('unknown import type '+type);
-    }
+    REST.import(file, o.dbName, o.tName, params, cb);
 };
 
 DBTable.prototype.zap = function  (cb) {

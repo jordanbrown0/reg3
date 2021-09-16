@@ -1,25 +1,27 @@
+const { assert, log, status } = require('./utils');
+
 // Catch unhandled errors really early, to cover all cases.
 
 // This snippet can be helpful to find the names of events emitted by process.
 // var pemit = process.emit;
 // process.emit = function () {
-    // console.log('process', arguments);
+    // log('process', arguments);
     // return pemit.apply(this, arguments);
 // }
 process.on('unhandledRejection', function (reason, promise) {
-    console.log('uncaughtRejection');
-    console.log(reason);
-    console.log(promise);
+    log('uncaughtRejection');
+    log(reason);
+    log(promise);
     process.exit(1);
 });
 process.on('uncaughtException', function (err, origin) {
     if (origin == 'uncaughtException'
         && err.code == 'EADDRINUSE'
         && err.syscall == 'listen') {
-        console.log('A server is already running on port ' + err.port + '.');
+        log('A server is already running on port ' + err.port + '.');
         process.exit(1);
     } else {
-        console.log(err.stack);
+        log(err.stack);
         process.exit(1);
     }
 });
@@ -29,20 +31,15 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const app = express();
 // const bodyParser = require('body-parser');
+const Debug = require('./Debug');
 const DBMS = require('./DBMS');
-const DBF = require('./DBFstream');
-const CSV = require('./CSV');
 const label = require('myclinic-drawer-printer').api;
 const sprintf = require('sprintf-js').sprintf;
 const Expression = require('./Expression');
-const { assert } = require('./utils');
 const multer = require('multer');
 const upload = multer({ dest: 'Temp/' });
 const fs = require('fs');
-
-// NEEDSWORK:  general trace mechanism (controlled from client UI?)
-var rpcVerbose = 0;
-var showBusy = true;
+const Import = require('./Import');
 
 var methods = {};
 
@@ -51,7 +48,7 @@ methods.methods = function () {
 };
 
 methods.log = function () {
-    console.log.apply(null, arguments);
+    log.apply(null, arguments);
 };
 methods.log.varargs = true;
 
@@ -107,50 +104,10 @@ methods.DBlistTables = async function (dbName) {
     return ((await DBMS.getDB(dbName)).listTables());
 };
 
-methods.importDBF = async function (file, dbName, tName, map) {
-    var t = await DBMS.getTable(dbName, tName);
-    var t0 = Date.now();
-    var n = 0;
-    var dbf = new DBF(file.path, {map: map});
-    t.sync(false);
-    await dbf.all(function (r) {
-        if (r._deleted) {
-            // NEEDSWORK:  dBASE deleted records have data preserved.
-            // Our deleted records do not; they are only a tombstone.
-            // Adding a deleted record with data would be a violation of the
-            // definition.
-            // Adding a tombstone would be pointless because this is a new
-            // record, from our DBMS's point of view.
-            // We'll just ignore dBASE deleted records for now.
-            // Is that the best answer? Issue #179.
-            return;
-        }
-        delete r._deleted;
-        t.add(null, r, null);
-        n++;
-    });
-    await dbf.close();
-    t.sync(true);
-    console.log('imported',n,'records from', file.originalname,
-        'took', Date.now()-t0, 'ms');
+methods.import = async function (file, dbName, tName, params) {
+    return (Import.import(file, dbName, tName, params));
 };
-methods.importDBF.file = true;
-
-methods.importCSV = async function (file, dbName, tName, map, headers) {
-    var t = await DBMS.getTable(dbName, tName);
-    var t0 = Date.now();
-    var n = 0;
-    var csv = new CSV(file.path, {map: map, headers: headers});
-    t.sync(false);
-    await csv.all(function (r) {
-        t.add(null, r, null);
-        n++;
-    });
-    t.sync(true);
-    console.log('imported',n,'records from', file.originalname,
-        'took', Date.now()-t0, 'ms');
-};
-methods.importCSV.file = true;
+methods.import.file = true;
 
 methods.defaultServerName = function () {
     return (global.process.env.COMPUTERNAME + ' ' + global.process.cwd());
@@ -251,29 +208,23 @@ async function methodCallMiddleware(req, res, next)
 {
     await busyCall(async function () {
         var body = req.body;
-        switch(rpcVerbose) {
-        case 1:
-            console.log('<==', body.name);
-            break;
-        case 2:
-            console.log('<==', body);
+        if (Debug.rpc(2, '<==', body)) {
             if (req.file) {
-                console.log('<==', req.file.path);
+                log('<==', req.file.path);
             }
-            break;
+        } else {
+            Debug.rpc(1, '<==', body.name);
         }
 
-        var ret = await methodCall(body, req.file);
-        
-        if (req.file) {
-            fs.unlinkSync(req.file.path);
+        try {
+            var ret = await methodCall(body, req.file);
+        } finally {
+            if (req.file) {
+                fs.unlinkSync(req.file.path);
+            }
         }
 
-        switch (rpcVerbose) {
-        case 2:
-            console.log('==>', ret);
-            break;
-        }
+        Debug.rpc(2, '==>', ret);
 
         res.json(ret);
     });
@@ -307,7 +258,7 @@ async function methodCall(body, file) {
     if (method.length != params.length && !method.varargs) {
         var msg = sprintf("%s: argument mismatch, expected %d got %d",
             body.name, method.length, params.length);
-        console.log(msg);
+        log(msg);
         return ({ error: msg });
     }
     var retval;
@@ -319,7 +270,7 @@ async function methodCall(body, file) {
         // dump one on the Node.js console.
         // Maybe we should have two exception classes, one for
         // server-side programmer errors and one for caller errors.
-        console.log(e);
+        log(e);
         return ({ error: e.toString() });
     }
     if (retval === undefined) {
@@ -345,20 +296,10 @@ restExportMethods.exportResync = async function (res, dbName, tables) {
 async function exportMiddleware(req, res, next) {
     await busyCall(async function () {
         var body = JSON.parse(req.body['request']);
-        switch(rpcVerbose) {
-        case 1:
-            console.log('<==', body.name);
-            break;
-        case 2:
-            console.log('<==', body);
-            break;
-        }
+        Debug.rpc(2, '<==', body)
+        || Debug.rpc(1, '<==', body.name);
         await exportMethodCall(body, res);
-        switch (rpcVerbose) {
-        case 2:
-            console.log('==> file');
-            break;
-        }
+        Debug.rpc(2, '==> file');
     });
 }
 
@@ -367,7 +308,7 @@ async function exportMethodCall(req, res) {
     assert(req.params, 'No req.params');
     var method = restExportMethods[req.name];
     if (!method) {
-        console.log('No such method '+req.name);
+        log('No such method '+req.name);
         return;
     }
     var params = req.params;
@@ -376,7 +317,7 @@ async function exportMethodCall(req, res) {
     if (expected != params.length && !method.varargs) {
         var msg = sprintf("%s: argument mismatch, expected %d got %d",
             req.name, expected, params.length);
-        console.log(msg);
+        log(msg);
         return;
     }
     params.unshift(res);
@@ -388,7 +329,7 @@ async function exportMethodCall(req, res) {
         // dump one on the Node.js console.
         // Maybe we should have two exception classes, one for
         // server-side programmer errors and one for caller errors.
-        console.log(e);
+        log(e);
         // NEEDSWORK there's no clear way to return an error.
         // Perhaps we can return an HTTP error.
         return;
@@ -424,8 +365,8 @@ function tick() {
     totalBusy = 0;
     totalIdle = 0;
     avgBusy += alpha*(newBusy-avgBusy);
-    if (showBusy) {
-        process.stdout.write(
+    if (Debug.busy()) {
+        status(
             sprintf("\r%5.1f%% busy %4.0fM",
                 avgBusy*100,
                 global.process.memoryUsage().rss/1024/1024
@@ -443,8 +384,6 @@ process.stdin.setEncoding('utf8');
 process.stdin.setRawMode(true);
 var count = 0;
 process.stdin.on('data', function (c) {
-    console.log('');
-    console.log('');
     switch (c) {
     case '\3':
         process.exit();
@@ -453,38 +392,25 @@ process.stdin.on('data', function (c) {
         process.exit();
         break;
     case 'r':
-        rpcVerbose = (rpcVerbose+1) %3;
-        var rpcmsgs = [
-            'Not tracing RPC',
-            'RPC method names only',
-            'Full RPC tracing'
-        ];
-        console.log(rpcmsgs[rpcVerbose]);
+        log(Debug.rpc.toggle());
         break;
     case 'b':
-        showBusy = !showBusy;
-        console.log(showBusy
-            ? 'Showing busy percentage / memory usage'
-            : 'Not showing busy percentage / memory usage');
+        log(Debug.busy.toggle());
         break;
     case 'e':
-        var exprTrace = !Expression.trace();
-        Expression.trace(exprTrace);
-        console.log(exprTrace
-            ? 'Tracing expressions'
-            : 'Not tracing expressions');
+        log(Debug.expr.toggle());
+        Expression.trace(Debug.expr());
         break;
     case '?':
-        console.log('q - quit');
-        console.log('r - toggle RPC tracing');
-        console.log('e - toggle expression tracing');
-        console.log('b - toggle busy/memory monitor');
+        log('q - quit');
+        log('r - toggle RPC tracing');
+        log('e - toggle expression tracing');
+        log('b - toggle busy/memory monitor');
         break;
     default:
-        console.log('Huh?  Press ? for a list of commands.');
+        log('Huh?  Press ? for a list of commands.');
         break;
     }
-    console.log('');
 });
 
 DBMS.init().then(function () {
@@ -502,7 +428,7 @@ DBMS.init().then(function () {
     app.use(express.static('./static'));
 
     app.listen(port, function () {
-      console.log('Registration listening on port '+port+'!')
+      log('Registration listening on port '+port+'!')
     });
 });
 

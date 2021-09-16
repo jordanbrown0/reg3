@@ -1,4 +1,7 @@
-const { mkdate } = require('./utils.js');
+const { mkdate, assert } = require('./utils.js');
+const DBMS = require('./DBMS');
+const DBF = require('./DBFstream');
+const CSV = require('./CSV');
 
 var Import = {};
 
@@ -13,6 +16,7 @@ Import.converters.null = function (v) {
 Import.converters.undefined = Import.converters.null;
 Import.converters[''] = Import.converters.null;
 
+// NEEDSWORK duplicated in DBFstream.js
 Import.converters.number = function (v) {
     v = parseFloat(v.replace(/[^-0-9.]/g,''));
     if (isNaN(v)) {
@@ -61,6 +65,63 @@ Import.converters.dateMS = function (v) {
     hour = hour.toString();
 
     return (mkdate(year, month, day, hour, minute));
+};
+
+Import.formats = {};
+Import.formats.CSV = CSV;
+Import.formats.DBF = DBF;
+Import.formats.CSVh = function CSVh (file, params) {
+    var o = this;
+    params.headers = true;
+    CSV.call(o, file, params);
+};
+Import.formats.CSVh.prototype = Import.formats.CSV.prototype;
+
+Import.import = async function (file, dbName, tName, params) {
+    var t = await DBMS.getTable(dbName, tName);
+    var t0 = Date.now();
+    var n = 0;
+    var map = [];
+    params.map.forEach(function (ent) {
+        var cnvfunc = Import.converters[ent.conversion];
+        assert(cnvfunc, 'Bad conversion '+ent.conversion);
+        map.push({
+            from: ent.from.toLowerCase(),
+            to: ent.to,
+            convert: cnvfunc
+        });
+    });
+
+    var importerClass = Import.formats[params.type];
+    assert(importerClass, 'Bad import format '+params.type);
+    var importer = new importerClass(file.path, params);
+    t.sync(false);
+    await importer.all(function (importRecord) {
+        if (importRecord._deleted) {
+            // NEEDSWORK:  dBASE deleted records have data preserved.
+            // Our deleted records do not; they are only a tombstone.
+            // Adding a deleted record with data would be a violation of the
+            // definition.
+            // Adding a tombstone would be pointless because this is a new
+            // record, from our DBMS's point of view.
+            // We'll just ignore dBASE deleted records for now.
+            // Is that the best answer? Issue #179.
+            return;
+        }
+        delete importRecord._deleted;
+
+        var r = {};
+        map.forEach(function (m) {
+            r[m.to] = m.convert(importRecord[m.from]);
+        });
+
+        t.add(null, r, null);
+        n++;
+    });
+    await importer.close();
+    t.sync(true);
+    console.log('imported',n,'records from', file.originalname,
+        'took', Date.now()-t0, 'ms');
 };
 
 module.exports = exports = Import;
