@@ -74,7 +74,7 @@ Member.setTitle = function () {
         });
     }
 
-    var subtitle = new DElement('div', {className: 'MemberSubtitle'});
+    var subtitle = new DElement('div', {className: 'AlertSubtitle'});
 
     if (o.r.pickedup) {
         var datestr = LDate.fromJSON(o.r.pickedup).toDisplay({seconds: false});

@@ -3,6 +3,7 @@ var correctionsSchema = [
         { field: 'table',
             label: 'Table',
             input: InputTablePicker,
+            default: 'members',
             required: true
         },
         { field: 'field', label: 'Field name', default: '', required: true },

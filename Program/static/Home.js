@@ -49,7 +49,13 @@ Home.prototype.deactivate = function (cb) {
 
 Home.prototype.title = function () {
     var o = this;
-    return (cfg.convention);
+    var t = new DElement('div', cfg.convention);
+    if (!cfg.offlinePrint || !cfg.offlineMarkPickedUp || !cfg.offlineRealTime) {
+        t.appendChild(new DElement('div', {className: 'AlertSubtitle'},
+            'This station is configured for offline operation!'));
+    }
+
+    return (t);
 };
 
 function home()

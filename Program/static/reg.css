@@ -95,7 +95,7 @@ input.Disabled {
     color: lightgray;
 }
 
-.MemberSubtitle {
+.AlertSubtitle {
     color: red;
     font-size: medium;
     font-weight: normal;
