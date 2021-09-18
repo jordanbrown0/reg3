@@ -180,13 +180,15 @@ REST.import = function (file, dbName, tName, params, cb) {
     RESTupload('import', file, [dbName, tName, params], cb);
 };
 
+var RESTserial = 0;
+
 RESTupload = function (m, file, args, success) {
-    Debug.rpc(m, 'file', args);
+    var myserial = RESTserial++;
     var x = new XMLHttpRequest();
     x.open('PUT', '/CallMulti');
     x.onload = function () {
         var r = JSON.parse(x.responseText);
-        Debug.rpc('REST <==', r);
+        Debug.rpc(myserial, '<==', r);
         if (r.error) {
             // Conventional JSON-RPC above has an optional failure callback.
             // Hasn't seemed necessary here yet.
@@ -198,12 +200,14 @@ RESTupload = function (m, file, args, success) {
         }
     };
     x.onerror = rpcError;
-    Debug.rpc('REST ==>', file.name);
+    var req = {name: m, params: args};
+    Debug.rpc(myserial, '==>', req);
+    Debug.rpc(myserial, '==>', file.name);
     var formData = new FormData();
     if (file) {
         formData.append('file', file);
     }
-    formData.append('request', JSON.stringify({name: m, params: args}));
+    formData.append('request', JSON.stringify(req));
     x.send(formData);
 };
 

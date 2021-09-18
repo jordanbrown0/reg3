@@ -133,7 +133,6 @@ CSV.prototype.all = async function(cb) {
                         fieldNames[j] = r[j].toLowerCase();
                     }
                     r = [];
-                    console.log('fieldNames', fieldNames);
                     return;
                 }
                 // Translate Array into { name: val } object.

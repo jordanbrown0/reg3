@@ -373,7 +373,7 @@ EditorEntry.prototype.validate = function () {
 
     var errors = [];
     o.input.validate().forEach(function (err) {
-        o.errorMessages.appendChild(err);
+        o.errorMessages.appendChild(new DElement('div', err));
         o.input.setError();
         errors.push({
             msg: err,

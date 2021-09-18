@@ -707,10 +707,11 @@ InputMulti.prototype.remove = function (index) {
     o.children.splice(index, 1);
     o.refresh();
 };
+var cnt = 0;
 
 InputMulti.prototype.validate = function () {
     var o = this;
-    ret = [];
+    var ret = [];
     if (o.params.required && o.children.length == 0) {
         return ([ 'Required' ]);
     }
@@ -788,7 +789,7 @@ InputObject.prototype.get = function () {
 
 InputObject.prototype.validate = function () {
     var o = this;
-    ret = [];
+    var ret = [];
 
     for (k in o.children) {
         o.children[k].validate().forEach(function (e) {

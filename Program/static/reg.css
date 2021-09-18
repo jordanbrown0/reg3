@@ -121,6 +121,10 @@ input.Disabled {
     width: 10em;
 }
 
+#classMap .InputText {
+    width: 15em;
+}
+
 .List table {
     width: 100%;
     cursor: pointer;

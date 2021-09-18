@@ -36,6 +36,8 @@ var externalImportSchema = [
                 utf8: 'UTF-8'
             }
         },
+    ],[
+        { title: 'Field Map' },
         { field: 'map',
             label: 'Field map',
             input: InputMulti,
@@ -56,7 +58,21 @@ var externalImportSchema = [
                 ]
             }
         }
-    ],
+    ],[
+        { title: 'Class Map' },
+        { field: 'classMap',
+            label: 'Class map',
+            input: InputMulti,
+            default: [],
+            params: {
+                input: InputObject,
+                schema: [
+                    { field: 'from', input: InputText, required: true },
+                    { field: 'to', input: InputClass, required: true }
+                ]
+            }
+        }
+    ]
 ];
 
 function ExternalImportManager() {
@@ -125,6 +141,13 @@ ExternalImport.prototype.activate = function () {
 ExternalImport.prototype.import = function (r) {
     var o = this;
     table.externalImport.get(r.map, function (rMap) {
+        var classMap = {};
+        rMap.classMap.forEach(function (e) {
+            classMap[e.from] = e.to;
+        });
+        rMap.contentMap = { 'class': classMap };
+        delete rMap.classMap;
+
         var t = table[rMap.table];
         if (r.zap) {
             t.zap(doImport);

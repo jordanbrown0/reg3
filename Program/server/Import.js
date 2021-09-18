@@ -78,12 +78,12 @@ Import.formats.CSVh = function CSVh (file, params) {
 Import.formats.CSVh.prototype = Import.formats.CSV.prototype;
 
 Import.import = async function (file, dbName, tName, params) {
-    var t = await DBMS.getTable(dbName, tName);
-    var t0 = Date.now();
-    var n = 0;
-    var map = [];
+    let t = await DBMS.getTable(dbName, tName);
+    let t0 = Date.now();
+    let n = 0;
+    let map = [];
     params.map.forEach(function (ent) {
-        var cnvfunc = Import.converters[ent.conversion];
+        let cnvfunc = Import.converters[ent.conversion];
         assert(cnvfunc, 'Bad conversion '+ent.conversion);
         map.push({
             from: ent.from.toLowerCase(),
@@ -114,6 +114,12 @@ Import.import = async function (file, dbName, tName, params) {
         map.forEach(function (m) {
             r[m.to] = m.convert(importRecord[m.from]);
         });
+        for (fieldName in params.contentMap) {
+            let v = params.contentMap[fieldName][r[fieldName]];
+            if (v) {
+                r[fieldName] = v;
+            }
+        };
 
         t.add(null, r, null);
         n++;
