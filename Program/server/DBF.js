@@ -5,6 +5,7 @@
 const fs = require('fs');
 const { assert, mkdate } = require('./utils');
 const Import = require('./Import');
+const Charset = require('./Charset');
 
 function DBF(name, params) {
     var o = this;
@@ -80,7 +81,7 @@ DBF.prototype.convert = function (buf) {
         var v = null;
         var f = o.fields[m.from];
         if (f) {
-            v = buf.toString('ascii', f.off, f.off+f.length).trimEnd();
+            v = Charset.decode(buf, 'win-1252', f.off, f.off+f.length).trimEnd();
             switch (f.type) {
             case 'N':
                 v = Import.converters.number(v);

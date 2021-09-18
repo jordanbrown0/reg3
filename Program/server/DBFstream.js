@@ -1,4 +1,5 @@
 const fs = require('fs');
+const Charset = require('./Charset');
 const { assert, mkdate } = require('./utils');
 
 function DBFField(off, name, type, length, dec) {
@@ -21,7 +22,7 @@ DBFField.fromBuffer = function (off, buf) {
 
 DBFField.prototype.get = function (buf) {
     var o = this;
-    return (o.convert(buf.toString('ascii', o.off, o.off+o.length).trimEnd()));
+    return (o.convert(Charset.decode(buf, 'win-1252', o.off, o.off+o.length).trimEnd()));
 };
 
 var DBFConverters = {};
