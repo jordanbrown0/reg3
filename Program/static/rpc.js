@@ -211,9 +211,16 @@ RESTupload = function (m, file, args, success) {
     x.send(formData);
 };
 
-REST.exportResync = function (name) {
+// NEEDSWORK need to retrieve list of download methods from the server and
+// dynamically define these functions, like we do for JSON-RPC functions.
+REST.exportResync = function () {
     var args = Array.prototype.slice.call(arguments);
     RESTdownload('exportResync', args);
+};
+
+REST.export = function () {
+    var args = Array.prototype.slice.call(arguments);
+    RESTdownload('export', args);
 };
 
 RESTdownload = function (method, params) {

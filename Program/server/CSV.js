@@ -1,17 +1,12 @@
-// Read CSV files
+// Read and write CSV files
 const fs = require('fs');
-const { assert } = require('./utils');
+const { assert, streamWritePromise } = require('./utils');
 
-function CSV(fileName, params) {
-    var o = this;
-    o.fileName = fileName;
-    o.headers = params.headers;
-    o.encoding = params.encoding || 'utf8';
-}
+CSV = {};
 
-CSV.prototype.all = async function(cb) {
+CSV.import = async function(path, params, cb) {
     var o = this;
-    const stream = fs.createReadStream(o.fileName, {encoding: o.encoding});
+    const stream = fs.createReadStream(path, {encoding: params.encoding});
 
     const NORMAL = 0;
     const INQUOTE = 1;
@@ -125,7 +120,7 @@ CSV.prototype.all = async function(cb) {
         }
         function emitRecord() {
             var j;
-            if (o.headers) {
+            if (params.headers) {
                 if (!fieldNames) {
                     // First line, gather headers and skip.
                     fieldNames = [];
@@ -159,7 +154,59 @@ CSV.prototype.all = async function(cb) {
     }));
 };
 
-CSV.prototype.close = function () {
+CSV.extension = 'csv';
+CSV.mimeType = 'text/csv';
+
+var first = true;
+
+function toCSVArray(a, params) {
+    let csv = [];
+    a.forEach(function (e) {
+        csv.push(toCSV1(e, params));
+    });
+    return (csv.join(','));
+}
+
+function toCSV1(v, params) {
+    if (v == undefined) {
+        v = "";
+    } else if (v instanceof Array) {
+        v = toCSVArray(v, params);
+    } else {
+        v = v.toString();
+    }
+    if (/[",\r\n]/.test(v)) {
+        return ('"' + v.replace(/"/g, '""') + '"');
+    } else {
+        return (v);
+    }
+}
+
+function toCSV(r, params) {
+    let csv = [];
+    params.map.forEach(function (m) {
+        csv.push(toCSV1(r[m.from], params));
+    });
+    return csv.join(',') + '\n';
+}
+
+CSV.export = async function (res, t, params) {
+    if (params.headers) {
+        let header = {};
+        params.map.forEach(function (m) {
+            header[m.to] = m.to;
+        });
+        await streamWritePromise(res,
+            Buffer.from(toCSV(header, params), params.encoding));
+    }
+    
+    let n = 0;
+    await t.forEachAsync(async function (k, r) {
+        await streamWritePromise(res,
+            Buffer.from(toCSV(r, params), params.encoding));
+        n++;
+    });
+    return (n);
 };
 
 module.exports = exports = CSV;

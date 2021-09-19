@@ -1,4 +1,4 @@
-const { mkdate, assert } = require('./utils.js');
+const { mkdate, assert, log } = require('./utils.js');
 const DBMS = require('./DBMS');
 const DBF = require('./DBFstream');
 const CSV = require('./CSV');
@@ -70,15 +70,14 @@ Import.converters.dateMS = function (v) {
 Import.formats = {};
 Import.formats.CSV = CSV;
 Import.formats.DBF = DBF;
-Import.formats.CSVh = function CSVh (file, params) {
-    var o = this;
-    params.headers = true;
-    CSV.call(o, file, params);
+Import.formats.CSVh = {
+    import: async function (path, params, cb) {
+        params.headers = true;
+        await CSV.import(path, params, cb);
+    }
 };
-Import.formats.CSVh.prototype = Import.formats.CSV.prototype;
 
-Import.import = async function (file, dbName, tName, params) {
-    let t = await DBMS.getTable(dbName, tName);
+Import.import = async function (file, t, params) {
     let t0 = Date.now();
     let n = 0;
     let map = [];
@@ -92,11 +91,12 @@ Import.import = async function (file, dbName, tName, params) {
         });
     });
 
-    var importerClass = Import.formats[params.type];
-    assert(importerClass, 'Bad import format '+params.type);
-    var importer = new importerClass(file.path, params);
+    var format = Import.formats[params.type];
+    assert(format, 'Bad format '+params.type);
+    var importer = format.import;
+    assert(importer, 'No importer for '+params.type);
     t.sync(false);
-    await importer.all(function (importRecord) {
+    await importer(file.path, params, function (importRecord) {
         if (importRecord._deleted) {
             // NEEDSWORK:  dBASE deleted records have data preserved.
             // Our deleted records do not; they are only a tombstone.
@@ -124,9 +124,8 @@ Import.import = async function (file, dbName, tName, params) {
         t.add(null, r, null);
         n++;
     });
-    await importer.close();
     t.sync(true);
-    console.log('imported',n,'records from', file.originalname,
+    log('imported',n,'records from', file.originalname,
         'took', Date.now()-t0, 'ms');
 };
 

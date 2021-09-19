@@ -40,6 +40,7 @@ const multer = require('multer');
 const upload = multer({ dest: 'Temp/' });
 const fs = require('fs');
 const Import = require('./Import');
+const Export = require('./Export');
 
 var methods = {};
 
@@ -105,7 +106,8 @@ methods.DBlistTables = async function (dbName) {
 };
 
 methods.import = async function (file, dbName, tName, params) {
-    return (Import.import(file, dbName, tName, params));
+    let t = await DBMS.getTable(dbName, tName);
+    return (Import.import(file, t, params));
 };
 methods.import.file = true;
 
@@ -291,8 +293,13 @@ restExportMethods.exportResync = async function (res, dbName, tables) {
     db.writeStream(res, tables);
 };
 
+restExportMethods.export = async function (res, dbName, tName, params) {
+    var t = await DBMS.getTable(dbName, tName);
+    await Export.export(res, t, params);
+};
+
 // This middleware accepts a JSON-RPC request as a form parameter, and returns
-// a file.
+// a file.  NEEDSWORK:  there is no way to return an error.
 async function exportMiddleware(req, res, next) {
     await busyCall(async function () {
         var body = JSON.parse(req.body['request']);

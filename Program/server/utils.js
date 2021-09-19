@@ -43,4 +43,16 @@ utils.status = function (s) {
     logOnNewLine = false;
 };
 
+utils.streamWritePromise = async function (stream, buf) {
+    return new Promise(function (resolve, reject) {
+        stream.write(buf, function (err) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve();
+            }
+        });
+    });
+};
+
 module.exports = exports = utils;

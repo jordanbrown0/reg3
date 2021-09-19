@@ -162,6 +162,11 @@ DBTable.prototype.externalImport = function (file, params, cb) {
     REST.import(file, o.dbName, o.tName, params, cb);
 };
 
+DBTable.prototype.externalExport = function (params, cb) {
+    var o = this;
+    REST.export(o.dbName, o.tName, params);
+};
+
 DBTable.prototype.zap = function  (cb) {
     var o = this;
     rpc.DBzap(o.dbName, o.tName, cb);

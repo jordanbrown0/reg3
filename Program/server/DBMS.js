@@ -19,6 +19,11 @@ function DB(name) {
     o.tables = {};
 }
 
+DB.prototype.getName = function () {
+    var o = this;
+    return (o.name);
+};
+
 // NEEDSWORK:  this should be single-threaded.
 DB.prototype.load = async function() {
     var o = this;
@@ -215,6 +220,16 @@ function Table(db, name) {
     o.version = 0;
 }
 
+Table.prototype.getDBName = function () {
+    var o = this;
+    return (o.db.getName());
+};
+
+Table.prototype.getName = function () {
+    var o = this;
+    return (o.name);
+};
+
 // NEEDSWORK perhaps we should intern the field names to reduce memory
 // consumption.  It would make load a little slower, though, because we'd
 // have to recreate all of the records instead of using the ones that
@@ -264,6 +279,13 @@ Table.prototype.forEach = function (cb) {
     var o = this;
     for (var k in o.records) {
         cb(k, o.records[k]);
+    }
+};
+
+Table.prototype.forEachAsync = async function (cb) {
+    var o = this;
+    for (var k in o.records) {
+        await cb(k, o.records[k]);
     }
 };
 

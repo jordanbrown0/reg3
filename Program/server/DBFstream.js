@@ -58,14 +58,11 @@ DBFConverters.d = function (v) {
     return (v ? true : undefined);
 };
 
-function DBFstream(name, params) {
-    var o = this;
-    o.fileName = name;
-}
+DBFstream = {};
 
-DBFstream.prototype.all = async function(cb) {
+DBFstream.import = async function(fileName, params, cb) {
     var o = this;
-    stream = fs.createReadStream(o.fileName);
+    stream = fs.createReadStream(fileName);
 
     const PREHEADER = 0;
     const HEADER = 1;
@@ -87,40 +84,40 @@ DBFstream.prototype.all = async function(cb) {
 
             switch (state) {
             case PREHEADER:
-                o.version = buf.readUInt8(0);
-                if (o.version != 0x03 && o.version != 0x30) {
+                var version = buf.readUInt8(0);
+                if (version != 0x03 && version != 0x30) {
                     throw new Error('Not a supported DBF file');
                 }
-                o.hdrSize = buf.readUInt16LE(8);
+                var hdrSize = buf.readUInt16LE(8);
                 
                 // Unread the preheader, then read the rest of the header.
                 have += buf.length;
-                need = o.hdrSize;
+                need = hdrSize;
                 chunks.unshift(buf);
                 state = HEADER;
                 break;
                 
             case HEADER:
-                o.lastmod = new Date(
+                var lastmod = new Date(
                     buf.readUInt8(1)+2000,
                     buf.readUInt8(2),
                     buf.readUInt8(3)
                 );
-                o.nRec = buf.readUInt32LE(4);
-                o.recSize = buf.readUInt16LE(10);
-                o.fields = {
+                var nRec = buf.readUInt32LE(4);
+                var recSize = buf.readUInt16LE(10);
+                var fields = {
                     _deleted: new DBFField(0, '_deleted', 'd', 1, 0)
                 };
                 let recOff = 1;
                 for (var off = 32; buf.readUInt8(off) != 0x0d; off += 32) {
                     let f = DBFField.fromBuffer(recOff,
                         buf.subarray(off, off+32));
-                    o.fields[f.name] = f;
+                    fields[f.name] = f;
                     recOff += f.length;
                 }
-                assert(recOff == o.recSize,
+                assert(recOff == recSize,
                     'fields did not total to record size');
-                need = o.recSize;
+                need = recSize;
                 state = RECORD;
                 break;
 
@@ -128,8 +125,8 @@ DBFstream.prototype.all = async function(cb) {
                 // NEEDSWORK might need to look for ^Z or number of
                 // records here.
                 var r = {};
-                for (fn in o.fields) {
-                    r[fn] = o.fields[fn].get(buf);
+                for (fn in fields) {
+                    r[fn] = fields[fn].get(buf);
                 }
                 cb(r);
                 break;
@@ -145,9 +142,6 @@ DBFstream.prototype.all = async function(cb) {
             resolve();
         });
     }));
-};
-
-DBFstream.prototype.close = function () {
 };
 
 module.exports = exports = DBFstream;

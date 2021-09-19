@@ -4,7 +4,9 @@ function External()
     External.sup.constructor.call(o, {
         items: [
             { label: 'Import mapping', page: ExternalImportManager },
-            { label: '&Import', page: ExternalImport }
+            { label: '&Import', page: ExternalImport },
+            { label: 'Export mapping', page: ExternalExportManager },
+            { label: '&Export', page: ExternalExport }
         ]
     });
 }
