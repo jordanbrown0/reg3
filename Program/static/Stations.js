@@ -183,7 +183,10 @@ var stationSchema = [
                 { unmark: 'Mark membership as not-picked-up' },
                 { void: 'Void / unvoid memberships' }
             ],
-            default: ['admin', 'newMember', 'reports', 'upgrade', 'unmark', 'void']
+            default: [
+                'adHocUpgrades', 'admin', 'newMember', 'reports',
+                'transfer', 'upgrade', 'unmark', 'void'
+            ]
         }
     ],
 ];
