@@ -206,18 +206,22 @@ Printer.prototype.measure = function (font, size, text, cb) {
 };
 
 Printer.prototype.points = function (points) {
+    var o = this;
     return points * o.dpiy/72;
 };
 
 Printer.prototype.inches = function (inches) {
+    var o = this;
     return inches * o.dpiy;
 };
 
 Printer.prototype.xfract = function (f) {
+    var o = this;
     return o.horzres * f;
 };
 
 Printer.prototype.yfract = function (f) {
+    var o = this;
     return o.vertres * f;
 };
 
