@@ -3,7 +3,8 @@ setlocal
 
 call Program\lib\NodeVer
 
-set parent=%HOMEDRIVE%%HOMEPATH%\Documents\Reg3
+call Program\lib\FolderPath Personal DOCUMENTS
+set parent=%DOCUMENTS%\Reg3
 set z=Program\imported\7za
 
 call myname

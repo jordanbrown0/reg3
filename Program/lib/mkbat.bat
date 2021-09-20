@@ -9,7 +9,9 @@ if "%2" == "" (
 set dest=%1
 set myname=%2
 
-set bat=%HOMEDRIVE%%HOMEPATH%\Desktop\%myname% Registration Server.bat
+call Program\lib\FolderPath Desktop DESKTOP
+
+set bat=%DESKTOP%\%myname% Registration Server.bat
 echo @echo off             > "%bat%"
 echo call %dest%\Server    >> "%bat%"
 echo if errorlevel 1 pause >> "%bat%"
