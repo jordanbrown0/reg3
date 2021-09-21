@@ -465,7 +465,7 @@ extend(NewMemberEditor, MemberTransfer);
 
 MemberTransfer.prototype.title = function () {
     var o = this;
-    return (new DElement('span', 'Transfer - ', o.classInfo));
+    return (new DElement('span', 'Transfer to... - ', o.classInfo));
 };
 
 MemberTransfer.prototype.add = function () {

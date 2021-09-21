@@ -3,7 +3,7 @@ function label_test() {
     var size;
     var p;
 
-    Printers.getPrinter(cfg.label, gotPrinter);
+    Printers.getPrinter(cfg.label, gotPrinter, function () {});
 
     function gotPrinter(p_) {
         p = p_;
@@ -19,7 +19,18 @@ function label_test() {
     function gotDims(dims) {
         var x = p.horzres/2 - dims.cx/2;
         var y = p.vertres/2 + dims.cy/2;
-        p.print([{ x: x, y: y, font: cfg.font, size:size, text: s }], home);
+        var maxx = p.horzres - 1;
+        var maxy = p.vertres - 1;
+        var items = [
+            { x: x, y: y, font: cfg.font, size:size, text: s },
+            { x: 0, y: 0, lineto: { x: maxx, y: maxy }},
+            { x: 0, y: maxy, lineto: { x: maxx, y: 0 }},
+            { x: 0, y: 0, lineto: { x: maxx, y: 0 }},
+            { x: maxx, y: 0, lineto: { x: maxx, y: maxy }},
+            { x: maxx, y: maxy, lineto: { x: 0, y: maxy }},
+            { x: 0, y: maxy, lineto: { x: 0, y: 0 }}
+        ]
+        p.print(items, home);
     }
 }
 
@@ -61,7 +72,7 @@ function label_badge(r, done, err) {
         copies = cfg.badgeCopies;
 
         var right = [];
-        if (cfg.badgeNumber) {
+        if (cfg.badgeNumber.print) {
             right.push(drawNumber);
         }
         if (cl.onBadge) {
@@ -263,7 +274,7 @@ function label_badge(r, done, err) {
                     x: numberLimits.x,
                     y: numberLimits.y,
                     font: cfg.font,
-                    size: cfg.numberSize,
+                    size: cfg.badgeNumber.size,
                     text: r.number
                 });
             }

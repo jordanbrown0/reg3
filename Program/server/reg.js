@@ -155,7 +155,7 @@ methods.label_print = function (p, a) {
     label.beginPrint(hdc);
     label.startPage(hdc);
     var font = 'Helvetica';
-    var size = 18;
+    var size = 45;
 
     a.forEach(function (e) {
         if (e.font) {
@@ -183,6 +183,10 @@ methods.label_print = function (p, a) {
             label.selectObject(hdc, getFont(font, size));
             label.textOut(hdc, Math.round(e.x), Math.round(e.y),
                 e.text.toString());
+        }
+        if (e.lineto) {
+            label.moveTo(hdc, Math.round(e.x), Math.round(e.y));
+            label.lineTo(hdc, Math.round(e.lineto.x), Math.round(e.lineto.y));
         }
     });
 
