@@ -31,7 +31,8 @@ function CorrectionsManager() {
         canDelete: true,
         titleManager: 'Corrections',
         titleEdit: 'Edit corrections',
-        titleAdd: 'New corrections'
+        titleAdd: 'New corrections',
+        reconfig: true
     };
     CorrectionsManager.sup.constructor.call(o, params);
 }

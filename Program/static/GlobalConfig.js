@@ -49,7 +49,8 @@ function GlobalEdit()
     var o = this;
     GlobalEdit.sup.constructor.call(o, "", {
         table: table.global,
-        schema: globalSchema
+        schema: globalSchema,
+        reconfig: true
     });
 }
 extend(DBEdit, GlobalEdit);
@@ -58,13 +59,6 @@ GlobalEdit.prototype.title = 'Global configuration';
 
 GlobalEdit.prototype.get = function (cb) {
     Global.get(cb);
-};
-
-GlobalEdit.prototype.done = function () {
-    var o = this;
-    Config.get(function () {
-        GlobalEdit.sup.done.call(o);
-    });
 };
 
 var Global = {};

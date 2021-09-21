@@ -1,6 +1,6 @@
 var serverSchema = [
     [
-        { field: 'name', label: 'Server name',
+        { field: 'serverName', label: 'Server name',
             default: 'Unconfigured', required: true },
         { field: 'noPrint', label: 'Disable printing?', input: InputBool,
             default: false },
@@ -32,7 +32,7 @@ ServerManager.prototype.title = 'Administer servers...';
 
 ServerManager.prototype.summarize = function (k, r) {
     return (new DElement('tr',
-        new DElement('td', r.name, { id: 'name' }),
+        new DElement('td', r.serverName, { id: 'name' }),
         new DElement('td', r.nextNumber || '', { id: 'nextNumber' }),
         new DElement('td', r.lastNumber || '', { id: 'lastNumber' })
     ));
@@ -48,10 +48,19 @@ ServerManager.prototype.header = function () {
 
 function ServerEdit(k, params) {
     var o = this;
-    ServerEdit.sup.constructor.call(o,
-        k || serverID,
-        params || { table: table.servers, schema: serverSchema }
-    );
+    if (!k) {
+        k = serverID;
+    }
+    if (!params) {
+        params = {
+            table: table.servers,
+            schema: serverSchema
+        };
+    }
+    if (k == serverID) {
+        params.reconfig = true;
+    }
+    ServerEdit.sup.constructor.call(o, k, params);
 }
 
 extend(DBEdit, ServerEdit);
@@ -89,7 +98,7 @@ Server.id = function (cb) {
 init.push(function serversInit(cb) {
     rpc.defaultServerName(function (n) {
         var d = Editor.defaults(serverSchema);
-        d.name = n;
+        d.serverName = n;
         table.servers = new DBTable(db.reg, 'servers',
             { defaults: d }
         );

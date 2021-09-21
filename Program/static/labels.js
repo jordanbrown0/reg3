@@ -34,14 +34,13 @@ function label_badge(r, done, err) {
     var list;
     var t0 = Date.now();
 
-    Class.get(r.class, gotClass,
-        function () {
-            // NEEDSWORK modal
+    Class.get(r.class, gotClass);
+    function gotClass(c) {
+        if (!c) {
             alert('Unknown class');
             err();
+            return;
         }
-    );
-    function gotClass(c) {
         if (!c.badgeOK) {
             // NEEDSWORK modal
             alert('Not eligible for badging - must upgrade first.');

@@ -31,12 +31,12 @@ StationManager.prototype.summarize = function (k, r) {
     var serverName = td({ id: 'server' });
     if (r.server) {
         table.servers.get(r.server, function (r) {
-            serverName.appendChild(r.name);
+            serverName.appendChild(r.serverName);
         });
     }
     return (tr(
         serverName,
-        td(r.name, { id: 'name' }),
+        td(r.stationName, { id: 'name' }),
         td(r.metaclasses, { id: 'metaclasses' }),
         labelName
     ));
@@ -53,18 +53,20 @@ StationManager.prototype.header = function () {
 
 function StationEdit(k, params) {
     var o = this;
-    var myParams = {};
-    if (params) {
-        myParams = Object.assign(myParams, params);
+    if (!k) {
+        k = stationID;
     }
-    Object.assign(myParams, {
-        table: table.stations,
-        schema: stationSchema,
-    });
-    StationEdit.sup.constructor.call(o,
-        k || stationId,
-        myParams
-    );
+    if (!params) {
+        params = {
+            table: table.stations,
+            schema: stationSchema,
+        };
+    }
+    if (k == stationID) {
+        params.reconfig = true;
+    }
+
+    StationEdit.sup.constructor.call(o, k, params);
 }
 
 extend(DBEdit, StationEdit);
@@ -78,13 +80,6 @@ StationEdit.prototype.activate = function () {
     });
 };
 
-StationEdit.prototype.done = function () {
-    var o = this;
-    Config.get(function () {
-        StationEdit.sup.done.call(o);
-    });
-};
-
 // NEEDSWORK:  A > S > StationEdit should maybe create record if needed.
 
 var Station = {};
@@ -94,10 +89,10 @@ Station.get = function (cb) {
     // to another server without refreshing, the station's server ID won't be
     // fixed. Or maybe something stupider.
     Server.id(function (id) {
-        table.stations.getOrAdd(stationId, {server: id}, null, function (r) {
+        table.stations.getOrAdd(stationID, {server: id}, null, function (r) {
             if (r.server != id) {
                 r.server = id;
-                table.stations.put(stationId, r, null, function (rNew) {
+                table.stations.put(stationID, r, null, function (rNew) {
                     cb(rNew);
                 });
                 return;
@@ -134,12 +129,15 @@ Station.reportPrinterFilter = function (params) {
 var stationSchema = [
     [
         { title: 'General' },
-        { field: 'name', label: 'Station name', default: 'Unconfigured', required: true },
+        { field: 'stationName', label: 'Station name',
+            default: 'Unconfigured',
+            required: true
+        },
         { field: 'server', label: 'Server name',
             readOnly: true,
             input: InputDBLookup,
             table: 'servers',
-            textField: 'name'
+            textField: 'serverName'
         },
         { field: 'label', label: 'Label Printer', input: InputDBPicker,
             table: 'printers',

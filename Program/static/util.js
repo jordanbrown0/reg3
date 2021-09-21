@@ -50,83 +50,6 @@ function forceArray(o)
 	return ([o]);
 }
 
-var Config = {};
-
-Config.check = function (cb) {
-    Debug.config('config:  checking');
-    if (!cfg || !cfg._versions || !cfg._last) {
-        Debug.config('config:  forced');
-        cb(true);
-        return;
-    }
-    if (cfg._last + cfg.ttl*1000 > Date.now()) {
-        Debug.config('config:  not time yet');
-        cb(false);
-        return;
-    }
-    Config.getVersions(function (r) {
-        // NEEDSWORK this should probably be a flag on the table, rather
-        // than a list here.
-        var cfgtables = [ 'global', 'stations', 'servers', 'corrections',
-            'fields' ];
-        for (var i = 0; i < cfgtables.length; i++) {
-            var tName = cfgtables[i];
-            if (r._versions[tName] != cfg._versions[tName]) {
-                Debug.config('config:  '+tName+' updated');
-                cb(true);
-                return;
-            }
-        }
-        Debug.config('config:  no change');
-        cfg._last = Date.now();
-        cb(false);
-    });
-};
-
-Config.refresh = function (cb) {
-    Config.check(function (needed) {
-        if (!needed) {
-            cb();
-            return;
-        }
-        Config.get(cb);
-    });
-};
-
-Config.getVersions = function (cb) {
-    db.reg.listTables(function (tables) {
-        var ret = {};
-        for (var i in tables) {
-            ret[i] = tables[i].version;
-        }
-        cb({_versions: ret});
-    });
-};
-
-// Retrieve global and per-station configuration and merge them.
-// Store the result in the global cfg.
-Config.get = function(cb) {
-    var res = {};
-    // NEEDSWORK this should be a plugin list.
-    var funcs = [ Global.get, Server.get, Station.get, Config.getVersions,
-        CorrectionsManager.get, FieldsManager.get ];
-
-    function got(r) {
-        Object.assign(res, r);
-        var f = funcs.shift();
-        if (f) {
-            f(got);
-        } else {
-            res._last = Date.now();
-            Debug.config('config:', res);
-            cfg = res;
-            cb();
-        }
-    }
-
-    got({});
-}
-
 function joinTruthy(a, sep) {
 	var a2 = [];
 	for (var i = 0; i < a.length; i++) {
@@ -281,6 +204,37 @@ ArrayObject.prototype.toArray = function () {
         a.push(r);
     });
     return (a);
+};
+
+ArrayObject.prototype.iter = function () {
+    var o = this;
+    return (new ArrayObjectIter(o));
+};
+
+function ArrayObjectIter(ao) {
+    var o = this;
+    o.ao = ao;
+    o.cur = null;
+    o.keys = null;
+    o.i = 0;
+}
+
+ArrayObjectIter.prototype.next = function () {
+    var o = this;
+    for (;;) {
+        if (o.cur) {
+            k = o.keys.shift();
+            if (k) {
+                return ({key: k, obj: o.cur[k]});
+            }
+        }
+        if (o.i >= o.ao.array.length) {
+            return (undefined);
+        }
+        o.cur = o.ao.array[o.i];
+        o.i++;
+        o.keys = Object.keys(o.cur);
+    }
 };
 
 var getClassName = function (obj) {

@@ -1,4 +1,4 @@
-var stationId = cookie('StationID');
+var stationID = cookie('StationID');
 var cfg;
 
 window.onload = function () {
