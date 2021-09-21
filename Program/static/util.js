@@ -174,6 +174,7 @@ function compareFunction(fields) {
 function ArrayObject(a) {
     var o = this;
     o.array = a;
+    o.length = o.array.length;
 }
 
 ArrayObject.prototype.forEach = function (cb) {
@@ -206,6 +207,15 @@ ArrayObject.prototype.toArray = function () {
     return (a);
 };
 
+ArrayObject.prototype.pop = function () {
+    var o = this;
+    var e = o.array.pop();
+    o.length = o.array.length;
+    for (k in e) {
+        return ({ key: k, obj: e[k] });
+    }
+};
+
 ArrayObject.prototype.iter = function () {
     var o = this;
     return (new ArrayObjectIter(o));
@@ -214,26 +224,19 @@ ArrayObject.prototype.iter = function () {
 function ArrayObjectIter(ao) {
     var o = this;
     o.ao = ao;
-    o.cur = null;
-    o.keys = null;
     o.i = 0;
 }
 
 ArrayObjectIter.prototype.next = function () {
     var o = this;
-    for (;;) {
-        if (o.cur) {
-            k = o.keys.shift();
-            if (k) {
-                return ({key: k, obj: o.cur[k]});
-            }
-        }
-        if (o.i >= o.ao.array.length) {
-            return (undefined);
-        }
-        o.cur = o.ao.array[o.i];
-        o.i++;
-        o.keys = Object.keys(o.cur);
+    if (o.i >= o.ao.array.length) {
+        return (undefined);
+    }
+
+    var e = o.ao.array[o.i];
+    o.i++;
+    for (k in e) {
+        return ({key: k, obj: e[k]});
     }
 };
 

@@ -130,9 +130,14 @@ input.Disabled {
     cursor: pointer;
 }
 
-.ListNoMatch {
+.ListNoMatches {
     text-align: center;
     background: red;
+}
+
+.ListMoreMatches, .ListAllMatches {
+    text-align: center;
+    background: lightgreen;
 }
 
 .ClassManager .List #amount, .ClassPicker .List #amount {

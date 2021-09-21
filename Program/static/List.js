@@ -64,7 +64,7 @@ List.prototype.refresh = function () {
         : { match: o.search };
     var listParams = {
         filter: filter,
-        limit: o.params.limit,
+        limit: o.params.limit+1,
         sort: o.params.sort
     };
     o.params.table.list(listParams, function (recs) {
@@ -100,6 +100,10 @@ List.prototype.refresh = function () {
 
         o.rows = [];
         o.selected = null;
+        var more = recs.length > o.params.limit;
+        if (more) {
+            recs.pop();
+        }
         recs.forEach(function (k, r) {
             var rowObj = row(k, r);
             o.rows.push(rowObj);
@@ -109,7 +113,21 @@ List.prototype.refresh = function () {
             o.table.appendChild(tr(
                 td('No matches', {
                     colSpan: 100,
-                    className: 'ListNoMatch'
+                    className: 'ListNoMatches'
+                })
+            ));
+        } else if (more) {
+            o.table.appendChild(tr(
+                td('More matches not shown', {
+                    colSpan: 100,
+                    className: 'ListMoreMatches'
+                })
+            ));
+        } else {
+            o.table.appendChild(tr(
+                td('All matches shown', {
+                    colSpan: 100,
+                    className: 'ListAllMatches'
                 })
             ));
         }
