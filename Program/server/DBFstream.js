@@ -1,6 +1,6 @@
 const fs = require('fs');
 const Charset = require('./Charset');
-const { assert, mkdate } = require('./utils');
+const { assert, mkdate, log } = require('./utils');
 
 function DBFField(off, name, type, length, dec) {
     var o = this;
@@ -72,7 +72,13 @@ DBFstream.import = async function(fileName, params, cb) {
     var need = 10;
     var have = 0;
     var chunks = [];
-    
+    var fields;
+    var lastmod;
+    var nRec;
+    var recSize;
+    var version;
+    var hdrSize;
+
     stream.on('data', function (chunk) {
         chunks.push(chunk);
         have += chunk.length;
@@ -84,11 +90,11 @@ DBFstream.import = async function(fileName, params, cb) {
 
             switch (state) {
             case PREHEADER:
-                var version = buf.readUInt8(0);
+                version = buf.readUInt8(0);
                 if (version != 0x03 && version != 0x30) {
                     throw new Error('Not a supported DBF file');
                 }
-                var hdrSize = buf.readUInt16LE(8);
+                hdrSize = buf.readUInt16LE(8);
                 
                 // Unread the preheader, then read the rest of the header.
                 have += buf.length;
@@ -98,14 +104,14 @@ DBFstream.import = async function(fileName, params, cb) {
                 break;
                 
             case HEADER:
-                var lastmod = new Date(
+                lastmod = new Date(
                     buf.readUInt8(1)+2000,
                     buf.readUInt8(2),
                     buf.readUInt8(3)
                 );
-                var nRec = buf.readUInt32LE(4);
-                var recSize = buf.readUInt16LE(10);
-                var fields = {
+                nRec = buf.readUInt32LE(4);
+                recSize = buf.readUInt16LE(10);
+                fields = {
                     _deleted: new DBFField(0, '_deleted', 'd', 1, 0)
                 };
                 let recOff = 1;
@@ -125,7 +131,7 @@ DBFstream.import = async function(fileName, params, cb) {
                 // NEEDSWORK might need to look for ^Z or number of
                 // records here.
                 var r = {};
-                for (fn in fields) {
+                for (let fn in fields) {
                     r[fn] = fields[fn].get(buf);
                 }
                 cb(r);
