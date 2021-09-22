@@ -20,7 +20,8 @@ DBManager.prototype.activate = function () {
         header: o.header(),
         pick: function (k, r) { o.pick(k, r); },
         sort: o.sort,
-        cancel: function () { o.cancel(); }
+        cancel: function () { o.cancel(); },
+        limit: 20
     });
     o.appendChild(list);
     if (o.params.canShowAll) {
