@@ -3,9 +3,9 @@ function ReportTallies()
     var o = this;
     ReportTallies.sup.constructor.call(o, {
         items: [
+            { label: '&Summary', page: ReportSummary },
             { label: '&Picked up', page: ReportTallyPickedUp },
             { label: '&New', page: ReportTallyNew },
-            { label: '&Summary', page: ReportSummary },
             { label: 'by &Class', page: ReportTallyByClass }
         ]
     });
