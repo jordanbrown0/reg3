@@ -4,7 +4,7 @@ var printerSchema = [
             readOnly: true,
             input: InputDBLookup,
             table: 'servers',
-            textField: 'name'
+            textField: 'serverName'
         },
         { field: 'windows', label: 'Windows name', readOnly: true },
         { field: 'name', label: 'Name', default: '' },
@@ -45,7 +45,7 @@ PrinterManager.prototype.summarize = function (k, r) {
     var serverName = td({ id: 'serverName' });
     if (r.server) {
         table.servers.get(r.server, function (r) {
-            serverName.appendChild(r.name);
+            serverName.appendChild(r.serverName);
         });
     }
     return (tr(
