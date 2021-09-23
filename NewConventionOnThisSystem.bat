@@ -17,15 +17,15 @@ if exist "%dest%" (
 	goto :EOF
 )
 
-set z=%CD%\Program\imported\7za
-
-call Program\lib\mkwad %myname%.7z program
-
 mkdir %dest%
 if errorlevel 1 (
 	echo Bad directory name %myname%, aborting.
 	goto :EOF
 )
+
+set z=%CD%\Program\imported\7za
+
+call Program\lib\mkwad %myname%.7z program
 
 %z% x -o%dest% %myname%.7z > nul
 erase %myname%.7z
