@@ -8,8 +8,9 @@ cd %~p0
 
 set /p myname=Directory for new convention?
 
-call :getparent %CD%
-set dest=%parent%%myname%
+call Program\lib\FolderPath Personal DOCUMENTS
+set parent=%DOCUMENTS%\Reg3
+set dest=%parent%\%myname%
 
 if exist "%dest%" (
 	echo %dest% already exists
@@ -26,14 +27,10 @@ if errorlevel 1 (
 	goto :EOF
 )
 
-%z% x -o%dest% %myname%.7z
+%z% x -o%dest% %myname%.7z > nul
 erase %myname%.7z
 call Program\lib\mkbat %dest% %myname%
 
 echo %dest% is ready.
 
-goto :EOF
-
-:getparent
-set parent=%~dp1
 goto :EOF

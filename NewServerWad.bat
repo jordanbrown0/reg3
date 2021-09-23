@@ -36,7 +36,7 @@ echo BeginPrompt="Do you want to install Reg3 for a %myname%?"       >> tmp.cfg
 echo RunProgram="Program\lib\Setup.bat"                              >> tmp.cfg
 echo ;!@InstallEnd@!                                                 >> tmp.cfg
 
-copy /b Program\imported\7zSD-noadmin.sfx + tmp.cfg + %outz% %outexe%
+copy /b Program\imported\7zSD-noadmin.sfx + tmp.cfg + %outz% %outexe% > nul
 erase tmp.cfg
 erase %outz%
 

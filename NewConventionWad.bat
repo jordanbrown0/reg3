@@ -24,7 +24,7 @@ set z=Program\imported\7za
 
 call Program\lib\mkwad %outz% program data node
 echo set /p myname=Directory for new convention? > myname.bat
-%z% a %outz% myname.bat
+%z% a %outz% myname.bat > nul
 erase myname.bat
 
 echo ;!@Install@!UTF-8!                                              > tmp.cfg
@@ -33,7 +33,7 @@ echo BeginPrompt="Do you want to install Reg3 for a new convention?" >> tmp.cfg
 echo RunProgram="Program\lib\Setup.bat"                              >> tmp.cfg
 echo ;!@InstallEnd@!                                                 >> tmp.cfg
 
-copy /b Program\imported\7zSD-noadmin.sfx + tmp.cfg + %outz% %outexe%
+copy /b Program\imported\7zSD-noadmin.sfx + tmp.cfg + %outz% %outexe% > nul
 erase tmp.cfg
 erase %outz%
 
