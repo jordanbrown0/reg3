@@ -7,6 +7,8 @@ Member.name = function (r) {
     return joinTruthy([r.fname, r.lname], ' ');
 };
 
+// Member field names are all lower case, to allow AMF and AMXI
+// to be case insensitive.
 Member.schema = [
     [
         { title: 'General' },
@@ -34,10 +36,10 @@ Member.schema = [
         { field: 'amount', label: 'Amount paid', readOnly: true,
             input: InputCurrency },
         { field: 'number', label: 'Number', readOnly: true, input: InputInt },
-        { field: 'transferFrom', label: 'Transferred from', readOnly: true,
+        { field: 'transferfrom', label: 'Transferred from', readOnly: true,
             input: InputDBLookup, table: 'members', textField: Member.name
         },
-        { field: 'transferTo', label: 'Transferred to', readOnly: true,
+        { field: 'transferto', label: 'Transferred to', readOnly: true,
             input: InputDBLookup, table: 'members', textField: Member.name
         }
     ],
@@ -55,10 +57,10 @@ Member.setTitle = function () {
     var title = new DElement('div');
 
     title.appendChild(Member.name(o.r) + ' - ');
-    if (o.r.transferTo) {
+    if (o.r.transferto) {
         var transferSpan = new DElement('span');
         title.appendChild('Transferred to ', transferSpan);
-        table.members.get(o.r.transferTo, function (r) {
+        table.members.get(o.r.transferto, function (r) {
             transferSpan.appendChild(Member.name(r));
         });
     } else if (o.r.void) {
@@ -96,7 +98,7 @@ function MemberManager() {
         table: table.members,
         summarize: function (k, r) {
             var status;
-            if (r.transferTo) {
+            if (r.transferto) {
                 status = 'T';
             } else if (r.void) {
                 status = 'X';
@@ -457,7 +459,7 @@ function MemberTransfer(k, r) {
     var o = this;
     o.rTransferFrom = r;
     var r2 = deepishCopy(r);
-    r2.transferFrom = k;
+    r2.transferfrom = k;
     MemberTransfer.sup.constructor.call(o, r2);
 }
 
@@ -475,10 +477,10 @@ MemberTransfer.prototype.add = function () {
     MemberTransfer.sup.add.call(o, function (k) {
         // The new record has been added, and its key is k.
         // Record that as the transfer-to of the old record, and mark it void.
-        o.rTransferFrom.transferTo = k;
+        o.rTransferFrom.transferto = k;
         o.rTransferFrom.void = true;
         // Write the old record.
-        table.members.put(o.r.transferFrom, o.rTransferFrom, null,
+        table.members.put(o.r.transferfrom, o.rTransferFrom, null,
             function (rNew) {
                 // Continue on to edit the new record.
                 base.switchTo(new MemberDisplay(k));

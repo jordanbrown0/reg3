@@ -48,6 +48,14 @@ FieldsManager.get = function (cb) {
 
     function got(recs) {
         recs.forEach(function (k, r) {
+            var fields = r.fields;
+            if (fields) {
+                fields.forEach(function (ent) {
+                    if (ent.field) {
+                        ent.field = ent.field.toLowerCase();
+                    }
+                });
+            }
             ret.push(r);
         });
         cb({schema: {members: ret}});

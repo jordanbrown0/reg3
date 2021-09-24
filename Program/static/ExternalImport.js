@@ -136,6 +136,10 @@ ExternalImport.prototype.import = function (r) {
         rMap.contentMap = { 'class': classMap };
         delete rMap.classMap;
 
+        rMap.map.forEach(function (e) {
+            e.to = e.to.toLowerCase();
+        });
+
         var t = table[rMap.table];
         if (r.zap) {
             t.zap(doImport);
