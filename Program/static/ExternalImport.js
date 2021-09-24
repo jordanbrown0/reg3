@@ -38,6 +38,8 @@ var externalImportSchema = [
                             '': '',
                             number: 'Number',
                             datev2: 'Reg v2 date',
+                            mmddyyyy: 'mm/dd/yyyy or mm/dd/yy date',
+                            ddmmyyyy: 'dd/mm/yyyy or dd/mm/yy date',
                             dateMS: 'Member Solutions date'
                         }
                     }

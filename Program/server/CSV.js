@@ -131,9 +131,15 @@ CSV.import = async function(path, params, cb) {
                     return;
                 }
                 // Translate Array into { name: val } object.
-                var tmp = {};
+                let tmp = {};
                 for (j = 0; j < r.length; j++) {
                     tmp[fieldNames[j]] = r[j];
+                }
+                r = tmp;
+            } else {
+                let tmp = {};
+                for (j = 0; j < r.length; j++) {
+                    tmp[j+1] = r[j];
                 }
                 r = tmp;
             }

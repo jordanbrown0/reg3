@@ -30,7 +30,8 @@ Import.converters.datev2 = function (v) {
     if (!v) {
         return (undefined);
     }
-    var result = v.match('^([0-9]+)/([0-9]+)/([0-9]+) ([0-9]+):([0-9]+):([0-9]+)$');
+    var result = v.match(
+        '^([0-9]+)/([0-9]+)/([0-9]+) ([0-9]+):([0-9]+):([0-9]+)$');
     if (!result) {
         return (undefined);
     }
@@ -38,6 +39,42 @@ Import.converters.datev2 = function (v) {
     var [ , month, day, year, hour, minute, second ] = result;
 
     return (mkdate(year, month, day, hour, minute, second));
+};
+
+// Convert mm/dd/yy or mm/dd/yyyy string to v3 (ISO 8601) format.
+Import.converters.mmddyyyy = function (v) {
+    if (!v) {
+        return (undefined);
+    }
+    var result = v.match('^ *([0-9]+) */ *([0-9]+) */ *([0-9]+)');
+    if (!result) {
+        return (undefined);
+    }
+
+    var [ , month, day, year ] = result;
+    if (year < 100) {
+        year += 2000;
+    }
+
+    return (mkdate(year, month, day));
+};
+
+// Convert dd/mm/yy or dd/mm/yyyy string to v3 (ISO 8601) format.
+Import.converters.ddmmyyyy = function (v) {
+    if (!v) {
+        return (undefined);
+    }
+    var result = v.match('^ *([0-9]+) */ *([0-9]+) */ *([0-9]+)');
+    if (!result) {
+        return (undefined);
+    }
+
+    var [ , day, month, year ] = result;
+    if (year < 100) {
+        year += 2000;
+    }
+
+    return (mkdate(year, month, day));
 };
 
 // Convert a Member Solutions m/d/y h:m{am|pm}
