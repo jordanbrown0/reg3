@@ -171,48 +171,6 @@ function InputCurrency(params) {
 
 extend(InputInt, InputCurrency);
 
-// function InputIntList(params)
-// {
-    // var o = this;
-    // InputIntList.sup.constructor.call(o, params);
-// }
-
-// extend(InputText, InputIntList);
-
-// InputIntList.prototype.get = function () {
-    // var o = this;
-    // var svals = InputIntList.sup.get.call(o).split(',');
-    // var ivals = [];
-    // svals.forEach(function (s) {
-        // var v = parseInt(s, 10);
-        // if (!isNaN(v)) {
-            // ivals.push(v);
-        // }
-    // });
-    // return (ivals);
-// };
-
-// InputIntList.prototype.set = function (ivals) {
-    // var o = this;
-    // ivals = ivals || [];
-    // InputIntList.sup.set.call(o, ivals.join(','));
-// };
-
-// NEEDSWORK:  this detects errors of the form "xxx" and "xxx123",
-// but not "123xxx"; the xxx is silently ignored.
-// InputIntList.prototype.validate = function () {
-    // var o = this;
-    // var svals = InputIntList.sup.get.call(o).split(',');
-    // if (svals &&
-        // svals.some(function (s) {
-            // return (isNaN(parseInt(s, 10)));
-        // })
-    // ) {
-        // return (["Invalid number"]);
-    // }
-    // return (InputIntList.sup.validate.call(o));
-// };
-
 function InputBool(params)
 {
     var o = this;
@@ -697,7 +655,6 @@ InputMulti.prototype.row = function (index, child) {
 InputMulti.prototype.add = function (index) {
     var o = this;
     var child = o.newChild();
-    child.set(o.params.default);
     o.children.splice(index, 0, child);
     o.refresh();
 };
