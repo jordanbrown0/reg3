@@ -8,21 +8,15 @@ extend(Report, ReportList);
 ReportList.prototype.header = function () {
     var o = this;
     return (tr(
+            th('#', {id: 'number'}),
             th('Last'),
             th('First'),
             th('Address')
         )
     );
 };
-ReportList.prototype.footer = function () {
-    var o = this;
-    return (tr(
-            th('Last'),
-            th('First'),
-            th('Address')
-        )
-    );
-};
+
+ReportList.prototype.footer = ReportList.prototype.header;
 
 ReportList.prototype.body = function (cb) {
     var o = this;
@@ -32,6 +26,7 @@ ReportList.prototype.body = function (cb) {
             .sort(compareFunction(['lname', 'fname']))
             .forEach(function (r) {
                 body.push(tr(
+                    td(r.number || '', {id: 'number'}),
                     td(r.lname || ''),
                     td(r.fname || ''),
                     td(joinTruthy(

@@ -86,6 +86,11 @@ input.Disabled {
     text-align: center;
 }
 
+.MemberManager .List #number {
+    width: 5ch;
+    text-align: right;
+}
+
 .MemberManager .List #footer {
     color: gray;
     text-align: center;
@@ -232,6 +237,10 @@ html, body {
 
 .ReportList th, .ReportDups th {
     text-align: left;
+}
+
+.ReportList #number {
+    text-align: right;
 }
 
 .ConflictResolver .Difference {
