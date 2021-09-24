@@ -122,7 +122,7 @@ function MemberManager() {
             ));
         },
         footer: tr({ id: 'footer' },
-            td({colSpan: 2}, '* picked up / T transferred / X void')
+            td({colSpan: 100}, '* picked up / T transferred / X void')
         ),
         pick: function (k) {
             base.switchTo(new MemberDisplay(k));
