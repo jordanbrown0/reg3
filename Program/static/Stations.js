@@ -118,14 +118,6 @@ Station.labelPrinterFilter = function (params) {
     return (f);
 };
 
-Station.reportPrinterFilter = function (params) {
-    var f = {and: [
-        {not: {f: 'isLabel'}},
-        Station.printerFilter(params)
-    ]};
-    return (f);
-};
-
 var stationSchema = [
     [
         { title: 'General' },
@@ -145,15 +137,6 @@ var stationSchema = [
                 return (joinTruthy([r.name, r.windows], ' / '));
             },
             filter: Station.labelPrinterFilter,
-            default: ''
-        },
-        { field: 'reportPrinter', label: 'Report printer',
-            input: InputDBPicker,
-            table: 'printers',
-            textField: function (r) {
-                return (joinTruthy([r.name, r.windows], ' / '));
-            },
-            filter: Station.reportPrinterFilter,
             default: ''
         },
         { field: 'metaclasses', label: 'Metaclasses', default: '' }
