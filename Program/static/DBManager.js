@@ -124,6 +124,18 @@ DBEdit.prototype.activate = function () {
                 }}
             ]);
         }
+        if (o.params.canSaveCopy) {
+            base.addNav([
+                { label: 'Save Copy', func: function () {
+                    if (working(true)) {
+                        return;
+                    }
+                    if (editor.get()) {
+                        o.add(home);
+                    }
+                }}
+            ]);
+        }
     });
 };
 
@@ -160,6 +172,11 @@ DBEdit.prototype.cancel = function () {
 DBEdit.prototype.delete = function (cb) {
     var o = this;
     o.params.table.delete(o.k, o.r, cb);
+};
+
+DBEdit.prototype.add = function (cb) {
+    var o = this;
+    o.params.table.add(null, o.r, null, cb);
 };
 
 DBEdit.prototype.title = function () {

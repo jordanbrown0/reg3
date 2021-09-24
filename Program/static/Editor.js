@@ -131,6 +131,14 @@ Editor.prototype.done = function () {
         o.params.done();
         return;
     }
+    
+    if (o.get()) {
+        o.params.done();
+    }
+};
+
+Editor.prototype.get = function () {
+    var o = this;
 
     o.correct();
 
@@ -145,13 +153,14 @@ Editor.prototype.done = function () {
         selectedError = selectedError || errors[0];
 
         o.switchEditPage(selectedError.page);
-        return;
+        return (false);
     }
 
     o.pages.forEach(function (page) {
         page.get(o.r);
     });
-    o.params.done();
+
+    return (true);
 };
 
 Editor.prototype.validate = function () {

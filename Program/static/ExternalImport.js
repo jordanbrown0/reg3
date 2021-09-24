@@ -70,10 +70,12 @@ function ExternalImportManager() {
         schema: externalImportSchema,
         canAdd: true,
         canDelete: true,
+        canSaveCopy: true,
         titleManager: 'External Import',
         titleEdit: 'Edit import mapping',
         titleAdd: 'New import mapping'
     };
+
     ExternalImportManager.sup.constructor.call(o, params);
 }
 extend(DBManager, ExternalImportManager);

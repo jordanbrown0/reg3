@@ -55,6 +55,7 @@ function ExternalExportManager() {
         schema: externalExportSchema,
         canAdd: true,
         canDelete: true,
+        canSaveCopy: true,
         titleManager: 'External Export',
         titleEdit: 'Edit export mapping',
         titleAdd: 'New export mapping'
