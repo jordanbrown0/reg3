@@ -12,8 +12,8 @@ Export.prototype.activate = function () {
         o.bools = new InputSelectMulti({options: Object.keys(tables)});
         o.appendChild(o.bools);
 
+        base.addCancel(home);
         base.addNav([
-            { label: 'Cancel', key: 'Escape', func: function () { home(); } },
             { label: '&All', func: function () {
                 db.reg.exportResync();
             } },

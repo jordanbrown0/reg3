@@ -171,7 +171,13 @@ DBEdit.prototype.cancel = function () {
 
 DBEdit.prototype.delete = function (cb) {
     var o = this;
-    o.params.table.delete(o.k, o.r, cb);
+    console.log("Delete");
+    modal("Really delete this record?", {
+        ok: function () {
+            o.params.table.delete(o.k, o.r, cb);
+        },
+        cancel: function () { working(false); }
+    });
 };
 
 DBEdit.prototype.add = function (cb) {

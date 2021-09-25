@@ -149,7 +149,9 @@ ExternalImport.prototype.import = function (r) {
             doImport();
         }
         function doImport() {
-            t.externalImport(r.file, rMap, home);
+            t.externalImport(r.file, rMap, function () {
+                modal("Import complete", { ok: home });
+            });
         }
     });
 };

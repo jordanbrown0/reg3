@@ -1,7 +1,8 @@
-function ConflictListResolver(conflicts)
+function ConflictListResolver(conflicts, params)
 {
     var o = this;
     o.conflicts = conflicts;
+    o.params = params;
     ConflictListResolver.sup.constructor.call(o, 'div');
 }
 extend(DElement, ConflictListResolver);
@@ -15,7 +16,7 @@ ConflictListResolver.prototype.activate = function () {
 ConflictListResolver.prototype.select = function (i) {
     var o = this;
     if (i >= o.conflicts.length) {
-        home();
+        o.params.done();
         return;
     }
     base.switchTo(new ConflictResolver(o.conflicts[i], {
@@ -37,11 +38,9 @@ ConflictResolver.prototype.activate = function () {
     var o = this;
     var c = o.c;
 
+    base.addCancel(function () { home(); });
     o.navResolve = { label: 'Resolve', func: function () { o.resolve(); } };
-    base.addNav([
-        { label: 'Cancel', key: 'Escape', func: function () { home(); } },
-        o.navResolve
-    ]);
+    base.addNav([o.navResolve]);
     if (o.params.skipped) {
         base.addNav([
             { label: 'Skip', func: function () { o.skip(); } }

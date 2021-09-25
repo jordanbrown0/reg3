@@ -8,7 +8,11 @@ function Import()
         onchange: function () {
             db.reg.importResync(fileInput.n.files.item(0),
                 function (conflicts) {
-                    base.switchTo(new ConflictListResolver(conflicts));
+                    base.switchTo(new ConflictListResolver(conflicts, {
+                        done: function () {
+                            modal("Import done", { ok: home });
+                        }
+                    }));
                 }
             );
         }
@@ -19,9 +23,7 @@ function Import()
 extend(DElement, Import);
 
 Import.prototype.activate = function () {
-    base.addNav([
-        { label: 'Cancel', key: 'Escape', func: function () { home(); } }
-    ]);
+    base.addCancel(home);
 };
 
 Import.prototype.title = 'Import';

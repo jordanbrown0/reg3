@@ -22,7 +22,7 @@ NavBar.prototype.add = function (e) {
     if (e.order == undefined) {
         e.order = 50;
     }
-    
+
     e.button = new Button(e.label, {
         onclick: function () {
             if (isRPCActive()) {

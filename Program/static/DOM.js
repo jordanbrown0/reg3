@@ -128,7 +128,6 @@ DElement.prototype.insertBefore = function (newElement, refElement) {
         });
         return (ret);
     } else if (newElement instanceof DNode) {
-        console.log('DElement.insertbefore', o, newElement, refElement);
         o.n.insertBefore(newElement.n, refElement.n);
         return (newElement);
     } else {
