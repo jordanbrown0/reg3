@@ -47,7 +47,5 @@ extend(DElement, MenuPage);
 MenuPage.prototype.activate = function () {
     var o = this;
     o.menu.activate();
-    base.addNav([
-        { label: 'Cancel', key: 'Escape', func: function () { home(); } }
-    ]);
+    base.addCancel(home);
 };

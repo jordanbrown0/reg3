@@ -8,7 +8,7 @@ extend(Report, ReportSummary);
 ReportSummary.prototype.activate = function () {
     var o = this;
     base.addNav([
-        { label: '&Label', func: function () { o.label(); } },
+        { label: '&Label', order: 20, func: function () { o.label(); } },
     ]);
     ReportSummary.sup.activate.call(o);
 };

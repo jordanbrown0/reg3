@@ -165,12 +165,14 @@ MemberDisplay.prototype.activate = function () {
 
         if (!r.void) {
             base.addNav([
-                { label: 'Change', key: 'Enter', func: function () {
-                    if (working(true)) {
-                        return;
+                { label: 'Change', key: 'Enter', order: 1,
+                    func: function () {
+                        if (working(true)) {
+                            return;
+                        }
+                        base.switchTo(new MemberEdit(o.k));
                     }
-                    base.switchTo(new MemberEdit(o.k));
-                } }
+                }
             ]);
             if (cfg.offlinePrint) {
                 base.addNav([
@@ -196,7 +198,7 @@ MemberDisplay.prototype.activate = function () {
 
             if (r.pickedup) {
                 base.addNav([
-                    { label: 'Un-pick-up', perms: 'unmark',
+                    { label: 'Un-pick-up', perms: 'unmark', order: 70,
                         func: function () {
                             if (working(true)) {
                                 return;
@@ -223,7 +225,7 @@ MemberDisplay.prototype.activate = function () {
         }
         if (r.void) {
             base.addNav([
-                { label: 'Unvoid', perms: 'void', func: function () {
+                { label: 'Unvoid', perms: 'void', order: 80, func: function () {
                     if (working(true)) {
                         return;
                     }
@@ -234,7 +236,7 @@ MemberDisplay.prototype.activate = function () {
             ]);
         } else {
             base.addNav([
-                { label: 'Void', perms: 'void', func: function () {
+                { label: 'Void', perms: 'void', order: 80, func: function () {
                     if (working(true)) {
                         return;
                     }

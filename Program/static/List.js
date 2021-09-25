@@ -39,11 +39,13 @@ extend(DElement, List);
 
 List.prototype.activate = function () {
     var o = this;
+    base.addCancel(function () { o.cancel(); });
     base.addNav([
         { key: 'ArrowDown', func: function () { o.next(); } },
         { key: 'ArrowUp', func: function () { o.prev(); } },
-        { key: 'Enter', func: function () { o.pick(); } },
-        { label: 'Cancel', key: 'Escape', func: function () { o.cancel(); } }
+        { label: 'Pick', key: 'Enter', order: 1,
+            func: function () { o.pick(); }
+        }
     ]);
     o.searchbox.focus();
     o.refresh();

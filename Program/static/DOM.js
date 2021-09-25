@@ -113,6 +113,31 @@ DElement.prototype.appendChild = function (/*args*/) {
     return (ret);
 };
 
+// Wrapper around insertBefore.  Perhaps this should allow multiple arguments
+// like appendChild does, but that doesn't naturally extend the base function
+// since the base function has the new element first and then the reference
+// element.  Flattens arrays.  Returns the last node inserted.
+DElement.prototype.insertBefore = function (newElement, refElement) {
+    var ret;
+    var o = this;
+    Debug.dom(o.toString() + ' inserting ' + newElement +
+        ' before ' + refElement);
+    if (newElement instanceof Array) {
+        newElement.forEach(function (e) {
+            ret = o.insertBefore(e, refElement);
+        });
+        return (ret);
+    } else if (newElement instanceof DNode) {
+        console.log('DElement.insertbefore', o, newElement, refElement);
+        o.n.insertBefore(newElement.n, refElement.n);
+        return (newElement);
+    } else {
+        ret = new DText(newElement);
+        o.n.insertBefore(ret.n, refElement.n);
+        return (ret);
+    }
+};
+
 // Merge with setAttributes?
 DElement.prototype.setAttribute = function (name, val) {
     Debug.dom('setAttribute('+name+', '+val+')');

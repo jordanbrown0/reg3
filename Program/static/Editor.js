@@ -13,7 +13,6 @@ function Editor(r, params)
     });
     o.r = r;
     o.params = {
-        cancelButton: 'Cancel',
         r: r
     }
     if (params.done) {
@@ -39,25 +38,20 @@ Editor.prototype.activate = function () {
             {
                 label: o.params.doneButton,
                 key: 'Enter',
+                order: 1,
                 func: function () {
                     o.done();
                 }
             }
         ]);
     }
-    base.addNav([
-        {
-            label: o.params.cancelButton,
-            key: 'Escape',
-            func: function () {
-                o.params.cancel();
-            }
-        }
-    ]);
+    base.addCancel(o.params.cancel);
     if (o.params.schema.length > 1) {
         o.navPrev = { label: '<', key: 'PageUp', touch: 'swipeRight',
+            order: 99,
             func:  function () { o.prev(); } };
         o.navNext = { label: '>', key: 'PageDown', touch: 'swipeLeft',
+            order: 100,
             func:  function () { o.next(); } };
         base.addNav([ o.navPrev, o.navNext ]);
     }

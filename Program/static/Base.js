@@ -104,6 +104,11 @@ Base.prototype.setNav = function (a) {
     o.addNav(a);
 };
 
+Base.prototype.addCancel = function (f) {
+    var o = this;
+    o.addNav([{ label: 'Cancel', key: 'Escape', order: 0, func: f }]);
+};
+
 Base.prototype.tick = function () {
     var o = this;
     rpc.eval(null, {dateTime: []}, function (d) {
