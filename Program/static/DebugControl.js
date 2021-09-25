@@ -21,6 +21,11 @@ DebugControl.prototype.activate = function () {
         cancel: home
     });
     o.appendChild(e);
+    base.addNav([
+        { label: 'Trigger error', func: function () {
+            throw new Error('artificial error');
+        }}
+    ]);
     e.activate();
 };
 DebugControl.prototype.title = 'Debug settings';

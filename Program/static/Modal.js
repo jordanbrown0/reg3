@@ -1,14 +1,18 @@
 function Modal(contents, params) {
     var o = this;
     Modal.sup.constructor.call(o, 'div', {className: 'ModalBackground'});
-    o.contents = new DElement('div', { className: 'Modal' });
-    o.contents.appendChild(contents);
-    o.appendChild(o.contents);
+    var body = new DElement('div', { className: 'ModalBody' }, contents);
+    var saveKeyHandler = document.documentElement.onkeydown;
+    document.documentElement.onkeydown = null;
     b = new Button('OK', {
-        onclick: function () { params.ok(); }
+        onclick: function () {
+            document.documentElement.onkeydown = saveKeyHandler;
+            params.ok();
+        }
     });
-    var buttons = new DElement('div', b, {className: 'ModalButtons'});
-    o.appendChild(buttons);
+    var buttons = new DElement('table', tr(td(b)), {className: 'ModalButtons'});
+
+    o.appendChild(new DElement('div', { className: 'Modal' }, body, buttons));
 }
 
 extend(DElement, Modal);
