@@ -21,8 +21,8 @@ function AdminSync()
     var o = this;
     AdminSync.sup.constructor.call(o, {
         items: [
-            { label: '&Import', page: Import },
-            { label: '&Export', page: Export }
+            { label: '&Import', page: SyncImport },
+            { label: '&Export', page: SyncExport }
         ]
     });
 }

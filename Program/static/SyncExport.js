@@ -1,11 +1,11 @@
-function Export()
+function SyncExport()
 {
     var o = this;
-    Export.sup.constructor.call(o, 'div');
+    SyncExport.sup.constructor.call(o, 'div');
 }
-extend(DElement, Export);
+extend(DElement, SyncExport);
 
-Export.prototype.activate = function () {
+SyncExport.prototype.activate = function () {
     var o = this;
 
     db.reg.listTables(function (tables) {
@@ -16,19 +16,14 @@ Export.prototype.activate = function () {
         base.addNav([
             { label: '&All', func: function () {
                 db.reg.exportResync();
+                home();
             } },
             { label: '&Selected', func: function () {
-                o.exportSelected();
+                db.reg.exportResync(o.bools.get());
+                home();
             } }
         ]);
     });
 };
 
-Export.prototype.exportSelected = function () {
-    var o = this;
-
-    var selected = o.bools.get();
-    db.reg.exportResync(selected);
-};
-
-Export.prototype.title = 'Export...';
+SyncExport.prototype.title = 'Export...';

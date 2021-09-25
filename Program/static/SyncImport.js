@@ -1,7 +1,7 @@
-function Import()
+function SyncImport()
 {
     var o = this;
-    Import.sup.constructor.call(o, 'div');
+    SyncImport.sup.constructor.call(o, 'div');
 
     var fileInput = new DElement('input', {
         type: 'file',
@@ -20,10 +20,10 @@ function Import()
     o.appendChild(fileInput);
     fileInput.n.click();
 }
-extend(DElement, Import);
+extend(DElement, SyncImport);
 
-Import.prototype.activate = function () {
+SyncImport.prototype.activate = function () {
     base.addCancel(home);
 };
 
-Import.prototype.title = 'Import';
+SyncImport.prototype.title = 'Import';
