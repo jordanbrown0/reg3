@@ -60,8 +60,8 @@ Member.setTitle = function () {
     if (o.r.transferto) {
         var transferSpan = new DElement('span');
         title.appendChild('Transferred to ', transferSpan);
-        table.members.get(o.r.transferto, function (r) {
-            transferSpan.appendChild(Member.name(r));
+        Member.getName(o.r.transferto, function (name) {
+            transferSpan.appendChild(name);
         });
     } else if (o.r.void) {
         title.appendChild('Void');
@@ -88,6 +88,26 @@ Member.setTitle = function () {
 
 Member.getSchema = function () {
     return Editor.getSchema('members', Member.schema);
+};
+
+Member.get = function (k, cb) {
+    table.members.getOrNull(k, function (r) {
+        if (r) {
+            cb(r);
+        } else {
+            modal('Record no longer exists.', { ok: home });
+        }
+    });
+};
+
+Member.getName = function (k, cb) {
+    table.members.getOrNull(k, function (r) {
+        if (r) {
+            cb(Member.name(r));
+        } else {
+            cb('Bad: '+k);
+        }
+    });
 };
 
 function MemberManager() {
@@ -153,7 +173,7 @@ MemberDisplay.prototype.activate = function () {
     var o = this;
     var schema = Member.getSchema();
 
-    table.members.get(o.k, gotRec);
+    Member.get(o.k, gotRec);
 
     function gotRec(r) {
         o.r = r;
@@ -316,7 +336,7 @@ MemberEdit.prototype.activate = function () {
     var o = this;
     var schema = Member.getSchema();
 
-    table.members.get(o.k, gotRec);
+    Member.get(o.k, gotRec);
 
     function gotRec(r) {
         o.r = r;
@@ -502,7 +522,7 @@ extend(DElement, MemberUpgrade);
 
 MemberUpgrade.prototype.activate = function () {
     var o = this;
-    table.members.get(o.k, function (r) {
+    Member.get(o.k, function (r) {
         base.switchTo(
             new UpgradePicker({
                 member: r,

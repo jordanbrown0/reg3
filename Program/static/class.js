@@ -122,7 +122,7 @@ ClassPicker.prototype.sort = [ 'order' ];
 
 var Class = {};
 
-// NEEDSWORK:  Something bad will happen if the get fails.
+// Calls the callback with null if the class does not exist.
 Class.get = function (id, cb) {
     table.classes.getOrNull(id, cb);
 };
