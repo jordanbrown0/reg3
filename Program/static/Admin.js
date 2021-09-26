@@ -35,8 +35,9 @@ function AdminPrinting()
     var o = this;
     AdminPrinting.sup.constructor.call(o, {
         items: [
-            { label: '&Manage', page:  PrinterManager },
-            { label: '&Test printer', func: label_test }
+            { label: '&Manage', page: PrinterManager },
+            { label: '&Test printer', func: Printers.testCurrent },
+            { label: '&Identify printers', page: PrinterIdentify }
         ]
     });
 }

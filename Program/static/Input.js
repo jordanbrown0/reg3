@@ -459,9 +459,7 @@ extend(InputDBLookup, InputClassLookup);
 function InputSelectMulti(params)
 {
     var o = this;
-    var content = new DElement('table', {
-        id: params.id,
-    });
+    var content = new DElement('table', { id: params.id });
 
     InputSelectMulti.sup.constructor.call(o, content, params);
     o.children = {};

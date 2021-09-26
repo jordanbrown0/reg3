@@ -156,6 +156,8 @@ methods.label_print = function (p, a) {
     label.startPage(hdc);
     var font = 'Helvetica';
     var size = 45;
+    var halign = null;
+    var valign = null;
 
     a.forEach(function (e) {
         if (e.font) {
@@ -164,10 +166,15 @@ methods.label_print = function (p, a) {
         if (e.size) {
             size = Math.round(e.size);
         }
-
+        if (e.halign) {
+            halign = e.halign;
+        }
+        if (e.valign) {
+            valign = e.valign;
+        }
         if (e.text != null) {
-            var align = label.TA_BOTTOM;
-            switch (e.halign) {
+            var align = 0;
+            switch (halign) {
             case 'left':
             default:
                 align += label.TA_LEFT;
@@ -179,6 +186,23 @@ methods.label_print = function (p, a) {
                 align += label.TA_CENTER;
                 break;
             }
+            switch(valign) {
+            case 'top':
+                align += label.TA_TOP;
+                break;
+            case 'bottom':
+            default:
+                align += label.TA_BOTTOM;
+                break;
+            case 'baseline':
+                align += label.TA_BASELINE;
+                break;
+            case 'center':
+                // Sigh.  Windows doesn't support it.  We should probably
+                // synthesize it.  But not today.
+                throw new Error('no valign=center');
+            }
+
             label.setTextAlign(hdc, align);
             label.selectObject(hdc, getFont(font, size));
             label.textOut(hdc, Math.round(e.x), Math.round(e.y),

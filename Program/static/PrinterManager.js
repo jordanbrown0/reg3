@@ -80,6 +80,68 @@ PrinterEdit.prototype.title = function () {
     return ('Configure printer...');
 };
 
+function PrinterIdentify() {
+    PrinterIdentify.sup.constructor.apply(this, arguments);
+}
+
+extend(DElement, PrinterIdentify);
+
+PrinterIdentify.prototype.title = 'Identify Printers...';
+
+PrinterIdentify.prototype.activate = function () {
+    var o = this;
+    var opts = {};
+    var all = [];
+
+    Server.id(gotServerID);
+
+    function gotServerID(id) {
+        table.printers.list({
+            filter:
+                { and: [
+                    {not: {f: 'hide'}},
+                    {f: 'isLabel'},
+                    {eq: [ {f: 'server'}, id ] }
+                ]},
+            },
+            gotPrinters
+        );
+    }
+
+    function gotPrinters(recs) {
+        recs.forEach(function (k, r) {
+            opts[k] = joinTruthy([r.name, r.windows], ' / ');
+            all.push(k);
+        });
+        if (all.length == 0) {
+            modal('There are no label printers configured.', { ok: home });
+        }
+
+        o.bools.setOptions([opts]);
+    }
+
+    o.bools = new InputSelectMulti({});
+    o.appendChild(o.bools);
+
+    base.addCancel(home);
+    base.addNav([
+        { label: '&All', func: function () {
+            Printers.identifyList(all, done);
+        } },
+        { label: '&Selected', func: function () {
+            var list = o.bools.get();
+            if (list.length > 0) {
+                Printers.identifyList(o.bools.get(), done);
+            } else {
+                modal('It\'s boring if you don\'t select any printers.');
+            }
+        } }
+    ]);
+
+    function done() {
+        modal('Identification labels sent.');
+    }
+};
 
 var Printers = {};
 
@@ -154,6 +216,69 @@ Printers.getPrinter = function (id, cb, abort) {
     }, abort);
 };
 
+Printers.testCurrent = function () {
+    Printers.identify(cfg.label, home);
+};
+
+Printers.identifyList = function (list, cb) {
+    // Note that we can't just shift away the list because the caller
+    // is still using it.
+    var i = 0;
+    function identify() {
+        if (i >= list.length) {
+            cb();
+            return;
+        }
+        var k = list[i];
+        i++;
+        Printers.identify(k, identify);
+    }
+    identify();
+};
+
+Printers.identify = function (k, cb) {
+    var p;
+    var testSize;
+    var s = 'TEST';
+
+    Printers.getPrinter(k, gotPrinter, cb);
+
+    function gotPrinter(p_) {
+        p = p_;
+        // Check for printing disabled.
+        if (!p) {
+            cb();
+            return;
+        }
+        testSize = p.dpiy / 2;
+        p.measure(cfg.font, testSize, s, gotDims);
+    }
+    function gotDims(testDims) {
+        var x = p.horzres/2;
+        var y = p.vertres/2 + testDims.cy/2;
+        var maxx = p.horzres - 1;
+        var maxy = p.vertres - 1;
+        var items = [
+            { font: cfg.font, halign: 'center' },
+
+            { x: x, y: y, size: testSize, valign: 'bottom', text: s },
+
+            { size: p.dpiy/4 },
+            { x: x, y: p.vertres*0.05, valign: 'top', text: p.pname },
+            { x: x, y: p.vertres*0.95, valign: 'botton', text: p.winName },
+
+            { x: 0, y: 0, lineto: { x: maxx, y: maxy }},
+            { x: 0, y: maxy, lineto: { x: maxx, y: 0 }},
+            { x: 0, y: 0, lineto: { x: maxx, y: 0 }},
+            { x: maxx, y: 0, lineto: { x: maxx, y: maxy }},
+            { x: maxx, y: maxy, lineto: { x: 0, y: maxy }},
+            { x: 0, y: maxy, lineto: { x: 0, y: 0 }}
+        ];
+
+        p.print(items, cb);
+    }
+};
+
 function Printer(id) {
     var o = this;
     o.id = id;
@@ -165,6 +290,7 @@ Printer.prototype.init = function (cb, abort) {
     Printers.get(o.id, gotPrinter);
 
     function gotPrinter(pRec) {
+        o.pname = pRec.name;
         o.winName = pRec.windows;
         rpc.printers(gotPrinters);
     }
@@ -178,7 +304,11 @@ Printer.prototype.init = function (cb, abort) {
         while (pEnt = plist.pop()) {
             if (pEnt.printerName == o.winName) {
                 if (pEnt.attributes.WORK_OFFLINE) {
-                    modal('Label printer is offline.', { ok: abort});
+                    modal('Label printer '
+                        + joinTruthy([o.pname, o.winName], ' / ')
+                        + ' is offline.',
+                        { ok: abort}
+                    );
                     return;
                 }
                 rpc.label_getDeviceCaps(o.winName, gotCaps);

@@ -39,6 +39,11 @@ Modal.prototype.close = function () {
 // What's the division of labor between this and Modal?
 // Who is responsible for keyboard handling?
 function modal(contents, params) {
+    params = params || {};
+    if (params.ok === undefined) {   // but null makes it explicitly disabled.
+        params.ok = function () {};
+    }
+
     mparams = Object.assign({}, params);
     if (params.ok) {
         mparams.ok = function () { m.close(); params.ok(); };

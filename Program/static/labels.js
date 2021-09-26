@@ -1,39 +1,3 @@
-function label_test() {
-    var s = 'TEST';
-    var size;
-    var p;
-
-    Printers.getPrinter(cfg.label, gotPrinter, function () {});
-
-    function gotPrinter(p_) {
-        p = p_;
-        // Check for printing disabled.
-        if (!p) {
-            home();
-            return;
-        }
-
-        size = p.dpiy / 2;
-        p.measure(cfg.font, size, s, gotDims);
-    }
-    function gotDims(dims) {
-        var x = p.horzres/2 - dims.cx/2;
-        var y = p.vertres/2 + dims.cy/2;
-        var maxx = p.horzres - 1;
-        var maxy = p.vertres - 1;
-        var items = [
-            { x: x, y: y, font: cfg.font, size:size, text: s },
-            { x: 0, y: 0, lineto: { x: maxx, y: maxy }},
-            { x: 0, y: maxy, lineto: { x: maxx, y: 0 }},
-            { x: 0, y: 0, lineto: { x: maxx, y: 0 }},
-            { x: maxx, y: 0, lineto: { x: maxx, y: maxy }},
-            { x: maxx, y: maxy, lineto: { x: 0, y: maxy }},
-            { x: 0, y: maxy, lineto: { x: 0, y: 0 }}
-        ]
-        p.print(items, home);
-    }
-}
-
 function label_badge(r, done, err) {
     var items = [];
     var p;
@@ -294,9 +258,10 @@ function label_badge(r, done, err) {
     }
     function shrink(limits, sizes, item, cb) {
         if (sizes.length == 0) {
-            alert('Too long:  '+item.text);
             log('Too long', item.text);
-            cb(sizes);
+            modal('Too long:  '+item.text, {
+                ok: function () { cb(sizes); }
+            });
             return;
         }
         item.size = sizes[0];
