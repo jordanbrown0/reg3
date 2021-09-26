@@ -116,7 +116,7 @@ ReportSummary.prototype.label = function () {
                 xpx += columnpx;
             }
             items.push({ x: xpx+col1px, y: ypx, halign: 'right', text: r.v||0 });
-            items.push({ x: xpx+col1px+gutterpx, y: ypx, text: r.t });
+            items.push({ x: xpx+col1px+gutterpx, y: ypx, halign: 'left', text: r.t });
         });
         p.print(items, function () { });
     }
