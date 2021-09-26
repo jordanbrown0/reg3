@@ -136,18 +136,16 @@ Printers.get = function (id, cb) {
 
 Printers.getPrinter = function (id, cb, abort) {
     if (cfg.noPrint) {
-        alert('Would print label now');
         // Note that cb(null) is *not* an error; it means that printing is
         // disabled, for test reasons, but the caller should behave as if
         // it had printed the label.  Perhaps instead it should return a dummy
         // Printer object, so that the caller doesn't have to know about this
         // case.  That would also free up cb(null) to use as an error case.
-        cb(null);
+        modal('Would print label now.', { ok: function() { cb(null); }});
         return;
     }
     if (!id) {
-        alert('No printer configured!');
-        abort();
+        modal('No printer configured!', { ok: abort });
         return;
     }
     var p = new Printer(id);
@@ -180,8 +178,7 @@ Printer.prototype.init = function (cb, abort) {
         while (pEnt = plist.pop()) {
             if (pEnt.printerName == o.winName) {
                 if (pEnt.attributes.WORK_OFFLINE) {
-                    alert('Label printer is offline');
-                    abort();
+                    modal('Label printer is offline.', { ok: abort});
                     return;
                 }
                 rpc.label_getDeviceCaps(o.winName, gotCaps);

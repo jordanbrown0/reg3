@@ -37,7 +37,6 @@ function runcallback(func)
 function assert(bool, msg)
 {
 	if (!bool) {
-		alert(msg);
 		throw (new Error(msg));
 	}
 }

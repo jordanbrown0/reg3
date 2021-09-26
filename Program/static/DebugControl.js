@@ -23,7 +23,7 @@ DebugControl.prototype.activate = function () {
     o.appendChild(e);
     base.addNav([
         { label: 'Trigger error', func: function () {
-            throw new Error('artificial error');
+            assert(false, 'Artificial assertion error');
         }}
     ]);
     e.activate();

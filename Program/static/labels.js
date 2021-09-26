@@ -48,14 +48,14 @@ function label_badge(r, done, err) {
     Class.get(r.class, gotClass);
     function gotClass(c) {
         if (!c) {
-            alert('Unknown class');
-            err();
+            modal('Unknown class \"'+r.class+'\".', { ok: err });
             return;
         }
         if (!c.badgeOK) {
-            // NEEDSWORK modal
-            alert('Not eligible for badging - must upgrade first.');
-            err();
+            modal('Class \"' + r.class
+                + '\" not eligible for badging - must upgrade first.',
+                { ok: err }
+            );
             return;
         }
         cl = c;

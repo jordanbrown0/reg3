@@ -456,8 +456,11 @@ NewMemberEditor.prototype.add = function (cb) {
 
     function gotNumber(n) {
         if (!n) {
-            alert('No membership numbers available!');
-            working(false);
+            modal('No membership numbers available!', {
+                ok: function () {
+                    working(false);
+                }
+            });
             return;
         }
         o.r.number = n;
