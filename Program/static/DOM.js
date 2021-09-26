@@ -37,6 +37,10 @@ function EntityNode(s)
 }
 extend(DNode, EntityNode);
 
+function nbsp() {
+    return (new EntityNode('nbsp'));
+}
+
 // DElement(Node)
 // DElement(type, [ attrs | child | string ] ... )
 function DElement()

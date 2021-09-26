@@ -41,14 +41,22 @@ ConflictResolver.prototype.activate = function () {
     base.addCancel(function () { home(); });
     o.navResolve = { label: 'Resolve', func: function () { o.resolve(); } };
     base.addNav([o.navResolve]);
+    o.navResolve.disable();
+
     if (o.params.skipped) {
         base.addNav([
             { label: 'Skip', func: function () { o.skip(); } }
         ]);
     }
 
-    var table = new DElement('table', {border: 1});
-    o.appendChild(table);
+    var table = new DElement('table', {border: 1}, tr(
+        th(),
+        th(),
+        th('Existing'),
+        th(),
+        th('Import')
+    ));
+
     var tName = c.tName;
     var left = c.existing;
     var right = c.import;
@@ -98,10 +106,10 @@ ConflictResolver.prototype.activate = function () {
         }
         var row = tr();
 
-        row.appendChild(td(f));
+        row.appendChild(th(f));
 
-        var lf = left[f] ? left[f].toString() : new EntityNode('nbsp');
-        var rf = right[f] ? right[f].toString() : new EntityNode('nbsp');
+        var lf = left[f] ? left[f].toString() : nbsp();
+        var rf = right[f] ? right[f].toString() : nbsp();
         if (equal(left[f], right[f])) {
             row.appendChild(td());
             row.appendChild(td(lf));
@@ -148,18 +156,17 @@ ConflictResolver.prototype.activate = function () {
             emit(f);
         }
     }
+    // Finally, if there were no differences then automatically resolve without
+    // displaying the table.
     if (isEmpty(o.unresolved)) {
-        o.navResolve.enable();
+        o.resolve();
     } else {
-        o.navResolve.disable();
+        o.appendChild(table);
     }
 };
 
 ConflictResolver.prototype.resolve = function () {
     var o = this;
-    // NEEDSWORK better would be if we could disable the button until all of the
-    // fields are resolved.  NavBar doesn't have a "disable" concept, nor does
-    // it have a way to index its contents.
     for (var f in o.unresolved) {
         return;
     }
