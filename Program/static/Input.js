@@ -21,22 +21,7 @@ function Input(content, params)
 }
 extend(DElement, Input);
 
-Input.prototype.get = function () {
-    var o = this;
-    return (o.content.n.value);
-};
-
-Input.prototype.set = function (value) {
-    var o = this;
-    assert(value !== null, o.params.id + ':  no value')
-    this.content.n.value = value;
-};
-
 Input.prototype.validate = function () {
-    var o = this;
-    if (o.params.required && !this.content.n.value) {
-        return (['Required']);
-    }
     return ([]);
 };
 
@@ -90,14 +75,24 @@ function InputInput(type, params) {
 
 extend(Input, InputInput);
 
-InputInput.prototype.correct = function () {
+InputInput.prototype.get = function () {
     var o = this;
-    if (o.params.corrections) {
-        var c = o.params.corrections[o.get()];
-        if (c) {
-            o.set(c);
-        }
+    assert(!o.params.readOnly, 'get of readOnly');
+    return (o.content.n.value);
+};
+
+InputInput.prototype.set = function (value) {
+    var o = this;
+    assert(value !== null, o.params.id + ':  null value')
+    this.content.n.value = value;
+};
+
+InputInput.prototype.validate = function () {
+    var o = this;
+    if (o.params.required && !this.content.n.value) {
+        return (['Required']);
     }
+    return ([]);
 };
 
 function InputText(params) {
@@ -106,21 +101,45 @@ function InputText(params) {
 }
 extend(InputInput, InputText);
 
+InputText.prototype.get = function () {
+    var o = this;
+    var v = InputText.sup.get.call(this);
+    // Note that the validator might disallow empty values.
+    if (!v) {
+        return (undefined);
+    }
+    return (v);
+};
+
 InputText.prototype.set = function (value) {
     var o = this;
     InputText.sup.set.call(o, value || '');
 };
 
-// InputText.prototype.validate = function () {
-    // var o = this;
-    // var value = InputText.sup.get.call(o);
-    // if (o.params.required && !value) {
-        // // NEEDSWORK this should really be concatenated with the
-        // // results from the superclass.
-        // return (["Required"]);
-    // }
-    // return (InputText.sup.validate.call(o));
-// };
+InputText.prototype.correct = function () {
+    var o = this;
+    if (o.params.readOnly) {
+        return;
+    }
+    var v = InputText.prototype.get.call(o);
+    if (v == undefined) {
+        return;
+    }
+    var newv = v.trim();
+    if (newv == '') {
+        o.set(undefined);
+        return;
+    }
+    if (o.params.corrections) {
+        var c = o.params.corrections[newv.toLowerCase()];
+        if (c) {
+            newv = c;
+        }
+    }
+    if (newv != v) {
+        o.set(newv);
+    }
+};
 
 function InputInt(params)
 {
@@ -133,8 +152,8 @@ InputInt.prototype.get = function () {
     var o = this;
     var sVal = InputInt.sup.get.call(this);
     // Note that the validator might disallow empty values.
-    if (sVal == null || sVal == '') {
-        return (null);
+    if (sVal === undefined) {
+        return (undefined);
     } else {
         return (parseInt(sVal, 10));
     }
@@ -184,6 +203,7 @@ extend(InputInput, InputBool);
 
 InputBool.prototype.get = function () {
     var o = this;
+    assert(!o.params.readOnly, 'get of readOnly');
     return (o.content.n.checked);
 };
 
@@ -202,6 +222,7 @@ extend(InputInput, InputFile);
 
 InputFile.prototype.get = function (value) {
     var o = this;
+    assert(!o.params.readOnly, 'get of readOnly');
     return (o.content.n.files.item(0));
 };
 
@@ -322,10 +343,27 @@ function InputSelect(params)
 }
 extend(Input, InputSelect);
 
+InputSelect.prototype.get = function () {
+    var o = this;
+    assert(!o.params.readOnly, 'get of readOnly');
+    if (!o.content.n.value) {
+        return (undefined);
+    }
+    return (o.content.n.value);
+}
+
 InputSelect.prototype.set = function (val) {
     var o = this;
-    InputSelect.sup.set.call(o, val);
+    o.content.n.value = val;
     o.value = val;
+};
+
+InputSelect.prototype.validate = function () {
+    var o = this;
+    if (o.params.required && !this.content.n.value) {
+        return (['Required']);
+    }
+    return ([]);
 };
 
 InputSelect.prototype.setOptions = function (opts) {
@@ -456,6 +494,11 @@ extend(InputDBLookup, InputClassLookup);
 
 // One might think that <select multiple> would do what we want, but I don't
 // like the Ctrl/Shift-click UI at all.
+// Note that this is willing to have a value of [].  One might think that
+// would lead to undefined, so that it doesn't get stored, but that wouldn't
+// allow for a non-empty default, that you could then edit down to empty.
+// (Note:  This is asymmetric with standard values, which won't let you
+// have a non-empty default and override it to the empty string.)
 function InputSelectMulti(params)
 {
     var o = this;
@@ -489,6 +532,7 @@ InputSelectMulti.prototype.set = function (listVal) {
 // list of options, should the result include them?
 InputSelectMulti.prototype.get = function (val) {
     var o = this;
+    assert(!o.params.readOnly, 'get of readOnly');
     var ret = [];
     for (var name in o.children) {
         if (o.children[name].get()) {
@@ -610,6 +654,7 @@ InputMulti.prototype.set = function (values) {
 
 InputMulti.prototype.get = function () {
     var o = this;
+    assert(!o.params.readOnly, 'get of readOnly');
     var ret = [];
     o.children.forEach(function (child) {
         ret.push(child.get());
@@ -735,6 +780,7 @@ InputObject.prototype.set = function (values) {
 
 InputObject.prototype.get = function () {
     var o = this;
+    assert(!o.params.readOnly, 'get of readOnly');
     var ret = {};
     for (k in o.children) {
         ret[k] = o.children[k].get();
