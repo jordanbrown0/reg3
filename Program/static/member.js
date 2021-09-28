@@ -11,7 +11,7 @@ Member.name = function (r) {
 // to be case insensitive.
 Member.schema = [
     [
-        { title: 'General' },
+        { title: 'Contact Info' },
         { field: 'fname', label: 'First name' },
         { field: 'lname', label: 'Last name' },
         { field: 'badge1', label: 'Badge name' },
