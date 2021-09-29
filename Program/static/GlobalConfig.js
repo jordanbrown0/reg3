@@ -8,8 +8,22 @@ var globalSchema = [
     ],
     [
         { title: 'Badges' },
-        { field: 'font', label: 'Badge font', default: 'Times New Roman', required: true },
-        { field: 'badgeCopies', label: 'Number of copies', input: InputInt, default: 1, required: true },
+        { field: 'font',
+            label: 'Badge font',
+            default: 'Times New Roman',
+            required: true
+        },
+        { field: 'badgeCopies',
+            label: 'Number of copies',
+            input: InputInt,
+            default: 1,
+            required: true
+        },
+        { field: 'realNameLabel',
+            label: 'Real name label too?',
+            input: InputBool,
+            default: false
+        },
         { field: 'badgeCity',
             label: 'City?  Size?',
             input: InputObject,
@@ -34,7 +48,9 @@ var globalSchema = [
             default: [160,140,120,100],
             required: true,
             params: { required: true }
-        },
+        }
+    ], [
+        { title: 'Advanced' },
         { field: 'ttl',
             label: 'How often to check configuration',
             input: InputInt,

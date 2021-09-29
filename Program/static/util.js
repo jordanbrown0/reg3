@@ -59,6 +59,23 @@ function joinTruthy(a, sep) {
 	return (a2.join(sep));
 }
 
+function sequence(cb, a) {
+    seq1();
+    return;
+
+    function seq1() {
+        var e = a.shift();
+        if (!e) {
+            cb();
+        } else if (e instanceof Function) {
+            e(seq1);
+        } else {
+            e.a.unshift(seq1);
+            e.f.apply(null, e.a);
+        }
+    }
+}
+
 function extend(sup, sub) {
 	sub.prototype = Object.create(sup.prototype);
 	sub.prototype.constructor = sub;

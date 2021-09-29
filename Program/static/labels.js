@@ -1,13 +1,11 @@
 function label_badge(r, done, err) {
-    var items = [];
     var p;
-    var allLimits;
-    var nameLimits;
-    var cityLimits;
-    var numberLimits;
     var cl;
-    var list;
     var t0 = Date.now();
+    var right;              // measured dims of right sidebar
+    var bottom;             // measures dims of bottom bar
+    var smallItems = [];    // right and bottom items
+    var nameLimits = {};
 
     Class.get(r.class, gotClass);
     function gotClass(c) {
@@ -33,230 +31,179 @@ function label_badge(r, done, err) {
             done();
             return;
         }
-        copies = cfg.badgeCopies;
 
-        var right = [];
-        if (cfg.badgeNumber.print) {
-            right.push(drawNumber);
-        }
-        if (cl.onBadge) {
-            right.push(drawClass);
-        }
+        var todo = [];
+        var printSeq = [];
 
-        allLimits = {
+        right = {
+            x: p.horzres,
+            y: p.vertres,
+            width: 0
+        };
+        bottom = {
+            x: 0,
+            y: p.vertres
+        };
+
+        var phoneLimits = {
             x: 0,
             y: p.vertres,
             h: p.horzres,
             v: p.vertres
         };
+        var badgeNameItems = [];
+        var realNameItems = [];
+        var phoneItems = [];
 
-        if (!cfg.badgeCity.print && right.length == 0) {
-            nameLimits = {
-                x: 0,
-                h: p.horzres,
-                v: p.vertres,
-                y: p.vertres
-            };
-            list = [drawName];
-        } else if (!cfg.badgeCity.print && right.length > 0) {
-            // NEEDSWORK these should be measured rather than constants.
-            numberLimits = {
-                x: p.horzres * .91,
-                h: p.horzres * .09,
-                y: p.vertres,
-                v: p.vertres
-            };
-
-            nameLimits = {
-                x: 0,
-                h: p.horzres * .9,
-                v: p.vertres,
-                y: p.vertres
-            };
-            list = right.concat(drawName);
-        } else if (cfg.badgeCity.print && right.length == 0) {
-            // NEEDSWORK these should be measured not constants.
-            cityLimits = {
-                x: 0,
-                h: p.horzres,
-                y: p.vertres,
-                v: p.vertres * .09
-            };
-
-            nameLimits = {
-                x: 0,
-                h: p.horzres,
-                v: p.vertres * .9,
-                y: p.vertres * .9
-            };
-            list = [drawName, drawCity];
-        } else { // cfg.badgeCity.print && cfg.badgeNumber
-            numberLimits = {
-                x: p.horzres * .91,
-                h: p.horzres * .09,
-                y: p.vertres,
-                v: p.vertres
-            };
-
-            cityLimits = {
-                x: 0,
-                h: p.horzres * .90,
-                y: p.vertres,
-                v: p.vertres * .09
-            };
-
-            nameLimits = {
-                x: 0,
-                h: p.horzres * .90,
-                v: p.vertres * .9,
-                y: p.vertres * .9
-            };
-            list = right.concat(drawName, drawCity);
+        if (cfg.badgeNumber.print && r.number) {
+            todo.push({f: addRight, a: [r.number.toString()]});
+        }
+        if (cl.onBadge) {
+            todo.push({f: addRight, a: [cl.onBadge]});
+        }
+        if (cfg.badgeCity.print) {
+            todo.push(doBottom);
         }
 
-        draw();
+        var doBadgeNameLabel = (r.badge1 || r.badge2);
+        var doRealNameLabel = cfg.realNameLabel || !doBadgeNameLabel;
 
-        function draw() {
-            if (list.length > 0) {
-                list.shift()();
-            } else {
-                var t1 = Date.now();
-                log('time to lay out badge', t1 - t0);
-                print();
-            }
+        todo.push(calcNameLimits);
+
+        if (doBadgeNameLabel) {
+            todo.push({ f: drawName,
+                a: [badgeNameItems, nameLimits, r.badge1, r.badge2] });
+            printSeq.push({ f: print, a: [smallItems, badgeNameItems] });
+        }
+        if (doRealNameLabel) {
+            todo.push({ f: drawName,
+                a: [realNameItems, nameLimits, r.fname, r.lname] });
+            printSeq.push({ f: print, a: [smallItems, realNameItems] });
         }
 
-        function print() {
-            var t1 = Date.now();
-            if (copies > 0) {
-                copies--;
-                p.print(items, print);
-            } else {
-                log('time to print badge', Date.now()-t1);
-                drawPhone();
-            }
+        if (cl.phoneLabel && r.phone) {
+            todo.push({f: drawName,
+                a: [phoneItems, phoneLimits, r.phone, undefined]});
+            printSeq.push({f: print, a: [phoneItems]});
         }
-        function drawPhone() {
-            if (cl.phoneLabel && r.phone) {
-                items = [];
-                shrink(allLimits, cfg.nameSizes, {
-                    halign: 'center',
-                    valign: 'center',
-                    font: cfg.font,
-                    text: r.phone
-                }, printPhone);
-            } else {
-                done();
-            }
-        }
-        function printPhone() {
-            p.print(items, done);
-        }
-        function drawName() {
-            var name1;
-            var name2;
-            if (r.badge1 || r.badge2) {
-                name1 = r.badge1;
-                name2 = r.badge2;
-            } else {
-                name1 = r.fname;
-                name2 = r.lname;
-            }
 
-            if (name1 && name2) {
-                drawTwoNames();
-                return;
-            } else if (name1 || name2) {
-                drawOneName();
-                return;
-            }
-            draw();
+        for (var i = 0; i < cfg.badgeCopies; i++) {
+            printSeq.forEach(function (e) { todo.push(e); });
+        }
 
-            function drawTwoNames() {
-                var s = [name1, name2].join(' ');
-                drawMaybe(nameLimits, {
-                    halign: 'center',
-                    valign: 'center',
-                    font: cfg.font,
-                    size: cfg.nameSizes[0],
-                    text: s
-                }, draw, drawTwoNamesLine1);
+        todo.push(timestamp);
+
+        sequence(done, todo);
+    }
+
+    function addRight(cb, text) {
+        p.measure(cfg.font, cfg.badgeNumber.size, text,
+            function (dims) {
+                var item = {
+                    x: right.x,
+                    y: right.y,
+                    size: cfg.badgeNumber.size,
+                    halign: 'right',
+                    valign: 'bottom',
+                    text: text
+                };
+                smallItems.push(item);
+                right.width = Math.max(right.width, dims.cx);
+                right.y -= dims.cy;
+                cb();
             }
+        );
+    }
+
+    function doBottom(cb, items) {
+        var components = [];
+        if (r.city) {
+            components.push(r.city);
+        }
+        if (r.country && r.country != 'USA' && r.country != 'US') {
+            components.push(r.country);
+        } else if (r.state) {
+            components.push(r.state);
+        }
+        var text = components.join(', ');
+        p.measure(cfg.font, cfg.badgeCity.size, text,
+            function (dims) {
+                var item = {
+                    halign: 'left',
+                    valign: 'bottom',
+                    x: bottom.x,
+                    y: bottom.y,
+                    size: cfg.badgeCity.size,
+                    text: text
+                };
+                smallItems.push(item);
+                bottom.y -= dims.cy;
+                cb();
+            }
+        );
+    }
+
+    function calcNameLimits(cb) {
+        nameLimits.x = 0;
+        nameLimits.y = bottom.y;
+        nameLimits.h = p.horzres - right.width;
+        nameLimits.v = bottom.y;
+        cb();
+    }
+
+    function drawName(cb, items, limits, name1, name2) {
+        if (name1 && name2) {
+            drawTwoNames(name1, name2);
+            return;
+        } else if (name1 || name2) {
+            drawOneName(name1 || name2);
+            return;
+        }
+        // No name?  How sad.
+        cb();
+        return;
+
+        function drawTwoNames() {
+            var s = [name1, name2].join(' ');
+            drawMaybe(items, nameLimits, {
+                halign: 'center',
+                valign: 'center',
+                size: cfg.nameSizes[0],
+                text: s
+            }, cb, drawTwoNamesLine1);
+            return;
+
             function drawTwoNamesLine1() {
-                var limits = Object.assign({}, nameLimits);
-                limits.y = limits.y - limits.v/2;
-                limits.v = limits.v / 2;
-                shrink(limits, cfg.nameSizes, {
+                var limits1 = Object.assign({}, limits);
+                limits1.y = limits.y - limits.v/2;
+                limits1.v = limits.v / 2;
+                shrink(items, limits1, cfg.nameSizes, {
                     halign: 'center',
                     valign: 'bottom',
-                    font: cfg.font,
                     text: name1
                 }, drawTwoNamesLine2)
             }
             function drawTwoNamesLine2(sizes) {
-                var limits = Object.assign({}, nameLimits);
-                limits.v = limits.v / 2;
-                shrink(limits, sizes, {
+                var limits2 = Object.assign({}, limits);
+                limits2.v = limits.v / 2;
+                shrink(items, limits2, sizes, {
                     halign: 'center',
                     valign: 'top',
-                    font: cfg.font,
                     text: name2
-                }, function (sizes) { draw(); })
-            }
-            function drawOneName(n) {
-                shrink(nameLimits, cfg.nameSizes, {
-                    halign: 'center',
-                    valign: 'center',
-                    font: cfg.font,
-                    text: name1 || name2
-                }, function (sizes) { draw(); })
+                }, function (sizes) { cb(); })
             }
         }
 
-        function drawCity() {
-            var components = [];
-            if (r.city) {
-                components.push(r.city);
-            }
-            if (r.country && r.country != 'USA' && r.country != 'US') {
-                components.push(r.country);
-            } else if (r.state) {
-                components.push(r.state);
-            }
-            items.push({
-                x: cityLimits.x,
-                y: cityLimits.y,
-                font: cfg.font,
-                size: cfg.badgeCity.size,
-                text: components.join(', ')
-            });
-            draw();
+        function drawOneName(n) {
+            shrink(items, limits, cfg.nameSizes, {
+                halign: 'center',
+                valign: 'center',
+                text: n
+            }, function (sizes) { cb(); })
         }
-        function drawNumber() {
-            if (r.number) {
-                items.push({
-                    x: numberLimits.x,
-                    y: numberLimits.y,
-                    font: cfg.font,
-                    size: cfg.badgeNumber.size,
-                    text: r.number
-                });
-            }
-            draw();
-        }
-        function drawClass() {
-            items.push({
-                x: numberLimits.x,
-                y: numberLimits.y * 0.9,
-                font: cfg.font,
-                size: cfg.numberSize,
-                text: cl.onBadge
-            });
-            draw();
-        }
-
     }
-    function shrink(limits, sizes, item, cb) {
+
+    function shrink(items, limits, sizes, item, cb) {
         if (sizes.length == 0) {
             log('Too long', item.text);
             modal('Too long:  '+item.text, {
@@ -265,16 +212,16 @@ function label_badge(r, done, err) {
             return;
         }
         item.size = sizes[0];
-        drawMaybe(limits, item,
+        drawMaybe(items, limits, item,
             function () { cb(sizes); },
-            function () { shrink(limits, sizes.slice(1), item, cb); }
+            function () { shrink(items, limits, sizes.slice(1), item, cb); }
         );
     }
 
-    function drawMaybe(limits, item, yes, no) {
-        p.measure(item.font, item.size, item.text, drawMaybeGotDims);
+    function drawMaybe(items, limits, item, yes, no) {
+        p.measure(cfg.font, item.size, item.text, drawMaybeGotDims);
         function drawMaybeGotDims(dims) {
-            if (dims.cx > limits.h) {
+            if (dims.cx > limits.h || dims.cy > limits.v) {
                 no();
             } else {
                 items.push(adjust(item, limits, dims));
@@ -284,8 +231,11 @@ function label_badge(r, done, err) {
     }
 
     function adjust(item, limits, dims) {
+        // Eventually it would be nice to use server-side alignment,
+        // but we don't have server-side vertical center.
         var item2 = {
-            font: item.font,
+            halign: 'left',
+            valign: 'bottom',
             size: item.size,
             text: item.text,
         };
@@ -314,6 +264,18 @@ function label_badge(r, done, err) {
             break;
         }
         return (item2);
+    }
+
+    function print(cb /* ... */) {
+        var allItems = [ {font: cfg.font} ];
+        for (var i = 1; i < arguments.length; i++) {
+            allItems = allItems.concat(arguments[i]);
+        }
+        p.print(allItems, cb);
+    }
+    
+    function timestamp(cb) {
+        log('Time to layout and print ', Date.now()-t0, 'ms');
     }
 }
 
