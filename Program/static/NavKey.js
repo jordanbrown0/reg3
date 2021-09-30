@@ -47,6 +47,13 @@ NavKey.prototype.getKeyHandler = function (e) {
 // NEEDSWORK is there a potential problem with using these names?
 NavKey.prototype.onkeydown = function (e) {
     var o = this;
+
+    // Chrome autocomplete fires a keydown event with no key.
+    // Ignore it.
+    if (e.key == undefined) {
+        Debug.keyboard('Chrome autocomplete?', e);
+        return;
+    }
     var h = o.getKeyHandler(e)
     if (h && !h.disabled) {
         Debug.keyboard('handle keydown', e.key);
