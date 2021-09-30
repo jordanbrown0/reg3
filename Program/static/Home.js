@@ -60,5 +60,6 @@ Home.prototype.title = function () {
 
 function home()
 {
+    document.body.style.fontSize = cfg.screenFontSize.toString() + 'pt';
     base.switchTo(new Home());
 }

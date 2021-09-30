@@ -4,7 +4,12 @@ var globalSchema = [
         { field: 'startDate', label: 'Convention start date',
             input: InputDate },
         { field: 'currencyPrefix', label: 'Currency prefix', default: '$' },
-        { field: 'currencySuffix', label: 'Currency suffix', default: '' }
+        { field: 'currencySuffix', label: 'Currency suffix', default: '' },
+        { field: 'screenFontSize',
+            label: 'Screen font size',
+            input: InputInt,
+            default: 14,
+            suffix: 'pt' },
     ],
     [
         { title: 'Badges' },

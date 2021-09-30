@@ -106,7 +106,7 @@ input.Disabled {
 
 .AlertSubtitle {
     color: red;
-    font-size: medium;
+    font-size: smaller;
     font-weight: normal;
 }
 
@@ -190,6 +190,14 @@ input.Disabled {
 html, body {
     height: 100%;
     margin: 0;
+}
+
+/*
+ * For some reason, input doesn't seem to inherit font-size from body.
+ * Everything else does...
+ */
+input {
+    font-size: inherit;
 }
 
 .Printers .List #type {
