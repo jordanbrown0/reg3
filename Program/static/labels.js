@@ -36,20 +36,21 @@ function label_badge(r, done, err) {
         var printSeq = [];
 
         right = {
-            x: p.horzres,
-            y: p.vertres,
+            x: p.limits.x + p.limits.h - 1,
+            y: p.limits.y,
             width: 0
         };
         bottom = {
-            x: 0,
-            y: p.vertres
+            x: p.limits.x,
+            y: p.limits.y,
+            v: 0
         };
 
         var phoneLimits = {
-            x: 0,
-            y: p.vertres,
-            h: p.horzres,
-            v: p.vertres
+            x: p.limits.x,
+            y: p.limits.y,
+            h: p.limits.h,
+            v: p.limits.v
         };
         var badgeNameItems = [];
         var realNameItems = [];
@@ -138,16 +139,17 @@ function label_badge(r, done, err) {
                 };
                 smallItems.push(item);
                 bottom.y -= dims.cy;
+                bottom.v += dims.cy;
                 cb();
             }
         );
     }
 
     function calcNameLimits(cb) {
-        nameLimits.x = 0;
+        nameLimits.x = p.limits.x;
         nameLimits.y = bottom.y;
-        nameLimits.h = p.horzres - right.width;
-        nameLimits.v = bottom.y;
+        nameLimits.h = p.limits.h - right.width;
+        nameLimits.v = p.limits.v - bottom.v;
         cb();
     }
 

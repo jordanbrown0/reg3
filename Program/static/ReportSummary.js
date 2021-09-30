@@ -88,17 +88,17 @@ ReportSummary.prototype.label = function () {
             return;
         }
 
-        var toppx = 0;
-        var bottompx = p.vertres;
-        var leftpx = 0;
-        var rightpx = p.horzres;
+        var toppx = p.limits.y - p.limits.v + 1;
+        var bottompx = p.limits.y;
+        var leftpx = p.limits.x;
+        var rightpx = p.limits.x + p.limits.v - 1;
 
         var size = 10;    // Points
-        var column = 1/3; // Fraction of label
+        var column = 72;  // Points
         var gutter = 4;   // Points
         var col1 = 2;     // inset of column break as multiple of size
 
-        var columnpx = p.xfract(column);
+        var columnpx = p.points(column);
         var gutterpx = p.points(gutter);
         var sizepx = p.points(size);
         var col1px = col1 * sizepx;
@@ -112,7 +112,7 @@ ReportSummary.prototype.label = function () {
         o.lines.forEach(function (r) {
             ypx += sizepx;
             if (ypx > bottompx) {
-                ypx = toppx + sizepx;
+                ypx = toppx + sizepx - 1;
                 xpx += columnpx;
             }
             items.push({ x: xpx+col1px, y: ypx, halign: 'right', text: r.v||0 });

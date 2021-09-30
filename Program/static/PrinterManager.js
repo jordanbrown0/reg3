@@ -254,25 +254,27 @@ Printers.identify = function (k, cb) {
         p.measure(cfg.font, testSize, s, gotDims);
     }
     function gotDims(testDims) {
-        var x = p.horzres/2;
-        var y = p.vertres/2 + testDims.cy/2;
-        var maxx = p.horzres - 1;
-        var maxy = p.vertres - 1;
+        var x = p.limits.x + p.limits.h/2;
+        var y = p.limits.y - p.limits.v/2 + testDims.cy/2;
+        var rightx = p.limits.x + p.limits.h - 1;
+        var topy = p.limits.y - p.limits.v + 1;
         var items = [
             { font: cfg.font, halign: 'center' },
 
             { x: x, y: y, size: testSize, valign: 'bottom', text: s },
 
             { size: p.dpiy/4 },
-            { x: x, y: p.vertres*0.05, valign: 'top', text: p.pname },
-            { x: x, y: p.vertres*0.95, valign: 'botton', text: p.winName },
+            { x: x, y: topy, valign: 'top', text: p.pname },
+            { x: x, y: p.limits.y, valign: 'bottom', text: p.winName },
 
-            { x: 0, y: 0, lineto: { x: maxx, y: maxy }},
-            { x: 0, y: maxy, lineto: { x: maxx, y: 0 }},
-            { x: 0, y: 0, lineto: { x: maxx, y: 0 }},
-            { x: maxx, y: 0, lineto: { x: maxx, y: maxy }},
-            { x: maxx, y: maxy, lineto: { x: 0, y: maxy }},
-            { x: 0, y: maxy, lineto: { x: 0, y: 0 }}
+            { x: p.limits.x, y: p.limits.y, lineto: { x: rightx, y: topy }},
+            { x: p.limits.x, y: topy, lineto: { x: rightx, y: p.limits.y }},
+
+            { x: p.limits.x, y: p.limits.y,
+                lineto: { x: rightx, y: p.limits.y }},
+            { x: rightx, y: p.limits.y, lineto: { x: rightx, y: topy }},
+            { x: rightx, y: topy, lineto: { x: p.limits.x, y: topy }},
+            { x: p.limits.x, y: topy, lineto: { x: p.limits.x, y: p.limits.y }}
         ];
 
         p.print(items, cb);
@@ -323,6 +325,13 @@ Printer.prototype.init = function (cb, abort) {
         o.dpiy = caps.dpiy;
         o.horzres = caps.horzres;
         o.vertres = caps.vertres;
+        // Perhaps these margins should be configured on a per-printer basis.
+        o.limits = {
+            x: cfg.margins.left,
+            y: caps.vertres - cfg.margins.bottom - 1,
+            h: caps.horzres - cfg.margins.left - cfg.margins.right,
+            v: caps.vertres - cfg.margins.bottom - cfg.margins.top
+        };
         cb();
     }
 };
@@ -345,16 +354,6 @@ Printer.prototype.points = function (points) {
 Printer.prototype.inches = function (inches) {
     var o = this;
     return inches * o.dpiy;
-};
-
-Printer.prototype.xfract = function (f) {
-    var o = this;
-    return o.horzres * f;
-};
-
-Printer.prototype.yfract = function (f) {
-    var o = this;
-    return o.vertres * f;
 };
 
 init.push(function printerInit() {

@@ -48,6 +48,17 @@ var globalSchema = [
             default: [160,140,120,100],
             required: true,
             params: { required: true }
+        },
+        { field: 'margins',
+            label: 'Margins: Left, Right, Top, Bottom',
+            input: InputObject,
+            default: { left: 0, right: 0, top: 0, bottom: 0 },
+            schema: [
+                { field: 'left', input: InputInt, required: true },
+                { field: 'right', input: InputInt, required: true },
+                { field: 'top', input: InputInt, required: true },
+                { field: 'bottom', input: InputInt, required: true }
+            ]
         }
     ], [
         { title: 'Advanced' },
