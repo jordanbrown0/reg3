@@ -263,7 +263,7 @@ Printers.identify = function (k, cb) {
 
             { x: x, y: y, size: testSize, valign: 'bottom', text: s },
 
-            { size: p.dpiy/4 },
+            { size: p.dpiy/5 },
             { x: x, y: topy, valign: 'top', text: p.pname },
             { x: x, y: p.limits.y, valign: 'bottom', text: p.winName },
 
