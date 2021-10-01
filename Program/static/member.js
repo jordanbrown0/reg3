@@ -390,7 +390,8 @@ NewMember.prototype.activate = function () {
             r.class = rClass.code;
             r.amount = rClass.amount;
             base.switchTo(new NewMemberEditor(r));
-        }
+        },
+        help: 'NewMemberClassPicker'
     }))
     ;
 };

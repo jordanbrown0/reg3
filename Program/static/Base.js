@@ -13,10 +13,13 @@ function Base()
     o.clock = new DElement('div');
     o.numberLeft = new DElement('div', 'test');
     o.rightTitle = new DElement('span', { id: 'headerClock' }, o.clock, o.numberLeft);
+    o.help = new DElement('span', {id: 'headerHelp'},
+        new Button('?', {onclick: function () { help(true); }}));
     o.title = new DElement('span', { id: 'headerTitle'});
     o.header = new DElement('div', { className: 'Header' },
         o.title,
-        o.rightTitle
+        o.rightTitle,
+        o.help
     );
     o.body = new DElement('div', { className: 'Body' });
     o.active = new DElement('div');
@@ -79,6 +82,9 @@ Base.prototype.switchToNoDeactivate = function (n) {
     ]);
     o.title.replaceChildren(n.title instanceof Function ? n.title() : n.title);
     working(false);
+    if(cfg.help) {
+        help(false);
+    }
     // Caution:  n.activate may be asynchronous, and it has no done callback.
     // Perhaps it should.
     n.activate();
@@ -290,6 +296,21 @@ Base.prototype.doBackTab = function (e) {
         prev.focus();
     }
 };
+
+var helpWindow;
+
+function help(pop) {
+    if (base.active) {
+        var page = base.active.help || getClassName(base.active);
+        var url = 'doc/'+page+'.html';
+        if (pop || !helpWindow || helpWindow.closed) {
+            helpWindow = window.open(url, 'help',
+                'top=50,left=50,width=800,height=500');
+        } else {
+            helpWindow.location = url;
+        }
+    }
+}
 
 var base;
 

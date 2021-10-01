@@ -3,6 +3,9 @@ function DBManager(params) {
     assertParams(params, 'table');
 
     o.params = params;
+    if (o.params.help) {
+        o.help = o.params.help;
+    }
     DBManager.sup.constructor.call(o, 'div');
     o.addClass(getClassName(o));
     // Lazy, to avoid forward references at load time.

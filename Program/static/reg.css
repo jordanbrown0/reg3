@@ -193,10 +193,10 @@ html, body {
 }
 
 /*
- * For some reason, input doesn't seem to inherit font-size from body.
- * Everything else does...
+ * For some reason, input and button don't seem to inherit font-size from
+ * their parent.  Everything else does...
  */
-input {
+input, button {
     font-size: inherit;
 }
 
@@ -347,18 +347,25 @@ body {
     height: 10%;
 }
 
+.Base .Header #headerTitle {
+    display: inline-block;  /* NEEDSWORK: Why? */
+    width: 75%;
+    text-align: left;
+    font-size: larger;
+    font-weight: bolder;
+    vertical-align: top;
+}
+
 .Base .Header #headerClock {
     display: inline-block;  /* NEEDSWORK: Why? */
     width: 20%;
     text-align: right;
 }
 
-.Base .Header #headerTitle {
-    display: inline-block;  /* NEEDSWORK: Why? */
-    width: 80%;
-    text-align: left;
-    font-size: larger;
-    font-weight: bolder;
+.Base .Header #headerHelp {
+    width: 5%;
+    font-size: 170%;
+    padding-left: 10px;
     vertical-align: top;
 }
 

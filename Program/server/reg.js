@@ -458,6 +458,7 @@ DBMS.init().then(function () {
     app.route('/REST')
         .post(express.urlencoded({extended: true}))
         .post(exportMiddleware);
+    app.use('/doc', express.static('../Documentation'));
     app.use(cookieParser());
     app.use(assignCookie);
     app.use(express.static('./static'));
