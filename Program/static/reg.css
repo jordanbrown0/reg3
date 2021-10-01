@@ -101,7 +101,7 @@ input.Disabled {
 }
 
 .MemberManager .List .Void {
-    color: lightgray;
+    color: #999;
 }
 
 .AlertSubtitle {
