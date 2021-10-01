@@ -56,7 +56,11 @@ Member.setTitle = function () {
     var o = this;
     var title = new DElement('div');
 
-    title.appendChild(Member.name(o.r) + ' - ');
+    title.appendChild(Member.name(o.r))
+    if (o.r.number) {
+        title.appendChild(' ('+o.r.number+')');
+    }
+    title.appendChild(' - ');
     if (o.r.transferto) {
         var transferSpan = new DElement('span');
         title.appendChild('Transferred to ', transferSpan);
