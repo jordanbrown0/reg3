@@ -410,7 +410,7 @@ NewMemberEditor.prototype.activate = function () {
 
     var editor = new Editor(o.r, {
         schema: schema,
-        correctionTable: 'members',
+        correctionsTable: 'members',
         doneButton: 'Add',
         done: function () {
             if (working(true)) {
