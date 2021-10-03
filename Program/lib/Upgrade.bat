@@ -27,7 +27,10 @@ erase %dest%\Program\package-lock.json
 
 xcopy /q /e . %dest%
 
+cd %dest%
+
 cscript /Nologo Program\lib\mkServerShortcut.js %myname%
+call ClientWad
 
 echo %dest% is ready.
 

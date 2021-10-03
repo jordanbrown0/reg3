@@ -8,7 +8,12 @@ function Admin()
             { label: '&Printing', page:  AdminPrinting },
             { label: '&Synchronize', page: AdminSync },
             // Note:  Zap does not have a one-key shortcut, for safety.
-            { label: 'Zap', page: Zap }
+            { label: 'Zap', page: Zap },
+            { label: 'Download client installer',
+                func: function () {
+                    download('/install/InstallClient.exe');
+                }
+            }
         ]
     });
 }

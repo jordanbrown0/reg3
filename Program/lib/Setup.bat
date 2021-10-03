@@ -37,7 +37,12 @@ erase %NODE%.7z
 
 xcopy /e . %dest%
 
+cd %dest%
+
 cscript /Nologo Program\lib\mkServerShortcut.js %myname%
+
+call ClientWad
+
 
 echo %dest% is ready.
 

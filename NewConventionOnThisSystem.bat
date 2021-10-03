@@ -30,6 +30,11 @@ call Program\lib\mkwad %myname%.7z program
 %z% x -o%dest% %myname%.7z > nul
 erase %myname%.7z
 
+set SAVECD=%CD%
+cd %dest%
+call ClientWad
+cd %SAVECD%
+
 cscript /Nologo Program\lib\mkServerShortcut.js %myname%
 
 echo %dest% is ready.
