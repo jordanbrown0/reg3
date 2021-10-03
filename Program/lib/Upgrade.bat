@@ -27,7 +27,7 @@ erase %dest%\Program\package-lock.json
 
 xcopy /q /e . %dest%
 
-call Program\lib\mkbat %dest% %myname%
+cscript /Nologo Program\lib\mkServerShortcut.js %myname%
 
 echo %dest% is ready.
 
