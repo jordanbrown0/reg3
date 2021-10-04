@@ -1,4 +1,4 @@
-const { assert, log } = require('./utils.js');
+import { assert, log } from './utils.js';
 
 var debug = {
     rpc: {
@@ -84,4 +84,4 @@ Debug._info = function () {
     return (debug);
 };
 
-module.exports = exports = Debug;
+export { Debug };

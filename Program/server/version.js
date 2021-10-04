@@ -54,4 +54,4 @@ Version.merge = function (vv1, vv2) {
     return (res);
 };
 
-module.exports = exports = Version;
+export { Version };

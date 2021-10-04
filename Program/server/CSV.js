@@ -1,8 +1,8 @@
 // Read and write CSV files
-const fs = require('fs');
-const { assert, streamWritePromise } = require('./utils');
+import fs from 'fs';
+import { assert, streamWritePromise } from './utils.js';
 
-CSV = {};
+var CSV = {};
 
 CSV.import = async function(path, params, cb) {
     var o = this;
@@ -215,4 +215,4 @@ CSV.export = async function (res, t, params) {
     return (n);
 };
 
-module.exports = exports = CSV;
+export { CSV };

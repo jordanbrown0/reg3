@@ -1,6 +1,10 @@
-#include <nan.h>
+#include <napi.h>
+#include <windows.h>
+#include <stdio.h>
 
-using namespace v8;
+#define UINT32ARG(v) ((v).As<Napi::Number>().Uint32Value())
+#define HVAL(h) Napi::Number::New(env, (uint32_t)(h))
+#define INTVAL(i) Napi::Number::New(env, (i))
 
 static WCHAR *windowClassName = L"DRAWERWINDOW";
 
@@ -38,117 +42,126 @@ static void parse_devnames(DEVNAMES *devnames, WCHAR **driver, WCHAR **device, W
 	*output = (WCHAR *)(((WCHAR *)devnames) + devnames->wOutputOffset);
 }
 
-void createWindow(const Nan::FunctionCallbackInfo<Value>& args){
-	// createWidnow()
+Napi::Value createWindow(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    if (info.Length() != 0) {
+		throw Napi::Error::New(env,
+            "wrong number of arguments, usage: createWindow()");
+    }
+	// createWindow()
 	HWND hwnd = create_window();
 	if( hwnd == NULL ){
 		printf("%d\n", GetLastError());
-		Nan::ThrowTypeError("create_window failed");
-		return;
+		throw Napi::Error::New(env, "create_window failed");
 	}
-	args.GetReturnValue().Set(Nan::New((int)hwnd));
+	return Napi::Number::New(env, (uint32_t)hwnd);
 }
 
-void disposeWindow(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value disposeWindow(const Napi::CallbackInfo& info){
+    Napi::Env env = info.Env();
 	// disposeWindow(hwnd)
-	if( args.Length() < 1 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() != 1 ){
+		throw Napi::Error::New(env,
+            "wrong number of arguments, usage: disposeWindow(hwnd)");
 	}
-	if( !args[0]->IsInt32() ){
-		Nan::ThrowTypeError("disposeWindows: wrong argument");
-		return;
+	if( !info[0].IsNumber() ){
+		throw Napi::Error::New(env,
+            "wrong type, usage: disposeWindow(hwnd)");
 	}
-	HWND hwnd = (HWND)args[0]->Int32Value(Nan::GetCurrentContext()).ToChecked();
+	HWND hwnd = (HWND)UINT32ARG(info[0]);
 	BOOL ok = dispose_window(hwnd);
-	args.GetReturnValue().Set(Nan::New(ok));
+	return Napi::Boolean::New(env, ok);
 }
 
-void getDc(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value getDc(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
 	// getDc(hwnd)
-	if( args.Length() < 1 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() != 1 ){
+		throw Napi::Error::New(env,
+            "wrong number of arguments, usage: getDC(hwnd)");
 	}
-	if( !args[0]->IsInt32() ){
-		Nan::ThrowTypeError("getDC: wrong argument");
-		return;
+	if( !info[0].IsNumber() ){
+		throw Napi::Error::New(env,
+            "wrong type, usage: getDc(hwnd)");
 	}
-	HWND hwnd = (HWND)args[0]->Int32Value(Nan::GetCurrentContext()).ToChecked();
+	HWND hwnd = (HWND)UINT32ARG(info[0]);
 	HDC hdc = GetDC(hwnd);
-	args.GetReturnValue().Set(Nan::New((int)hdc));
+	return Napi::Number::New(env, (uint32_t)hdc);
 }
 
-void releaseDc(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value releaseDc(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
 	// releaseDc(hwnd, hdc)
-	if( args.Length() < 2 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() != 2 ){
+		throw Napi::Error::New(env,
+            "wrong number of arguments, usage: releaseDc(hwnd,hdc)");
 	}
-	if( !args[0]->IsInt32() || !args[1]->IsInt32() ){
-		Nan::ThrowTypeError("wrong arguments");
-		return;
+	if( !info[0].IsNumber() || !info[1].IsNumber() ){
+		throw Napi::Error::New(env,
+            "wrong type(s), usage: releaseDc(hwnd,hdc)");
 	}
-	HWND hwnd = (HWND)args[0]->Int32Value(Nan::GetCurrentContext()).ToChecked();
-	HDC hdc = (HDC)args[1]->Int32Value(Nan::GetCurrentContext()).ToChecked();
+	HWND hwnd = (HWND)UINT32ARG(info[0]);
+	HDC hdc = (HDC)UINT32ARG(info[1]);
 	BOOL ok = ReleaseDC(hwnd, hdc);
-	args.GetReturnValue().Set(Nan::New(ok));
+	return Napi::Boolean::New(env, ok);
 }
 
-void measureText(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value measureText(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
 	// measureText(hdc, string) => { cx:..., cy:... }
-	if( args.Length() != 2 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() != 2 ){
+		throw Napi::Error::New(env,
+            "wrong number of arguments, usage: measureText(hdc,string)");
 	}
-	if( !args[0]->IsInt32() ){
-		Nan::ThrowTypeError("wrong type for hdc");
-		return;
+	if( !info[0].IsNumber() || !info[1].IsString() ){
+		throw Napi::Error::New(env,
+            "wrong type(s), usage: measureText(hdc,string)");
 	}
-	if( !args[1]->IsString() ){
-		Nan::ThrowTypeError("wrong type for string");
-		return;
-	}
-	HDC hdc = (HDC)args[0]->Int32Value(Nan::GetCurrentContext()).ToChecked();
-	String::Value textValue(args[1]);
+	HDC hdc = (HDC)UINT32ARG(info[0]);
+	std::u16string textValue = info[1].As<Napi::String>();
 	SIZE mes;
-	BOOL ok = GetTextExtentPoint32W(hdc, (LPCWSTR)*textValue, textValue.length(), &mes);
+	BOOL ok = GetTextExtentPoint32W(hdc, (LPCWSTR)textValue.c_str(),
+        textValue.length(), &mes);
 	if( !ok ){
-		Nan::ThrowTypeError("GetTextExtentPoint32W failed");
-		return;
+		throw Napi::Error::New(env,
+            "GetTextExtentPoint32W failed");
 	}
-	Local<Object> obj = Nan::New<Object>();
-	obj->Set(Nan::New("cx").ToLocalChecked(), Nan::New(mes.cx));
-	obj->Set(Nan::New("cy").ToLocalChecked(), Nan::New(mes.cy));
-	args.GetReturnValue().Set(obj);
+	Napi::Object obj = Napi::Object::New(env);
+	obj.Set("cx", mes.cx);
+    obj.Set("cy", mes.cy);
+	return obj;
 }
 
-void createFont(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value createFont(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
 	// createFont(fontname, size, weight?, italic?) ==> HANDLE
-	if( args.Length() < 2 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() < 2 || info.Length() > 4 ){
+		throw Napi::Error::New(env,
+            "wrong number of arguments, usage: createFont(fontname,size[,weight[,italic]])");
 	}
-	if( !args[0]->IsString() ){
-		Nan::ThrowTypeError("invalid font name");
-		return;
+	if( !info[0].IsString() ){
+		throw Napi::Error::New(env,
+            "wrong type for fontname, usage: createFont(fontname,size[,weight[,italic]])");
 	}
-	if( !args[1]->IsInt32() ){
-		Nan::ThrowTypeError("invalid font size");
-		return;
+	if( !info[1].IsNumber() ){
+		throw Napi::Error::New(env,
+            "wrong type for size, usage: createFont(fontname,size[,weight[,italic]])");
 	}
-	if( args.Length() >= 3 && !args[2]->IsInt32() ){
-		Nan::ThrowTypeError("invalid font weight");
-		return;
+	if( info.Length() >= 3 && !info[2].IsNumber() ){
+		throw Napi::Error::New(env,
+            "wrong type for weight, usage: createFont(fontname,size[,weight[,italic]])");
 	}
-	if( args.Length() >= 4 && !args[3]->IsInt32() ){
-		Nan::ThrowTypeError("invalid font italic");
-		return;
+	if( info.Length() >= 4 && !info[3].IsNumber() ){
+		throw Napi::Error::New(env,
+            "wrong type for italic, usage: createFont(fontname,size[,weight[,italic]])");
 	}
-	String::Value fontName(args[0]);
-	long size = args[1]->Int32Value(Nan::GetCurrentContext()).ToChecked();
-	long weight = args.Length() >= 3 ? args[2]->Int32Value(Nan::GetCurrentContext()).ToChecked() : 0;
-	long italic = args.Length() >= 4 ? args[3]->Int32Value(Nan::GetCurrentContext()).ToChecked() : 0;
+	std::u16string fontName = info[0].As<Napi::String>();
+
+	uint32_t size = UINT32ARG(info[1]);
+	long weight = info.Length() >= 3 ? UINT32ARG(info[2]) : 0;
+	long italic = info.Length() >= 4 ? UINT32ARG(info[3]) : 0;
+
 	LOGFONTW logfont;
 	ZeroMemory(&logfont, sizeof(logfont));
 	logfont.lfHeight = size;
@@ -159,50 +172,50 @@ void createFont(const Nan::FunctionCallbackInfo<Value>& args){
 	logfont.lfClipPrecision = CLIP_DEFAULT_PRECIS;
 	logfont.lfQuality = DEFAULT_QUALITY;
 	logfont.lfPitchAndFamily = DEFAULT_PITCH;
-	if( wcscpy_s(logfont.lfFaceName, LF_FACESIZE, (const wchar_t *)*fontName) != 0 ){
-		Nan::ThrowTypeError("Too long font name");
-		return;
+	if( wcscpy_s(logfont.lfFaceName, LF_FACESIZE,
+        (const wchar_t *)fontName.c_str()) != 0 ){
+		throw Napi::Error::New(env,
+            "font name too long");
 	}
 	HFONT font = CreateFontIndirectW(&logfont);
-	args.GetReturnValue().Set(Nan::New((int)(UINT_PTR)font));
+	return Napi::Number::New(env, (uint32_t)font);
 }
 
-void deleteObject(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value deleteObject(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
 	// deleteObject(obj)
-	if( args.Length() < 1 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() != 1 ){
+		throw Napi::Error::New(env,
+            "wrong number of arguments, usage: deleteObject(handle)");
 	}	
-	if( !args[0]->IsInt32() ){
-		Nan::ThrowTypeError("wrong argument");
-		return;
+	if( !info[0].IsNumber() ){
+		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
-	HANDLE object = (HANDLE)args[0]->Int32Value(Nan::GetCurrentContext()).ToChecked();
+	HANDLE object = (HANDLE)UINT32ARG(info[0]);
 	BOOL ok = DeleteObject(object);
-	args.GetReturnValue().Set(ok);
+	return Napi::Boolean::New(env, ok);
 }
 
-void getDpiOfHdc(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value getDpiOfHdc(const Napi::CallbackInfo& info){
+    Napi::Env env = info.Env();
 	// getDpiOfHdc(hdc)
-	if( args.Length() < 1 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() != 1 ){
+		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
 	}	
-	if( !args[0]->IsInt32() ){
-		Nan::ThrowTypeError("wrong arguments");
-		return;
+	if( !info[0].IsNumber() ){
+		throw Napi::Error::New(env, "wrong type, usage: getdpiOfHdc(hdc)");
 	}
-	HDC hdc = (HDC)args[0]->Int32Value(Nan::GetCurrentContext()).ToChecked();
+	HDC hdc = (HDC)UINT32ARG(info[0]);
 	int dpix = GetDeviceCaps(hdc, LOGPIXELSX);
 	int dpiy = GetDeviceCaps(hdc, LOGPIXELSY);
 	int horzres = GetDeviceCaps(hdc, HORZRES);
 	int vertres = GetDeviceCaps(hdc, VERTRES);
-	Local<Object> obj = Nan::New<v8::Object>();
-	obj->Set(Nan::New("dpix").ToLocalChecked(), Nan::New(dpix));
-	obj->Set(Nan::New("dpiy").ToLocalChecked(), Nan::New(dpiy));
-	obj->Set(Nan::New("horzres").ToLocalChecked(), Nan::New(horzres));
-	obj->Set(Nan::New("vertres").ToLocalChecked(), Nan::New(vertres));
-	args.GetReturnValue().Set(obj);
+	Napi::Object obj = Napi::Object::New(env);
+	obj.Set("dpix", dpix);
+	obj.Set("dpiy", dpiy);
+	obj.Set("horzres", horzres);
+	obj.Set("vertres", vertres);
+	return obj;
 }
 
 static HANDLE alloc_handle(void *data, int len)
@@ -217,34 +230,34 @@ static HANDLE alloc_handle(void *data, int len)
 	return handle;
 }
 
-void printerDialog(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value printerDialog(const Napi::CallbackInfo& info){
+    Napi::Env env = info.Env();
 	// printerDialog(devmode?, devnames?)
 	HWND hwnd = create_window();
 	if( hwnd == NULL ){
-		Nan::ThrowTypeError("create_window failed");
-		return;
+		throw Napi::Error::New(env, "create_window failed");
 	}
 	DEVMODEW *devmodePtr = NULL;
 	int devmodeLength = 0;
 	DEVNAMES *devnamesPtr = NULL;
 	int devnamesLength = 0;
-	if( args.Length() >= 1 ){
-		if( !args[0]->IsObject() ){
-			Nan::ThrowTypeError("wrong arguments");
-			return;
+	if( info.Length() >= 1 ){
+		if( !info[0].IsObject() ){
+			throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 		}
-		Local<Object> obj = args[0]->ToObject(Nan::GetCurrentContext()).ToLocalChecked();
-		devmodePtr = (DEVMODEW *)node::Buffer::Data(obj);
-		devmodeLength = node::Buffer::Length(obj);
+		Napi::Object obj = info[0].As<Napi::Object>();
+		// devmodePtr = (DEVMODEW *)node::Buffer::Data(obj);
+		// devmodeLength = node::Buffer::Length(obj);
+        throw Napi::Error::New(env, "DEVMODE as buffer not supported");
 	}
-	if( args.Length() >= 2 ){
-		if( !args[1]->IsObject() ){
-			Nan::ThrowTypeError("wrong arguments");
-			return;
+	if( info.Length() >= 2 ){
+		if( !info[1].IsObject() ){
+			throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 		}
-		Local<Object> obj = args[1]->ToObject(Nan::GetCurrentContext()).ToLocalChecked();
-		devnamesPtr = (DEVNAMES *)node::Buffer::Data(obj);
-		devnamesLength = node::Buffer::Length(obj);
+		Napi::Object obj = info[1].As<Napi::Object>();
+        throw Napi::Error::New(env, "DEVNAMES as buffer not supported");
+		// devnamesPtr = (DEVNAMES *)node::Buffer::Data(obj);
+		// devnamesLength = node::Buffer::Length(obj);
 	}
 	PRINTDLGEXW pd;
 	ZeroMemory(&pd, sizeof(pd));
@@ -262,431 +275,409 @@ void printerDialog(const Nan::FunctionCallbackInfo<Value>& args){
 	HRESULT res = PrintDlgExW(&pd);
 	dispose_window(hwnd);
 	if( res == S_OK && pd.dwResultAction != PD_RESULT_CANCEL ){
-		DEVMODEW *devmodePtr = (DEVMODEW *)GlobalLock(pd.hDevMode);
-		int devmodeLength = sizeof(DEVMODEW) + devmodePtr->dmDriverExtra;
-		Local<Object> devmodeBuffer = Nan::CopyBuffer((char *)devmodePtr, devmodeLength).ToLocalChecked();
-		GlobalUnlock(pd.hDevMode);
-		GlobalFree(pd.hDevMode);
-		DEVNAMES *devnamesPtr = (DEVNAMES *)GlobalLock(pd.hDevNames);
-		WCHAR *outputPtr = ((WCHAR *)devnamesPtr) + devnamesPtr->wOutputOffset;
-		int outputLen = wcslen(outputPtr);
-		int devnamesLength = (devnamesPtr->wOutputOffset + outputLen + 1) * 2;
-		Local<Object> devnamesBuffer = Nan::CopyBuffer((char *)devnamesPtr, devnamesLength).ToLocalChecked();
-		GlobalUnlock(pd.hDevNames);
-		GlobalFree(pd.hDevNames);
-		Local<Object> obj = Nan::New<v8::Object>();
-		obj->Set(Nan::New("devmode").ToLocalChecked(), devmodeBuffer);
-		obj->Set(Nan::New("devnames").ToLocalChecked(), devnamesBuffer);
-		args.GetReturnValue().Set(obj);
+        throw Napi::Error::New(env, "returning DEVMODE and DEVNAMES as buffers not supported");
+		// DEVMODEW *devmodePtr = (DEVMODEW *)GlobalLock(pd.hDevMode);
+		// int devmodeLength = sizeof(DEVMODEW) + devmodePtr->dmDriverExtra;
+		// Local<Object> devmodeBuffer = Nan::CopyBuffer((char *)devmodePtr, devmodeLength).ToLocalChecked();
+		// GlobalUnlock(pd.hDevMode);
+		// GlobalFree(pd.hDevMode);
+		// DEVNAMES *devnamesPtr = (DEVNAMES *)GlobalLock(pd.hDevNames);
+		// WCHAR *outputPtr = ((WCHAR *)devnamesPtr) + devnamesPtr->wOutputOffset;
+		// int outputLen = wcslen(outputPtr);
+		// int devnamesLength = (devnamesPtr->wOutputOffset + outputLen + 1) * 2;
+		// Local<Object> devnamesBuffer = Nan::CopyBuffer((char *)devnamesPtr, devnamesLength).ToLocalChecked();
+		// GlobalUnlock(pd.hDevNames);
+		// GlobalFree(pd.hDevNames);
+		// Napi::Object obj = Napi::Object::New(env);;
+		// obj->Set(Nan::New("devmode").ToLocalChecked(), devmodeBuffer);
+		// obj->Set(Nan::New("devnames").ToLocalChecked(), devnamesBuffer);
+		// return obj;
 	} else {
-		args.GetReturnValue().Set(false);
+		return Napi::Boolean::New(env, false);
 	}
 }
 
-void parseDevmode(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value parseDevmode(const Napi::CallbackInfo& info){
+    Napi::Env env = info.Env();
 	// parseDevmode(devmode)
-	if( args.Length() < 1 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() < 1 ){
+		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
 	}	
-	if( !args[0]->IsObject() ){
-		Nan::ThrowTypeError("wrong arguments");
-		return;
+	if( !info[0].IsObject() ){
+		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
-	Local<Object> devmodeBuffer = args[0]->ToObject(Nan::GetCurrentContext()).ToLocalChecked();
-	DEVMODEW *devmodePtr = (DEVMODEW *)node::Buffer::Data(devmodeBuffer);
-	DWORD fields = devmodePtr->dmFields;
-	const uint16_t *cDevName = (const uint16_t *)devmodePtr->dmDeviceName;
-	Local<String> deviceName = Nan::New(cDevName, lstrlenW((LPCWSTR)cDevName)).ToLocalChecked();
-	Local<Object> obj = Nan::New<v8::Object>();
-	obj->Set(Nan::New("deviceName").ToLocalChecked(), deviceName);
-	obj->Set(Nan::New("orientation").ToLocalChecked(), Nan::New(devmodePtr->dmOrientation));
-	obj->Set(Nan::New("paperSize").ToLocalChecked(), Nan::New(devmodePtr->dmPaperSize));
-	obj->Set(Nan::New("copies").ToLocalChecked(), Nan::New(devmodePtr->dmCopies));
-	obj->Set(Nan::New("printQuality").ToLocalChecked(), Nan::New(devmodePtr->dmPrintQuality));
-	obj->Set(Nan::New("defaultSource").ToLocalChecked(), Nan::New(devmodePtr->dmDefaultSource));
-	args.GetReturnValue().Set(obj);
+    throw Napi::Error::New(env, "DEVMODE as buffer not supported");
+	// Local<Object> devmodeBuffer = info[0]->ToObject(Nan::GetCurrentContext()).ToLocalChecked();
+	// DEVMODEW *devmodePtr = (DEVMODEW *)node::Buffer::Data(devmodeBuffer);
+	// DWORD fields = devmodePtr->dmFields;
+	// const uint16_t *cDevName = (const uint16_t *)devmodePtr->dmDeviceName;
+	// Local<String> deviceName = Nan::New(cDevName, lstrlenW((LPCWSTR)cDevName)).ToLocalChecked();
+	// Napi::Object obj = Napi::Object::New(env);;
+	// obj->Set(Nan::New("deviceName").ToLocalChecked(), deviceName);
+	// obj.Set("orientation", devmodePtr->dmOrientation);
+	// obj.Set("paperSize", devmodePtr->dmPaperSize);
+	// obj.Set("copies", devmodePtr->dmCopies);
+	// obj.Set("printQuality", devmodePtr->dmPrintQuality);
+	// obj.Set("defaultSource", devmodePtr->dmDefaultSource);
+	// return obj;
 }
 
-void parseDevnames(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value parseDevnames(const Napi::CallbackInfo& info){
+    Napi::Env env = info.Env();
 	// parseDevnames(devnames)
-	if( args.Length() < 1 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() < 1 ){
+		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
 	}	
-	if( !args[0]->IsObject() ){
-		Nan::ThrowTypeError("wrong arguments");
-		return;
+	if( !info[0].IsObject() ){
+		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
-	Local<Object> devnamesBuffer = args[0]->ToObject(Nan::GetCurrentContext()).ToLocalChecked();
-	DEVNAMES *data = (DEVNAMES *)node::Buffer::Data(devnamesBuffer);
-	WCHAR *driver, *device, *output;
-	parse_devnames(data, &driver, &device, &output);
-	Local<String> driverString = Nan::New((const uint16_t *)driver, lstrlenW(driver)).ToLocalChecked();
-	Local<String> deviceString = Nan::New((const uint16_t *)device, lstrlenW(device)).ToLocalChecked();
-	Local<String> outputString = Nan::New((const uint16_t *)output, lstrlenW(output)).ToLocalChecked();
-	Local<Object> obj = Nan::New<v8::Object>();
-	obj->Set(Nan::New("driver").ToLocalChecked(), driverString);
-	obj->Set(Nan::New("device").ToLocalChecked(), deviceString);
-	obj->Set(Nan::New("output").ToLocalChecked(), outputString);
-	args.GetReturnValue().Set(obj);
+    throw Napi::Error::New(env, "DEVNAMES as buffer not supported");
+	// Local<Object> devnamesBuffer = info[0]->ToObject(Nan::GetCurrentContext()).ToLocalChecked();
+	// DEVNAMES *data = (DEVNAMES *)node::Buffer::Data(devnamesBuffer);
+	// WCHAR *driver, *device, *output;
+	// parse_devnames(data, &driver, &device, &output);
+	// Local<String> driverString = Nan::New((const uint16_t *)driver, lstrlenW(driver)).ToLocalChecked();
+	// Local<String> deviceString = Nan::New((const uint16_t *)device, lstrlenW(device)).ToLocalChecked();
+	// Local<String> outputString = Nan::New((const uint16_t *)output, lstrlenW(output)).ToLocalChecked();
+	// Napi::Object obj = Napi::Object::New(env);;
+	// obj.Set("driver", driverString);
+	// obj.Set("device", deviceString);
+	// obj.Set("output", outputString);
+	// return obj;
 }
 
-void createDc(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value createDc(const Napi::CallbackInfo& info){
+    Napi::Env env = info.Env();
 	// createDc(devmode, devnames)
-	if( args.Length() < 2 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() < 2 ){
+		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
 	}	
-	if( !args[0]->IsObject() || !args[1]->IsObject() ){
-		Nan::ThrowTypeError("wrong arguments");
-		return;
+	if( !info[0].IsObject() || !info[1].IsObject() ){
+		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
-	DEVMODEW *devmodePtr = (DEVMODEW *)node::Buffer::Data(args[0]->ToObject(Nan::GetCurrentContext()).ToLocalChecked());
-	DEVNAMES *devnamesPtr = (DEVNAMES *)node::Buffer::Data(args[1]->ToObject(Nan::GetCurrentContext()).ToLocalChecked());
-	WCHAR *driver, *device, *output;
-	parse_devnames(devnamesPtr, &driver, &device, &output);
-	HDC hdc = CreateDCW(driver, device, NULL, devmodePtr);
-	if( hdc == NULL ){
-		Nan::ThrowTypeError("createDC failed");
-		return;
-	}
-	args.GetReturnValue().Set(Nan::New((int)hdc));
+    throw Napi::Error::New(env, "DEVMODE and DEVNAMES as buffers not supported");
+	// DEVMODEW *devmodePtr = (DEVMODEW *)node::Buffer::Data(info[0]->ToObject(Nan::GetCurrentContext()).ToLocalChecked());
+	// DEVNAMES *devnamesPtr = (DEVNAMES *)node::Buffer::Data(info[1]->ToObject(Nan::GetCurrentContext()).ToLocalChecked());
+	// WCHAR *driver, *device, *output;
+	// parse_devnames(devnamesPtr, &driver, &device, &output);
+	// HDC hdc = CreateDCW(driver, device, NULL, devmodePtr);
+	// if( hdc == NULL ){
+		// throw Napi::Error::New(env, "createDC failed");
+		// return;
+	// }
+	// return Napi::Number::New(env, (uint32_t)hdc);
 }
 
-void createDc2(const Nan::FunctionCallbackInfo<Value>& args) {
+LPDEVMODEW makeDEVMODE(std::u16string& device, Napi::Object& params) {
+    return NULL;
+}
+
+Napi::Value createDc2(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
 	// createDC(params)
-	if( args.Length() < 1 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() != 1 ){
+		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
 	}	
-	if( !args[0]->IsObject()){
-		Nan::ThrowTypeError("wrong argument");
-		return;
+	if( !info[0].IsObject()){
+		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
-	Local<Object> params = args[0]->ToObject(Nan::GetCurrentContext()).ToLocalChecked();
-	Local<Value> device_val = params->Get(Nan::New("device").ToLocalChecked());
-	String::Value device(device_val);
-	HDC hdc = CreateDCW(NULL, (LPCWSTR)*device, NULL, NULL);
+	Napi::Object params = info[0].As<Napi::Object>();
+	std::u16string device = params.Get("device").As<Napi::String>();
+    DEVMODEW *devmode = makeDEVMODE(device, params);
+    // if (devmode == NULL) {
+        // throw Napi::Error::New(env, "makeDEVMODE failed");
+    // }
+	HDC hdc = CreateDCW(NULL, (LPCWSTR)device.c_str(), NULL, devmode);
 	if (hdc == NULL) {
-		Nan::ThrowTypeError("createDC failed");
+        throw Napi::Error::New(env, "CreateDCW failed");
 	}
-	args.GetReturnValue().Set(Nan::New((int)hdc));
+	return Napi::Number::New(env, (uint32_t)hdc);
 	
 }
-void deleteDc(const Nan::FunctionCallbackInfo<Value>& args){
+
+Napi::Value deleteDc(const Napi::CallbackInfo& info){
+    Napi::Env env = info.Env();
 	// deleteDc(hdc)
-	if( args.Length() < 1 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() != 1 ){
+		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
 	}	
-	if( !args[0]->IsInt32() ){
-		Nan::ThrowTypeError("wrong arguments");
-		return;
+	if( !info[0].IsNumber() ){
+		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
-	HDC hdc = (HDC)args[0]->Int32Value(Nan::GetCurrentContext()).ToChecked();
+	HDC hdc = (HDC)UINT32ARG(info[0]);
 	BOOL ok = DeleteDC(hdc);
-	args.GetReturnValue().Set(ok);
+	return Napi::Boolean::New(env, ok);
 }
 
-void beginPrint(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value beginPrint(const Napi::CallbackInfo& info){
+    Napi::Env env = info.Env();
 	// beginPrint(hdc)
-	if( args.Length() < 1 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() != 1 ){
+		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
 	}	
-	if( !args[0]->IsInt32() ){
-		Nan::ThrowTypeError("wrong arguments");
-		return;
+	if( !info[0].IsNumber() ){
+		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
-	HDC hdc = (HDC)args[0]->Int32Value(Nan::GetCurrentContext()).ToChecked();
+	HDC hdc = (HDC)UINT32ARG(info[0]);
 	DOCINFOW docinfo;
 	ZeroMemory(&docinfo, sizeof(docinfo));
 	docinfo.cbSize = sizeof(docinfo);
 	docinfo.lpszDocName = L"drawer printing";
 	int ret = StartDocW(hdc, &docinfo);
 	if( ret <= 0 ){
-		Nan::ThrowTypeError("StartDoc failed");
-		return;
+		throw Napi::Error::New(env, "StartDoc failed");
 	}
-	args.GetReturnValue().Set(ret);
+    return Napi::Number::New(env, ret);
 }
 
-void endPrint(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value endPrint(const Napi::CallbackInfo& info){
+    Napi::Env env = info.Env();
 	// endPrint(hdc)
-	if( args.Length() < 1 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() < 1 ){
+		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
 	}	
-	if( !args[0]->IsInt32() ){
-		Nan::ThrowTypeError("wrong arguments");
-		return;
+	if( !info[0].IsNumber() ){
+		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
-	HDC hdc = (HDC)args[0]->Int32Value(Nan::GetCurrentContext()).ToChecked();
+	HDC hdc = (HDC)UINT32ARG(info[0]);
 	int ret = EndDoc(hdc);
 	if( ret <= 0 ){
-		Nan::ThrowTypeError("EndDoc failed");
-		return;
+		throw Napi::Error::New(env, "EndDoc failed");
 	}
-	args.GetReturnValue().Set(ret);
+    return Napi::Number::New(env, ret);
 }
 
-void abortPrint(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value abortPrint(const Napi::CallbackInfo& info){
+    Napi::Env env = info.Env();
 	// abortPrint(hdc)
-	if( args.Length() < 1 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() < 1 ){
+		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
 	}	
-	if( !args[0]->IsInt32() ){
-		Nan::ThrowTypeError("wrong arguments");
-		return;
+	if( !info[0].IsNumber() ){
+		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
-	HDC hdc = (HDC)args[0]->Int32Value(Nan::GetCurrentContext()).ToChecked();
+	HDC hdc = (HDC)UINT32ARG(info[0]);
 	int ret = AbortDoc(hdc);
 	if( ret <= 0 ){
-		Nan::ThrowTypeError("AbortDoc failed");
-		return;
+		throw Napi::Error::New(env, "AbortDoc failed");
 	}
-	args.GetReturnValue().Set(ret);
+    return Napi::Number::New(env, ret);
 }
 
-void startPage(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value startPage(const Napi::CallbackInfo& info){
+    Napi::Env env = info.Env();
 	// startPage(hdc)
-	if( args.Length() < 1 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() < 1 ){
+		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
 	}	
-	if( !args[0]->IsInt32() ){
-		Nan::ThrowTypeError("wrong arguments");
-		return;
+	if( !info[0].IsNumber() ){
+		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
-	HDC hdc = (HDC)args[0]->Int32Value(Nan::GetCurrentContext()).ToChecked();
+	HDC hdc = (HDC)UINT32ARG(info[0]);
 	int ret = StartPage(hdc);
 	if( ret <= 0 ){
-		Nan::ThrowTypeError("StartPage failed");
-		return;
+		throw Napi::Error::New(env, "StartPage failed");
 	}
-	args.GetReturnValue().Set(ret);
+    return Napi::Number::New(env, ret);
 }
 
-void endPage(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value endPage(const Napi::CallbackInfo& info){
+    Napi::Env env = info.Env();
 	// endPage(hdc)
-	if( args.Length() < 1 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() < 1 ){
+		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
 	}	
-	if( !args[0]->IsInt32() ){
-		Nan::ThrowTypeError("wrong arguments");
-		return;
+	if( !info[0].IsNumber() ){
+		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
-	HDC hdc = (HDC)args[0]->Int32Value(Nan::GetCurrentContext()).ToChecked();
+	HDC hdc = (HDC)UINT32ARG(info[0]);
 	int ret = EndPage(hdc);
 	if( ret <= 0 ){
-		Nan::ThrowTypeError("EndPage failed");
-		return;
+		throw Napi::Error::New(env, "EndPage failed");
 	}
-	args.GetReturnValue().Set(ret);
+	return Napi::Number::New(env, ret);
 }
 
-void moveTo(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value moveTo(const Napi::CallbackInfo& info){
+    Napi::Env env = info.Env();
 	// moveTo(hdc, x, y)
-	if( args.Length() < 3 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() < 3 ){
+		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
 	}	
-	if( !args[0]->IsInt32() || !args[1]->IsInt32() || !args[2]->IsInt32() ){
-		Nan::ThrowTypeError("wrong arguments");
-		return;
+	if( !info[0].IsNumber() || !info[1].IsNumber() || !info[2].IsNumber() ){
+		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
-	HDC hdc = (HDC)args[0]->Int32Value(Nan::GetCurrentContext()).ToChecked();
-	long x = args[1]->Int32Value(Nan::GetCurrentContext()).ToChecked();
-	long y = args[2]->Int32Value(Nan::GetCurrentContext()).ToChecked();
+	HDC hdc = (HDC)UINT32ARG(info[0]);
+	long x = UINT32ARG(info[1]);
+	long y = UINT32ARG(info[2]);
 	BOOL ok = MoveToEx(hdc, x, y, NULL);
 	if( !ok ){
-		Nan::ThrowTypeError("MoveToEx failed");
-		return;
+		throw Napi::Error::New(env, "MoveToEx failed");
 	}
-	args.GetReturnValue().Set(ok);
+	return Napi::Boolean::New(env, ok);
 }
 
-void lineTo(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value lineTo(const Napi::CallbackInfo& info){
+    Napi::Env env = info.Env();
 	// lineTo(hdc, x, y)
-	if( args.Length() < 3 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() < 3 ){
+		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
 	}	
-	if( !args[0]->IsInt32() || !args[1]->IsInt32() || !args[2]->IsInt32() ){
-		Nan::ThrowTypeError("wrong arguments");
-		return;
+	if( !info[0].IsNumber() || !info[1].IsNumber() || !info[2].IsNumber() ){
+		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
-	HDC hdc = (HDC)args[0]->Int32Value(Nan::GetCurrentContext()).ToChecked();
-	long x = args[1]->Int32Value(Nan::GetCurrentContext()).ToChecked();
-	long y = args[2]->Int32Value(Nan::GetCurrentContext()).ToChecked();
+	HDC hdc = (HDC)UINT32ARG(info[0]);
+	long x = UINT32ARG(info[1]);
+	long y = UINT32ARG(info[2]);
 	BOOL ok = LineTo(hdc, x, y);
 	if( !ok ){
-		Nan::ThrowTypeError("LineTo failed");
-		return;
+		throw Napi::Error::New(env, "LineTo failed");
 	}
-	args.GetReturnValue().Set(ok);
+	return Napi::Boolean::New(env, ok);
 }
 
-void textOut(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value textOut(const Napi::CallbackInfo& info){
+    Napi::Env env = info.Env();
 	// textOut(hdc, x, y, text)
-	if( args.Length() < 4 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() < 4 ){
+		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
 	}	
-	if( !args[0]->IsInt32() || !args[1]->IsInt32() || !args[2]->IsInt32() || !args[3]->IsString() ){
-		Nan::ThrowTypeError("textOut: wrong arguments");
-		return;
+	if( !info[0].IsNumber() || !info[1].IsNumber() || !info[2].IsNumber() || !info[3].IsString() ){
+		throw Napi::Error::New(env, "textOut: wrong arguments");
 	}
-	HDC hdc = (HDC)args[0]->Int32Value(Nan::GetCurrentContext()).ToChecked();
-	long x = args[1]->Int32Value(Nan::GetCurrentContext()).ToChecked();
-	long y = args[2]->Int32Value(Nan::GetCurrentContext()).ToChecked();
-	String::Value textValue(args[3]);
+	HDC hdc = (HDC)UINT32ARG(info[0]);
+	long x = UINT32ARG(info[1]);
+	long y = UINT32ARG(info[2]);
+	std::u16string textValue(info[3].As<Napi::String>());
 	
-	BOOL ok = TextOutW(hdc, x, y, (LPWSTR)*textValue, textValue.length());
+	BOOL ok = TextOutW(hdc, x, y, (LPWSTR)textValue.c_str(), textValue.length());
 	if( !ok ){
-		Nan::ThrowTypeError("TextOutW failed");
-		return;
+		throw Napi::Error::New(env, "TextOutW failed");
 	}
-	args.GetReturnValue().Set(ok);
+	return Napi::Boolean::New(env, ok);
 }
 
-void selectObject(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value selectObject(const Napi::CallbackInfo& info){
+    Napi::Env env = info.Env();
 	// selectObject(hdc, handle)
-	if( args.Length() < 2 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() < 2 ){
+		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
 	}	
-	if( !args[0]->IsInt32() || !args[1]->IsInt32() ){
-		Nan::ThrowTypeError("selectObject: wrong arguments");
-		return;
+	if( !info[0].IsNumber() || !info[1].IsNumber() ){
+		throw Napi::Error::New(env, "selectObject: wrong arguments");
 	}
-	HDC hdc = (HDC)args[0]->Int32Value(Nan::GetCurrentContext()).ToChecked();
-	HANDLE obj = (HANDLE)args[1]->Int32Value(Nan::GetCurrentContext()).ToChecked();
+	HDC hdc = (HDC)UINT32ARG(info[0]);
+	HANDLE obj = (HANDLE)UINT32ARG(info[1]);
 	HANDLE prev = SelectObject(hdc, obj);
 	if( prev == NULL || prev == HGDI_ERROR ){
-		Nan::ThrowTypeError("SelectObject failed");
-		return;
+		throw Napi::Error::New(env, "SelectObject failed");
 	}
-	args.GetReturnValue().Set((int)prev);
+    return Napi::Number::New(env, (uint32_t)prev);
 }
 
-void setTextColor(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value setTextColor(const Napi::CallbackInfo& info){
+    Napi::Env env = info.Env();
 	// setTextColor(hdc, r, g, b)
-	if( args.Length() < 4 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() < 4 ){
+		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
 	}	
-	if( !args[0]->IsInt32() || !args[1]->IsInt32() || !args[2]->IsInt32() || !args[3]->IsInt32() ){
-		Nan::ThrowTypeError("wrong arguments");
-		return;
+	if( !info[0].IsNumber() || !info[1].IsNumber() || !info[2].IsNumber() || !info[3].IsNumber() ){
+		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
-	HDC hdc = (HDC)args[0]->Int32Value(Nan::GetCurrentContext()).ToChecked();
-	long r = args[1]->Int32Value(Nan::GetCurrentContext()).ToChecked();
-	long g = args[2]->Int32Value(Nan::GetCurrentContext()).ToChecked();
-	long b = args[3]->Int32Value(Nan::GetCurrentContext()).ToChecked();
+	HDC hdc = (HDC)UINT32ARG(info[0]);
+	long r = UINT32ARG(info[1]);
+	long g = UINT32ARG(info[2]);
+	long b = UINT32ARG(info[3]);
 	COLORREF ret = SetTextColor(hdc, RGB(r, g, b));
 	if( ret == CLR_INVALID ){
-		Nan::ThrowTypeError("SetTextColor failed");
-		return;
+		throw Napi::Error::New(env, "SetTextColor failed");
 	}
-	args.GetReturnValue().Set(TRUE);
+    return Napi::Boolean::New(env, false);
 }
 
-void createPen(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value createPen(const Napi::CallbackInfo& info){
+    Napi::Env env = info.Env();
 	// createPen(width, r, g, b)
-	if( args.Length() < 4 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() < 4 ){
+		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
 	}	
-	if( !args[0]->IsInt32() || !args[1]->IsInt32() || !args[2]->IsInt32() || !args[3]->IsInt32() ){
-		Nan::ThrowTypeError("wrong arguments");
-		return;
+	if( !info[0].IsNumber() || !info[1].IsNumber() || !info[2].IsNumber() || !info[3].IsNumber() ){
+		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
-	long width = args[0]->Int32Value(Nan::GetCurrentContext()).ToChecked();
-	long r = args[1]->Int32Value(Nan::GetCurrentContext()).ToChecked();
-	long g = args[2]->Int32Value(Nan::GetCurrentContext()).ToChecked();
-	long b = args[3]->Int32Value(Nan::GetCurrentContext()).ToChecked();
+	long width = UINT32ARG(info[0]);
+	long r = UINT32ARG(info[1]);
+	long g = UINT32ARG(info[2]);
+	long b = UINT32ARG(info[3]);
 	HPEN pen = CreatePen(PS_SOLID, width, RGB(r, g, b));
 	if( pen == NULL ){
-		Nan::ThrowTypeError("CreatePen failed");
-		return;
+		throw Napi::Error::New(env, "CreatePen failed");
 	}
-	args.GetReturnValue().Set((int)pen);
+    return HVAL(pen);
 }
 
-void setBkMode(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value setBkMode(const Napi::CallbackInfo& info){
+    Napi::Env env = info.Env();
 	// setBkMode(hdc, mode)
-	if( args.Length() < 2 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() < 2 ){
+		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
 	}	
-	if( !args[0]->IsInt32() || !args[1]->IsInt32() ){
-		Nan::ThrowTypeError("wrong arguments");
-		return;
+	if( !info[0].IsNumber() || !info[1].IsNumber() ){
+		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
-	HDC hdc = (HDC)args[0]->Int32Value(Nan::GetCurrentContext()).ToChecked();
-	int mode = args[1]->Int32Value(Nan::GetCurrentContext()).ToChecked();
+	HDC hdc = (HDC)UINT32ARG(info[0]);
+	int mode = UINT32ARG(info[1]);
 	int prev = SetBkMode(hdc, mode);
 	if( prev == 0 ){
-		Nan::ThrowTypeError("SetBkMode failed");
-		return;
+		throw Napi::Error::New(env, "SetBkMode failed");
 	}
-	args.GetReturnValue().Set(prev);
+    return INTVAL(prev);
 }
 
-void setTextAlign(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value setTextAlign(const Napi::CallbackInfo& info){
+    Napi::Env env = info.Env();
 	// setTextAlign(hdc, align)
-	if( args.Length() < 2 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() < 2 ){
+		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
 	}	
-	if( !args[0]->IsInt32() || !args[1]->IsInt32() ){
-		Nan::ThrowTypeError("wrong arguments");
-		return;
+	if( !info[0].IsNumber() || !info[1].IsNumber() ){
+		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
-	HDC hdc = (HDC)args[0]->Int32Value(Nan::GetCurrentContext()).ToChecked();
-	int align = args[1]->Int32Value(Nan::GetCurrentContext()).ToChecked();
+	HDC hdc = (HDC)UINT32ARG(info[0]);
+	int align = UINT32ARG(info[1]);
 	int prev = SetTextAlign(hdc, align);
 	if( prev == GDI_ERROR ){
-		Nan::ThrowTypeError("SetTextAlign failed");
-		return;
+		throw Napi::Error::New(env, "SetTextAlign failed");
 	}
-	args.GetReturnValue().Set(prev);
+    return INTVAL(prev);
 }
 
-void getTextAlign(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value getTextAlign(const Napi::CallbackInfo& info){
+    Napi::Env env = info.Env();
 	// getTextAlign(hdc)
-	if( args.Length() != 1 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() != 1 ){
+		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
 	}	
-	if( !args[0]->IsInt32()){
-		Nan::ThrowTypeError("wrong arguments");
-		return;
+	if( !info[0].IsNumber()){
+		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
-	HDC hdc = (HDC)args[0]->Int32Value(Nan::GetCurrentContext()).ToChecked();
+	HDC hdc = (HDC)UINT32ARG(info[0]);
 	int align = GetTextAlign(hdc);
 	if( align == GDI_ERROR ){
-		Nan::ThrowTypeError("GetTextAlign failed");
-		return;
+		throw Napi::Error::New(env, "GetTextAlign failed");
 	}
-	args.GetReturnValue().Set(align);
+    return INTVAL(align);
 }
 
-#define SET(obj, name, val) Nan::Set(obj, Nan::New(name).ToLocalChecked(), \
-	Nan::New(val).ToLocalChecked())
-#define SET2(obj, name, val) Nan::Set(obj, Nan::New(name).ToLocalChecked(), Nan::New(val))
-#define SETSTRMAYBE(obj, name, val) do { 													\
-		if (val != NULL) {																	\
-			Nan::Set(obj, Nan::New(name).ToLocalChecked(), Nan::New(val).ToLocalChecked());	\
-		}																					\
+#define SET(obj, name, val) (obj).Set((name), (val))
+#define SET2(obj, name, val) (obj).Set((name), (val))
+#define SETSTRMAYBE(obj, name, val) do {	\
+		if (val != NULL) {					\
+			(obj).Set(name, (const char16_t *)val);	        \
+        }									\
 	} while(0)
 
-Local<Object> enumPrinterAttributes(DWORD attrs) {
-	Local<Object> obj = Nan::New<v8::Object>();
+Napi::Object enumPrinterAttributes(Napi::Env env, DWORD attrs) {
+	Napi::Object obj = Napi::Object::New(env);;
 #define	A(sym)	do {															\
 		if (attrs & PRINTER_ATTRIBUTE_##sym) {									\
 			SET2(obj, #sym, true);												\
@@ -716,8 +707,8 @@ Local<Object> enumPrinterAttributes(DWORD attrs) {
 	return (obj);
 }
 
-Local<Object> enumPrinterFlags(DWORD attrs) {
-	Local<Object> obj = Nan::New<v8::Object>();
+Napi::Object enumPrinterFlags(Napi::Env env, DWORD attrs) {
+	Napi::Object obj = Napi::Object::New(env);;
 #define	F(sym)	do {															\
 		if (attrs & PRINTER_ENUM_##sym) {									\
 			SET2(obj, #sym, true);												\
@@ -737,18 +728,17 @@ Local<Object> enumPrinterFlags(DWORD attrs) {
 	return (obj);
 }
 
-void enumPrinters(const Nan::FunctionCallbackInfo<Value>& args){
+Napi::Value enumPrinters(const Napi::CallbackInfo& info){
+    Napi::Env env = info.Env();
 	// parseDevnames(devnames)
-	if( args.Length() != 3 ){
-		Nan::ThrowTypeError("wrong number of arguments");
-		return;
+	if( info.Length() != 3 ){
+		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
 	}	
 
-	if( !args[0]->IsInt32() ){
-		Nan::ThrowTypeError("wrong type for flags");
-		return;
+	if( !info[0].IsNumber() ){
+		throw Napi::Error::New(env, "wrong type for flags");
 	}
-	int flags = args[0]->Int32Value(Nan::GetCurrentContext()).ToChecked();
+	int flags = UINT32ARG(info[0]);
 
 	// NEEDSWORK:  This convers null into a string, which we then
 	// ignore.  It would be better to never create the String::Value
@@ -756,25 +746,24 @@ void enumPrinters(const Nan::FunctionCallbackInfo<Value>& args){
 	// keep the String::Value (if initialized) in scope.
 	// Well, without using "new" to create one, but I don't want to
 	// have to mess around with memory management.
-	String::Value nameparam(args[1]);
+    // (I think.  I haven't re-analyzed the situation after the change
+    // to NAPI.)
+	std::u16string nameparam(info[1].ToString());
 	LPWSTR lpwName;
-	if (args[1]->IsNull()) {
+	if (info[1].IsNull()) {
 		lpwName = NULL;
-	} else if(args[1]->IsString() ){
-		lpwName = (LPWSTR)*nameparam;
+	} else if(info[1].IsString() ){
+		lpwName = (LPWSTR)nameparam.c_str();
 	} else {
-		Nan::ThrowTypeError("wrong type for name");
-		return;
+		throw Napi::Error::New(env, "wrong type for name");
 	}
 	
-	if( !args[2]->IsInt32() ){
-		Nan::ThrowTypeError("wrong type for level");
-		return;
+	if( !info[2].IsNumber() ){
+		throw Napi::Error::New(env, "wrong type for level");
 	}
-	int level = args[2]->Int32Value(Nan::GetCurrentContext()).ToChecked();
+	int level = UINT32ARG(info[2]);
 	if (level != 1 && level != 2 && level != 4 && level != 5) {
-		Nan::ThrowTypeError("level must be 1, 2, 4, or 5");
-		return;
+		throw Napi::Error::New(env, "level must be 1, 2, 4, or 5");
 	}
 
 	DWORD needed;
@@ -782,45 +771,42 @@ void enumPrinters(const Nan::FunctionCallbackInfo<Value>& args){
 	if (!EnumPrintersW(flags, lpwName, level, NULL, 0, &needed, &returned)
 		&& GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
 		printf("error = 0x%x\n", GetLastError());
-		Nan::ThrowTypeError("First EnumPrinters failed");
-		return;	
+		throw Napi::Error::New(env, "First EnumPrinters failed");
 	}
 	std::vector<BYTE> buf(needed);
 	if (!EnumPrintersW(flags, lpwName, level, buf.data(), needed, &needed, &returned)) {
-		Nan::ThrowTypeError("Second EnumPrinters failed");
-		return;	
+		throw Napi::Error::New(env, "Second EnumPrinters failed");
 	}
 
-	Local<Array> a = Nan::New<v8::Array>(returned);
+	Napi::Array a = Napi::Array::New(env, returned);
 	for (unsigned int u = 0; u < returned; u++) {
-		Local<Object> obj = Nan::New<v8::Object>();
+		Napi::Object obj = Napi::Object::New(env);;
 		switch(level) {
 		case 1:
 			{
 				_PRINTER_INFO_1W *pi1 = ((_PRINTER_INFO_1W *)buf.data()) + u;
-				SET(obj, "description", (const uint16_t *)pi1->pDescription);
-				SET(obj, "name", (const uint16_t *)pi1->pName);
-				SETSTRMAYBE(obj, "comment", (const uint16_t *)pi1->pComment);
-				Nan::Set(obj, Nan::New("flags").ToLocalChecked(), enumPrinterFlags(pi1->Flags));
+				SETSTRMAYBE(obj, "description", pi1->pDescription);
+				SETSTRMAYBE(obj, "name", pi1->pName);
+				SETSTRMAYBE(obj, "comment", pi1->pComment);
+				obj.Set("flags", enumPrinterFlags(env, pi1->Flags));
 				break;
 			}
 		case 2:
 			{
 				_PRINTER_INFO_2W *pi2 = ((_PRINTER_INFO_2W *)buf.data()) + u;
-				SETSTRMAYBE(obj, "serverName", (const uint16_t *)pi2->pServerName);
-				SETSTRMAYBE(obj, "printerName", (const uint16_t *)pi2->pPrinterName);
-				SETSTRMAYBE(obj, "shareName", (const uint16_t *)pi2->pShareName);
-				SETSTRMAYBE(obj, "portName", (const uint16_t *)pi2->pPortName);
-				SETSTRMAYBE(obj, "driverName", (const uint16_t *)pi2->pDriverName);
-				SETSTRMAYBE(obj, "comment", (const uint16_t *)pi2->pComment);
-				SETSTRMAYBE(obj, "location", (const uint16_t *)pi2->pLocation);
+				SETSTRMAYBE(obj, "serverName", pi2->pServerName);
+				SETSTRMAYBE(obj, "printerName", pi2->pPrinterName);
+				SETSTRMAYBE(obj, "shareName", pi2->pShareName);
+				SETSTRMAYBE(obj, "portName", pi2->pPortName);
+				SETSTRMAYBE(obj, "driverName", pi2->pDriverName);
+				SETSTRMAYBE(obj, "comment", pi2->pComment);
+				SETSTRMAYBE(obj, "location", pi2->pLocation);
 				// NEEDSWORK pDevMode
-				SETSTRMAYBE(obj, "sepFile", (const uint16_t *)pi2->pSepFile);
-				SETSTRMAYBE(obj, "printProcessor", (const uint16_t *)pi2->pPrintProcessor);
-				SETSTRMAYBE(obj, "datatype", (const uint16_t *)pi2->pDatatype);
-				SETSTRMAYBE(obj, "parameters", (const uint16_t *)pi2->pParameters);
-				Nan::Set(obj, Nan::New("attributes").ToLocalChecked(),
-					enumPrinterFlags(pi2->Attributes));
+				SETSTRMAYBE(obj, "sepFile", pi2->pSepFile);
+				SETSTRMAYBE(obj, "printProcessor", pi2->pPrintProcessor);
+				SETSTRMAYBE(obj, "datatype", pi2->pDatatype);
+				SETSTRMAYBE(obj, "parameters", pi2->pParameters);
+				obj.Set("attributes", enumPrinterFlags(env, pi2->Attributes));
 				SET2(obj, "priority", (uint32_t)pi2->Priority);
 				SET2(obj, "defaultPriority", (uint32_t)pi2->DefaultPriority);
 				SET2(obj, "startTime", (uint32_t)pi2->StartTime);
@@ -837,16 +823,13 @@ void enumPrinters(const Nan::FunctionCallbackInfo<Value>& args){
 		case 4:
 			{
 				_PRINTER_INFO_4W *pi4 = ((_PRINTER_INFO_4W *)buf.data()) + u;
-				SET(obj, "printerName", (const uint16_t *)pi4->pPrinterName);
-				if (pi4->pServerName != NULL) {
-					SET(obj, "serverName", (const uint16_t *)pi4->pServerName);
-				}
-				Nan::Set(obj, Nan::New("attributes").ToLocalChecked(),
-					enumPrinterAttributes(pi4->Attributes));
+				SETSTRMAYBE(obj, "printerName", pi4->pPrinterName);
+                SETSTRMAYBE(obj, "serverName", pi4->pServerName);
+				obj.Set("attributes", enumPrinterAttributes(env, pi4->Attributes));
 				break;
 			}
 		}
-		Nan::Set(a, u, obj);
+		a.Set(u, obj);
 	}
 	// DEVNAMES *data = (DEVNAMES *)node::Buffer::Data(devnamesBuffer);
 	// WCHAR *driver, *device, *output;
@@ -854,94 +837,71 @@ void enumPrinters(const Nan::FunctionCallbackInfo<Value>& args){
 	// Local<String> driverString = Nan::New((const uint16_t *)driver, lstrlenW(driver)).ToLocalChecked();
 	// Local<String> deviceString = Nan::New((const uint16_t *)device, lstrlenW(device)).ToLocalChecked();
 	// Local<String> outputString = Nan::New((const uint16_t *)output, lstrlenW(output)).ToLocalChecked();
-	// Local<Object> obj = Nan::New<v8::Object>();
+	// Napi::Object obj = Napi::Object::New(env);;
 	// obj->Set(Nan::New("driver").ToLocalChecked(), driverString);
 	// obj->Set(Nan::New("device").ToLocalChecked(), deviceString);
 	// obj->Set(Nan::New("output").ToLocalChecked(), outputString);
-	args.GetReturnValue().Set(a);
+	return a;
 }
 
-void Init(v8::Local<v8::Object> exports){
+Napi::Object Init(Napi::Env env, Napi::Object exports) {
 	if( !initWindowClass() ){
-		Nan::ThrowTypeError("initWindowClass failed");
-		return;
+		throw Napi::Error::New(env, "initWindowClass failed");
 	}
-	exports->Set(Nan::New("createWindow").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(createWindow)->GetFunction());
-	exports->Set(Nan::New("disposeWindow").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(disposeWindow)->GetFunction());
-	exports->Set(Nan::New("getDc").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(getDc)->GetFunction());
-	exports->Set(Nan::New("releaseDc").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(releaseDc)->GetFunction());
-	exports->Set(Nan::New("measureText").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(measureText)->GetFunction());
-	exports->Set(Nan::New("createFont").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(createFont)->GetFunction());
-	exports->Set(Nan::New("deleteObject").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(deleteObject)->GetFunction());
-	exports->Set(Nan::New("getDpiOfHdc").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(getDpiOfHdc)->GetFunction());
-	exports->Set(Nan::New("printerDialog").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(printerDialog)->GetFunction());
-	exports->Set(Nan::New("parseDevmode").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(parseDevmode)->GetFunction());
-	exports->Set(Nan::New("parseDevnames").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(parseDevnames)->GetFunction());
-	exports->Set(Nan::New("createDc").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(createDc)->GetFunction());
-	exports->Set(Nan::New("createDc2").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(createDc2)->GetFunction());
-	exports->Set(Nan::New("deleteDc").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(deleteDc)->GetFunction());
-	exports->Set(Nan::New("beginPrint").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(beginPrint)->GetFunction());
-	exports->Set(Nan::New("endPrint").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(endPrint)->GetFunction());
-	exports->Set(Nan::New("abortPrint").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(abortPrint)->GetFunction());
-	exports->Set(Nan::New("startPage").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(startPage)->GetFunction());
-	exports->Set(Nan::New("endPage").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(endPage)->GetFunction());
-	exports->Set(Nan::New("moveTo").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(moveTo)->GetFunction());
-	exports->Set(Nan::New("lineTo").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(lineTo)->GetFunction());
-	exports->Set(Nan::New("textOut").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(textOut)->GetFunction());
-	exports->Set(Nan::New("selectObject").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(selectObject)->GetFunction());
-	exports->Set(Nan::New("setTextColor").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(setTextColor)->GetFunction());
-	exports->Set(Nan::New("createPen").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(createPen)->GetFunction());
-	exports->Set(Nan::New("setBkMode").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(setBkMode)->GetFunction());
-	exports->Set(Nan::New("setTextAlign").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(setTextAlign)->GetFunction());
-	exports->Set(Nan::New("getTextAlign").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(getTextAlign)->GetFunction());
-	exports->Set(Nan::New("enumPrinters").ToLocalChecked(),
-			Nan::New<v8::FunctionTemplate>(enumPrinters)->GetFunction());
-	exports->Set(Nan::New("bkModeOpaque").ToLocalChecked(), Nan::New(OPAQUE));
-	exports->Set(Nan::New("bkModeTransparent").ToLocalChecked(), Nan::New(TRANSPARENT));
-	exports->Set(Nan::New("FW_DONTCARE").ToLocalChecked(), Nan::New(FW_DONTCARE));
-	exports->Set(Nan::New("FW_BOLD").ToLocalChecked(), Nan::New(FW_BOLD));
-	exports->Set(Nan::New("TA_TOP").ToLocalChecked(), Nan::New(TA_TOP));
-	exports->Set(Nan::New("TA_BOTTOM").ToLocalChecked(), Nan::New(TA_BOTTOM));
-	exports->Set(Nan::New("TA_BASELINE").ToLocalChecked(), Nan::New(TA_BASELINE));
-	exports->Set(Nan::New("TA_LEFT").ToLocalChecked(), Nan::New(TA_LEFT));
-	exports->Set(Nan::New("TA_RIGHT").ToLocalChecked(), Nan::New(TA_RIGHT));
-	exports->Set(Nan::New("TA_CENTER").ToLocalChecked(), Nan::New(TA_CENTER));
-	exports->Set(Nan::New("PRINTER_ENUM_LOCAL").ToLocalChecked(), Nan::New(PRINTER_ENUM_LOCAL));
-	exports->Set(Nan::New("PRINTER_ENUM_NAME").ToLocalChecked(), Nan::New(PRINTER_ENUM_NAME));
-	exports->Set(Nan::New("PRINTER_ENUM_SHARED").ToLocalChecked(), Nan::New(PRINTER_ENUM_SHARED));
-	exports->Set(Nan::New("PRINTER_ENUM_CONNECTIONS").ToLocalChecked(), Nan::New(PRINTER_ENUM_CONNECTIONS));
-	exports->Set(Nan::New("PRINTER_ENUM_NETWORK").ToLocalChecked(), Nan::New(PRINTER_ENUM_NETWORK));
-	exports->Set(Nan::New("PRINTER_ENUM_REMOTE").ToLocalChecked(), Nan::New(PRINTER_ENUM_REMOTE));
+#define F(n)    exports.Set(#n, Napi::Function::New(env, (n)))
+	F(createWindow);
+	F(disposeWindow);
+	F(getDc);
+	F(releaseDc);
+	F(measureText);
+	F(createFont);
+	F(deleteObject);
+	F(getDpiOfHdc);
+	F(printerDialog);
+	F(parseDevmode);
+	F(parseDevnames);
+	F(createDc);
+	F(createDc2);
+	F(deleteDc);
+	F(beginPrint);
+	F(endPrint);
+	F(abortPrint);
+	F(startPage);
+	F(endPage);
+	F(moveTo);
+	F(lineTo);
+	F(textOut);
+	F(selectObject);
+	F(setTextColor);
+	F(createPen);
+	F(setBkMode);
+	F(setTextAlign);
+	F(getTextAlign);
+	F(enumPrinters);
+#undef F
+#define C(n)    exports.Set(#n, n)
+#define C2(n, v)    exports.Set(#n, v)
+	C2(bkModeOpaque, OPAQUE);
+	C2(bkModeTransparent, TRANSPARENT);
+	C(FW_DONTCARE);
+	C(FW_BOLD);
+	C(TA_TOP);
+	C(TA_BOTTOM);
+	C(TA_BASELINE);
+	C(TA_LEFT);
+	C(TA_RIGHT);
+	C(TA_CENTER);
+	C(PRINTER_ENUM_LOCAL);
+	C(PRINTER_ENUM_NAME);
+	C(PRINTER_ENUM_SHARED);
+	C(PRINTER_ENUM_CONNECTIONS);
+	C(PRINTER_ENUM_NETWORK);
+	C(PRINTER_ENUM_REMOTE);
+#undef C
+#undef C2
+    return exports;
 }
 
-NODE_MODULE(drawer, Init)
+NODE_API_MODULE(drawer, Init)
 
 

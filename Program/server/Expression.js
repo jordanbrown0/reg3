@@ -3,7 +3,7 @@
 // A expression is true if the verb returns true.
 // It is undefined to specify more than one verb; use the "and" or "or"
 // verbs.
-const { assert, mkdate } = require('./utils.js');
+import { assert, mkdate } from './utils.js';
 
 var trace = false;
 function log() {
@@ -426,4 +426,4 @@ verbs.left = function (r, args) {
     return (s.slice(0, n));
 };
 
-module.exports = exports = Expression;
+export { Expression };

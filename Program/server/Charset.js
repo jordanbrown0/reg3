@@ -2,7 +2,7 @@
 // plug-in encodings.  It's tempting to polyfill this on top of
 // Buffer.toString(), but I guess not.
 
-const { assert } = require('./utils');
+import { assert } from './utils.js';
 
 var XXX = '';
 var win1252_to_JS = [
@@ -64,4 +64,4 @@ Charset.decode = function(buf, encoding, start, end) {
     return (s);
 };
 
-module.exports = exports = Charset;
+export { Charset };

@@ -1,4 +1,6 @@
-const { assert, log, status } = require('./utils');
+import { assert, log, status }  from './utils.js';
+
+log('Hello, world!');
 
 // Catch unhandled errors really early, to cover all cases.
 
@@ -27,20 +29,21 @@ process.on('uncaughtException', function (err, origin) {
 });
 
 const port = 80;
-const express = require('express');
-const cookieParser = require('cookie-parser');
+import express from 'express';
+import cookieParser from 'cookie-parser';
 const app = express();
 // const bodyParser = require('body-parser');
-const Debug = require('./Debug');
-const DBMS = require('./DBMS');
-const label = require('myclinic-drawer-printer').api;
-const sprintf = require('sprintf-js').sprintf;
-const Expression = require('./Expression');
-const multer = require('multer');
+import { Debug } from './Debug.js';
+import { DBMS } from './DBMS.js';
+import label_pkg from 'myclinic-drawer-printer';
+const label = label_pkg.api;
+import { sprintf } from 'sprintf-js';
+import { Expression } from './Expression.js';
+import multer from 'multer';
 const upload = multer({ dest: 'Temp/' });
-const fs = require('fs');
-const Import = require('./Import');
-const Export = require('./Export');
+import fs from 'fs';
+import { Import } from './Import.js';
+import { Export } from './Export.js';
 
 var methods = {};
 
@@ -420,7 +423,7 @@ process.stdin.setRawMode(true);
 var count = 0;
 process.stdin.on('data', function (c) {
     switch (c) {
-    case '\3':
+    case '\x03':
         process.exit();
         break;
     case 'q':

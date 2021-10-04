@@ -1,7 +1,7 @@
-const { mkdate, assert, log } = require('./utils.js');
-const DBMS = require('./DBMS');
-const DBF = require('./DBFstream');
-const CSV = require('./CSV');
+import { mkdate, assert, log } from './utils.js';
+import { DBMS } from './DBMS.js';
+import { DBF } from './DBFstream.js';
+import { CSV } from './CSV.js';
 
 var Export = {};
 
@@ -31,4 +31,4 @@ Export.export = async function (res, t, params) {
         'took', Date.now()-t0, 'ms');
 };
 
-module.exports = exports = Export;
+export { Export };

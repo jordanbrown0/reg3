@@ -1,8 +1,8 @@
 // Concurrency tools
 
-const { assert } = require('./utils.js');
+import { assert } from './utils.js';
 
-Concurrency = {};
+var Concurrency = {};
 
 Concurrency.verbose = false;
 
@@ -137,4 +137,4 @@ Concurrency.log = function (/*arguments*/) {
     }
 };
 
-module.exports = exports = Concurrency;
+export { Concurrency as default };

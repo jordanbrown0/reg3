@@ -1,11 +1,11 @@
-const Parser = require('stream-json/Parser');
-const Chain = require('stream-chain');
-const StreamValues = require('stream-json/streamers/StreamValues');
-const fs = require('fs');
-const Version = require('./version');
-const Expression = require('./Expression');
-const { assert, log } = require('./utils.js');
-const Concurrency = require('./Concurrency.js');
+import Parser from 'stream-json/Parser.js';
+import Chain from 'stream-chain';
+import StreamValues from 'stream-json/streamers/StreamValues.js';
+import fs from 'fs';
+import { Version } from './version.js';
+import { Expression } from './Expression.js';
+import { assert, log } from './utils.js';
+import Concurrency from './Concurrency.js';
 
 var versionVerbose = false;
 
@@ -709,4 +709,4 @@ DBMS.getServerID = function () {
     return (serverID);
 };
 
-module.exports = exports = DBMS;
+export { DBMS };

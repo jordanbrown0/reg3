@@ -1,12 +1,10 @@
-var utils = {};
-
-utils.assert = function (bool, param) {
+function assert(bool, param) {
     if (!bool) {
         throw (new Error('assertion failure: ' + param));
     }
 }
 
-utils.mkdate = function (year, month, day, hours, minutes, seconds) {
+function mkdate(year, month, day, hours, minutes, seconds) {
     var ret = year.toString().padStart(4, '0')
         + '-'
         + month.toString().padStart(2, '0')
@@ -29,7 +27,7 @@ utils.mkdate = function (year, month, day, hours, minutes, seconds) {
 
 var logOnNewLine = true;
 
-utils.log = function () {
+function log() {
     if (!logOnNewLine) {
         process.stdout.write('\n');
     }
@@ -37,13 +35,13 @@ utils.log = function () {
     logOnNewLine = true;
 };
 
-utils.status = function (s) {
+function status(s) {
     process.stdout.write('\r');
     process.stdout.write(s);
     logOnNewLine = false;
 };
 
-utils.streamWritePromise = async function (stream, buf) {
+async function streamWritePromise(stream, buf) {
     return new Promise(function (resolve, reject) {
         stream.write(buf, function (err) {
             if (err) {
@@ -55,4 +53,4 @@ utils.streamWritePromise = async function (stream, buf) {
     });
 };
 
-module.exports = exports = utils;
+export { assert, mkdate, log, status, streamWritePromise };

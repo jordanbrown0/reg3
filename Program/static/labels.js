@@ -278,6 +278,7 @@ function label_badge(r, done, err) {
     
     function timestamp(cb) {
         log('Time to layout and print ', Date.now()-t0, 'ms');
+        cb();
     }
 }
 

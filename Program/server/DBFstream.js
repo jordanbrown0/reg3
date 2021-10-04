@@ -1,6 +1,6 @@
-const fs = require('fs');
-const Charset = require('./Charset');
-const { assert, mkdate, log } = require('./utils');
+import fs from 'fs';
+import { Charset } from './Charset.js';
+import { assert, mkdate, log } from './utils.js';
 
 function DBFField(off, name, type, length, dec) {
     var o = this;
@@ -58,7 +58,7 @@ DBFConverters.d = function (v) {
     return (v ? true : undefined);
 };
 
-DBFstream = {};
+var DBFstream = {};
 
 DBFstream.import = async function(fileName, params, cb) {
     var o = this;
@@ -144,10 +144,9 @@ DBFstream.import = async function(fileName, params, cb) {
         stream.on('end', function () {
             // Note:  we ignore a partial record.
             stream.close();
-            delete stream;
             resolve();
         });
     }));
 };
 
-module.exports = exports = DBFstream;
+export { DBFstream as DBF };
