@@ -291,8 +291,8 @@ MemberDisplay.prototype.title = function () {
 MemberDisplay.prototype.print = function (cb) {
     var o = this;
     label_badge(o.r,
-        function () { log('succeeded'); o.markPickedUp(cb); },
-        function () { log('failed'); working(false); }
+        function () { o.markPickedUp(cb); },
+        function () { working(false); }
     );
 };
 

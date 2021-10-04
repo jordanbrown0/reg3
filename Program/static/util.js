@@ -65,7 +65,6 @@ function sequence(cb, a) {
 
     function seq1() {
         var e = a.shift();
-        console.log(e);
         if (!e) {
             cb();
         } else if (e instanceof Function) {

@@ -11,7 +11,7 @@ init.push(function rpcInit(cb) {
         x.onload = function() {
             delete rpcActive[myserial];
             var response = JSON.parse(x.responseText);
-            Debug.rpc(myserial, '<==', response);
+            Debug.rpc(myserial, '<== ', response);
             runcallback(function () { callback(response); })
         };
         x.onerror = rpcError;

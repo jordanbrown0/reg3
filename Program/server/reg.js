@@ -1,7 +1,5 @@
 import { assert, log, status }  from './utils.js';
 
-log('Hello, world!');
-
 // Catch unhandled errors really early, to cover all cases.
 
 // This snippet can be helpful to find the names of events emitted by process.
@@ -35,8 +33,7 @@ const app = express();
 // const bodyParser = require('body-parser');
 import { Debug } from './Debug.js';
 import { DBMS } from './DBMS.js';
-import label_pkg from 'myclinic-drawer-printer';
-const label = label_pkg.api;
+import { api as label } from 'myclinic-drawer-printer';
 import { sprintf } from 'sprintf-js';
 import { Expression } from './Expression.js';
 import multer from 'multer';
@@ -127,14 +124,14 @@ methods.eval = function (r, expr) {
 };
 
 methods.label_getDeviceCaps = function (p) {
-    var hdc = label.createDc2({device: p});
+    var hdc = label.createDc2(p, {dmOrientation: label.DMORIENT_LANDSCAPE});
     var dpi = label.getDpiOfHdc(hdc);
     label.deleteDc(hdc);
     return (dpi);
 };
 
 methods.label_measureText = function (p, fontname, fontsize, s) {
-    var hdc = label.createDc2({device: p});
+    var hdc = label.createDc2(p);
     label.selectObject(hdc, getFont(fontname, fontsize));
     var ret = label.measureText(hdc, s);
     label.deleteDc(hdc);
@@ -153,7 +150,7 @@ function getFont(fontname, fontsize) {
 }
 
 methods.label_print = function (p, a) {
-    var hdc = label.createDc2({device: p});
+    var hdc = label.createDc2(p, { dmOrientation: label.DMORIENT_LANDSCAPE });
     label.setBkMode(hdc, label.bkModeTransparent);
     label.beginPrint(hdc);
     label.startPage(hdc);

@@ -187,7 +187,7 @@ Napi::Value deleteObject(const Napi::CallbackInfo& info) {
 	if( info.Length() != 1 ){
 		throw Napi::Error::New(env,
             "wrong number of arguments, usage: deleteObject(handle)");
-	}	
+	}
 	if( !info[0].IsNumber() ){
 		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
@@ -201,7 +201,7 @@ Napi::Value getDpiOfHdc(const Napi::CallbackInfo& info){
 	// getDpiOfHdc(hdc)
 	if( info.Length() != 1 ){
 		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
-	}	
+	}
 	if( !info[0].IsNumber() ){
 		throw Napi::Error::New(env, "wrong type, usage: getdpiOfHdc(hdc)");
 	}
@@ -302,7 +302,7 @@ Napi::Value parseDevmode(const Napi::CallbackInfo& info){
 	// parseDevmode(devmode)
 	if( info.Length() < 1 ){
 		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
-	}	
+	}
 	if( !info[0].IsObject() ){
 		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
@@ -327,7 +327,7 @@ Napi::Value parseDevnames(const Napi::CallbackInfo& info){
 	// parseDevnames(devnames)
 	if( info.Length() < 1 ){
 		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
-	}	
+	}
 	if( !info[0].IsObject() ){
 		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
@@ -351,7 +351,7 @@ Napi::Value createDc(const Napi::CallbackInfo& info){
 	// createDc(devmode, devnames)
 	if( info.Length() < 2 ){
 		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
-	}	
+	}
 	if( !info[0].IsObject() || !info[1].IsObject() ){
 		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
@@ -368,31 +368,122 @@ Napi::Value createDc(const Napi::CallbackInfo& info){
 	// return Napi::Number::New(env, (uint32_t)hdc);
 }
 
+// Key parts are from
+// https://docs.microsoft.com/en-us/troubleshoot/windows/win32/modify-printer-settings-documentproperties
 LPDEVMODEW makeDEVMODE(std::u16string& device, Napi::Object& params) {
-    return NULL;
+    HANDLE hPrinter;
+    LPDEVMODEW pDevMode;
+    DWORD dwNeeded, dwRet;
+    LPWSTR pDevice = (LPWSTR)device.c_str();
+
+    /* Start by opening the printer */
+    if (!OpenPrinterW(pDevice, &hPrinter, NULL))
+        return NULL;
+
+    /*
+     * Step 1:
+     * Allocate a buffer of the correct size.
+     */
+    dwNeeded = DocumentPropertiesW(NULL,
+        hPrinter, /* Handle to our printer. */
+        pDevice, /* Name of the printer. */
+        NULL, /* Asking for size, so */
+        NULL, /* these are not used. */
+        0); /* Zero returns buffer size. */
+    pDevMode = (LPDEVMODEW)malloc(dwNeeded);
+
+    /*
+     * Step 2:
+     * Get the default DevMode for the printer and
+     * modify it for your needs.
+     */
+    dwRet = DocumentPropertiesW(NULL,
+        hPrinter,
+        pDevice,
+        pDevMode, /* The address of the buffer to fill. */
+        NULL, /* Not using the input buffer. */
+        DM_OUT_BUFFER); /* Have the output buffer filled. */
+    if (dwRet != IDOK) {
+        /* If failure, cleanup and return failure. */
+        free(pDevMode);
+        ClosePrinter(hPrinter);
+        return NULL;
+    }
+
+    /*
+     * Make changes to the DevMode which are supported.
+     */
+    // if (pDevMode->dmFields & DM_ORIENTATION) {
+        // /* If the printer supports paper orientation, set it.*/
+        // pDevMode->dmOrientation = DMORIENT_LANDSCAPE;
+    // }
+#define DMU32(flag, name) {                                         \
+        if ((pDevMode->dmFields & flag) && params.Has(#name)) {     \
+            pDevMode->name = UINT32ARG(params.Get(#name));          \
+        }                                                           \
+    }
+    DMU32(DM_ORIENTATION, dmOrientation);
+    DMU32(DM_DUPLEX, dmDuplex);
+    DMU32(DM_PAPERSIZE, dmPaperSize);
+    DMU32(DM_COPIES, dmCopies);
+    DMU32(DM_PAPERLENGTH, dmPaperLength);
+    DMU32(DM_PAPERWIDTH, dmPaperWidth);
+
+    /*
+     * Step 3:
+     * Merge the new settings with the old.
+     * This gives the driver an opportunity to update any private
+     * portions of the DevMode structure.
+     */
+    dwRet = DocumentPropertiesW(NULL,
+        hPrinter,
+        pDevice,
+        pDevMode, /* Reuse our buffer for output. */
+        pDevMode, /* Pass the driver our changes. */
+        DM_IN_BUFFER | /* Commands to Merge our changes and */
+        DM_OUT_BUFFER); /* write the result. */
+
+    /* Finished with the printer */
+    ClosePrinter(hPrinter);
+
+    if (dwRet != IDOK) {
+        /* If failure, cleanup and return failure. */
+        free(pDevMode);
+        return NULL;
+    }
+
+    /* Return the modified DevMode structure. */
+    return pDevMode;
 }
 
 Napi::Value createDc2(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
 	// createDC(params)
-	if( info.Length() != 1 ){
+	if( info.Length() < 1 || info.Length() > 2){
 		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
-	}	
-	if( !info[0].IsObject()){
+	}
+	if( !info[0].IsString()){
 		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
-	Napi::Object params = info[0].As<Napi::Object>();
-	std::u16string device = params.Get("device").As<Napi::String>();
-    DEVMODEW *devmode = makeDEVMODE(device, params);
-    // if (devmode == NULL) {
-        // throw Napi::Error::New(env, "makeDEVMODE failed");
-    // }
+    if (info.Length() > 1 && !info[1].IsObject()) {
+		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
+    }
+    std::u16string device = info[0].As<Napi::String>();
+    DEVMODEW *devmode = NULL;
+    if (info.Length() > 1) {
+        Napi::Object params = info[1].As<Napi::Object>();
+        devmode = makeDEVMODE(device, params);
+        if (devmode == NULL) {
+            throw Napi::Error::New(env, "makeDEVMODE failed");
+        }
+    }
 	HDC hdc = CreateDCW(NULL, (LPCWSTR)device.c_str(), NULL, devmode);
+    free(devmode);
 	if (hdc == NULL) {
         throw Napi::Error::New(env, "CreateDCW failed");
 	}
 	return Napi::Number::New(env, (uint32_t)hdc);
-	
+
 }
 
 Napi::Value deleteDc(const Napi::CallbackInfo& info){
@@ -400,7 +491,7 @@ Napi::Value deleteDc(const Napi::CallbackInfo& info){
 	// deleteDc(hdc)
 	if( info.Length() != 1 ){
 		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
-	}	
+	}
 	if( !info[0].IsNumber() ){
 		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
@@ -414,7 +505,7 @@ Napi::Value beginPrint(const Napi::CallbackInfo& info){
 	// beginPrint(hdc)
 	if( info.Length() != 1 ){
 		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
-	}	
+	}
 	if( !info[0].IsNumber() ){
 		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
@@ -435,7 +526,7 @@ Napi::Value endPrint(const Napi::CallbackInfo& info){
 	// endPrint(hdc)
 	if( info.Length() < 1 ){
 		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
-	}	
+	}
 	if( !info[0].IsNumber() ){
 		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
@@ -452,7 +543,7 @@ Napi::Value abortPrint(const Napi::CallbackInfo& info){
 	// abortPrint(hdc)
 	if( info.Length() < 1 ){
 		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
-	}	
+	}
 	if( !info[0].IsNumber() ){
 		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
@@ -469,7 +560,7 @@ Napi::Value startPage(const Napi::CallbackInfo& info){
 	// startPage(hdc)
 	if( info.Length() < 1 ){
 		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
-	}	
+	}
 	if( !info[0].IsNumber() ){
 		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
@@ -486,7 +577,7 @@ Napi::Value endPage(const Napi::CallbackInfo& info){
 	// endPage(hdc)
 	if( info.Length() < 1 ){
 		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
-	}	
+	}
 	if( !info[0].IsNumber() ){
 		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
@@ -503,7 +594,7 @@ Napi::Value moveTo(const Napi::CallbackInfo& info){
 	// moveTo(hdc, x, y)
 	if( info.Length() < 3 ){
 		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
-	}	
+	}
 	if( !info[0].IsNumber() || !info[1].IsNumber() || !info[2].IsNumber() ){
 		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
@@ -522,7 +613,7 @@ Napi::Value lineTo(const Napi::CallbackInfo& info){
 	// lineTo(hdc, x, y)
 	if( info.Length() < 3 ){
 		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
-	}	
+	}
 	if( !info[0].IsNumber() || !info[1].IsNumber() || !info[2].IsNumber() ){
 		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
@@ -541,7 +632,7 @@ Napi::Value textOut(const Napi::CallbackInfo& info){
 	// textOut(hdc, x, y, text)
 	if( info.Length() < 4 ){
 		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
-	}	
+	}
 	if( !info[0].IsNumber() || !info[1].IsNumber() || !info[2].IsNumber() || !info[3].IsString() ){
 		throw Napi::Error::New(env, "textOut: wrong arguments");
 	}
@@ -549,7 +640,7 @@ Napi::Value textOut(const Napi::CallbackInfo& info){
 	long x = UINT32ARG(info[1]);
 	long y = UINT32ARG(info[2]);
 	std::u16string textValue(info[3].As<Napi::String>());
-	
+
 	BOOL ok = TextOutW(hdc, x, y, (LPWSTR)textValue.c_str(), textValue.length());
 	if( !ok ){
 		throw Napi::Error::New(env, "TextOutW failed");
@@ -562,7 +653,7 @@ Napi::Value selectObject(const Napi::CallbackInfo& info){
 	// selectObject(hdc, handle)
 	if( info.Length() < 2 ){
 		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
-	}	
+	}
 	if( !info[0].IsNumber() || !info[1].IsNumber() ){
 		throw Napi::Error::New(env, "selectObject: wrong arguments");
 	}
@@ -580,7 +671,7 @@ Napi::Value setTextColor(const Napi::CallbackInfo& info){
 	// setTextColor(hdc, r, g, b)
 	if( info.Length() < 4 ){
 		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
-	}	
+	}
 	if( !info[0].IsNumber() || !info[1].IsNumber() || !info[2].IsNumber() || !info[3].IsNumber() ){
 		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
@@ -600,7 +691,7 @@ Napi::Value createPen(const Napi::CallbackInfo& info){
 	// createPen(width, r, g, b)
 	if( info.Length() < 4 ){
 		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
-	}	
+	}
 	if( !info[0].IsNumber() || !info[1].IsNumber() || !info[2].IsNumber() || !info[3].IsNumber() ){
 		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
@@ -620,7 +711,7 @@ Napi::Value setBkMode(const Napi::CallbackInfo& info){
 	// setBkMode(hdc, mode)
 	if( info.Length() < 2 ){
 		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
-	}	
+	}
 	if( !info[0].IsNumber() || !info[1].IsNumber() ){
 		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
@@ -638,7 +729,7 @@ Napi::Value setTextAlign(const Napi::CallbackInfo& info){
 	// setTextAlign(hdc, align)
 	if( info.Length() < 2 ){
 		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
-	}	
+	}
 	if( !info[0].IsNumber() || !info[1].IsNumber() ){
 		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
@@ -656,7 +747,7 @@ Napi::Value getTextAlign(const Napi::CallbackInfo& info){
 	// getTextAlign(hdc)
 	if( info.Length() != 1 ){
 		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
-	}	
+	}
 	if( !info[0].IsNumber()){
 		throw Napi::Error::New(env, "wrong type, usage: xxx(yyy)");
 	}
@@ -703,7 +794,7 @@ Napi::Object enumPrinterAttributes(Napi::Env env, DWORD attrs) {
 	A(SHARED);
 	A(TS);
 	A(WORK_OFFLINE);
-#undef A	
+#undef A
 	return (obj);
 }
 
@@ -724,7 +815,7 @@ Napi::Object enumPrinterFlags(Napi::Env env, DWORD attrs) {
 	F(ICON6);
 	F(ICON7);
 	F(ICON8);
-#undef F	
+#undef F
 	return (obj);
 }
 
@@ -733,7 +824,7 @@ Napi::Value enumPrinters(const Napi::CallbackInfo& info){
 	// parseDevnames(devnames)
 	if( info.Length() != 3 ){
 		throw Napi::Error::New(env, "wrong number of arguments, usage: xxx(yyy)");
-	}	
+	}
 
 	if( !info[0].IsNumber() ){
 		throw Napi::Error::New(env, "wrong type for flags");
@@ -757,7 +848,7 @@ Napi::Value enumPrinters(const Napi::CallbackInfo& info){
 	} else {
 		throw Napi::Error::New(env, "wrong type for name");
 	}
-	
+
 	if( !info[2].IsNumber() ){
 		throw Napi::Error::New(env, "wrong type for level");
 	}
@@ -897,11 +988,17 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
 	C(PRINTER_ENUM_CONNECTIONS);
 	C(PRINTER_ENUM_NETWORK);
 	C(PRINTER_ENUM_REMOTE);
+    C(DMORIENT_LANDSCAPE);
+    C(DMORIENT_PORTRAIT);
+    C(DMPAPER_LETTER);
+    C(DMPAPER_LEGAL);
+    C(DMPAPER_A4);
+    C(DMDUP_SIMPLEX);
+    C(DMDUP_HORIZONTAL);
+    C(DMDUP_VERTICAL);
 #undef C
 #undef C2
     return exports;
 }
 
 NODE_API_MODULE(drawer, Init)
-
-
