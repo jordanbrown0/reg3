@@ -20,6 +20,13 @@ var debug = {
             true: 'Tracing expressions'
         }
     },
+    version: {
+        value: false,
+        messages: {
+            false: 'Not tracing version updates',
+            true: 'Tracing version updates'
+        }
+    }
 };
 
 var Debug = {};

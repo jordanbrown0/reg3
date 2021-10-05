@@ -6,8 +6,7 @@ import { Version } from './version.js';
 import { Expression } from './Expression.js';
 import { assert, log } from './utils.js';
 import Concurrency from './Concurrency.js';
-
-var versionVerbose = false;
+import { Debug } from './Debug.js';
 
 // NEEDSWORK the "data/" should probably be specified by the caller,
 // probably in the form of a parameter on a (hypothetical future) DBMS object.
@@ -588,25 +587,17 @@ Table.prototype.importResync = function (k, rImport) {
     if (rExist) {
         switch (Version.compare(rExist._version, rImport._version)) {
         case 0: // Equal
-            if (versionVerbose) {
-                log('equal', o.name, k);
-            }
+            Debug.version('equal', o.name, k);
             return (null);
         case 1: // Existing is newer
-            if (versionVerbose) {
-                log('existing is newer', o.name, k);
-            }
+            Debug.version('existing is newer', o.name, k);
             return (null);
         case 2: // Import is newer
             o.records[k] = rImport;
-            if (versionVerbose) {
-                log('updated', o.name, k);
-            }
+            Debug.version('updated', o.name, k);
             return (null);
         case 3: // Conflict
-            if (versionVerbose) {
-                log('conflict', o.name, k);
-            }
+            Debug.version('conflict', o.name, k);
             return ({
                 t: o.name,
                 k: k,
@@ -619,9 +610,7 @@ Table.prototype.importResync = function (k, rImport) {
             });
         }
     } else {
-        if (versionVerbose) {
-            log('created', o.name, k);
-        }
+        Debug.version('created', o.name, k);
         o.records[k] = rImport;
         return (null);
     }

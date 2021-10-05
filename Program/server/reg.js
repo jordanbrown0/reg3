@@ -432,6 +432,9 @@ process.stdin.on('data', function (c) {
     case 'b':
         log(Debug.busy.toggle());
         break;
+    case 'v':
+        log(Debug.version.toggle());
+        break;
     case 'e':
         log(Debug.expr.toggle());
         Expression.trace(Debug.expr());
@@ -440,6 +443,7 @@ process.stdin.on('data', function (c) {
         log('q - quit');
         log('r - toggle RPC tracing');
         log('e - toggle expression tracing');
+        log('v - toggle version tracing');
         log('b - toggle busy/memory monitor');
         break;
     default:
