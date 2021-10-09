@@ -31,7 +31,7 @@ if errorlevel 1 (
 )
 
 if not exist %parent%\%NODE% (
-    %z% x -o%parent% %NODE%.7z
+    %z% x -o%parent% %NODE%.7z > nul
 )
 erase %NODE%.7z
 

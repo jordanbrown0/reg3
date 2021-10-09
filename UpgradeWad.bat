@@ -23,7 +23,7 @@ if exist %outexe% (
 
 set z=Program\imported\7za
 
-call Program\lib\mkwad %outz% program
+call Program\lib\mkwad %outz% program node
 
 echo set /p myname=Convention directory? > myname.bat
 %z% a %outz% myname.bat > nul

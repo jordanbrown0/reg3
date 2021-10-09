@@ -1,8 +1,11 @@
 @echo off
 setlocal
 
+call Program\lib\NodeVer
+
 call Program\lib\FolderPath Personal DOCUMENTS
 set parent=%DOCUMENTS%\Reg3
+set z=Program\imported\7za
 
 call myname
 erase myname.bat
@@ -24,6 +27,11 @@ erase %dest%\README.txt
 erase %dest%\COPYRIGHT.txt
 erase %dest%\Program\package.json
 erase %dest%\Program\package-lock.json
+
+if not exist %parent%\%NODE% (
+    %z% x -o%parent% %NODE%.7z > nul
+)
+erase %NODE%.7z
 
 xcopy /q /e . %dest%
 
