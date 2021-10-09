@@ -69,6 +69,6 @@ CorrectionsManager.get = function(cb) {
 
 init.push(function correctionsInit() {
     table.corrections = new DBTable(db.reg, 'corrections',
-        { defaults: Editor.defaults(correctionsSchema) }
+        { schema: correctionsSchema }
     );
 });

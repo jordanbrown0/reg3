@@ -276,3 +276,5 @@ function DOMFunction(t) {
 DOMFunction('td');
 DOMFunction('tr');
 DOMFunction('th');
+DOMFunction('span');
+DOMFunction('div');

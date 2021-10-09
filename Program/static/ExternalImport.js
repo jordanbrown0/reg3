@@ -160,6 +160,6 @@ ExternalImport.prototype.title = 'External import...';
 
 init.push(function externalImportInit() {
     table.externalImport = new DBTable(db.reg, 'externalImport',
-        { defaults: Editor.defaults(externalImportSchema) }
+        { schema: externalImportSchema }
     );
 });

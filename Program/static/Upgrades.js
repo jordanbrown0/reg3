@@ -199,6 +199,6 @@ Upgrades.list = function (cb) {
 
 init.push(function upgradesInit() {
     table.upgrades = new DBTable(db.reg, 'upgrades',
-        { defaults: Editor.defaults(upgradesSchema) }
+        { schema: upgradesSchema }
     );
 });

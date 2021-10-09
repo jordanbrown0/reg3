@@ -111,10 +111,6 @@ methods.import = async function (file, dbName, tName, params) {
 };
 methods.import.file = true;
 
-methods.defaultServerName = function () {
-    return (global.process.env.COMPUTERNAME + ' ' + global.process.cwd());
-};
-
 methods.nop = function () {
     return ('Bored now');
 };

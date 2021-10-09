@@ -80,6 +80,11 @@ function extend(sup, sub) {
 	sub.prototype = Object.create(sup.prototype);
 	sub.prototype.constructor = sub;
 	sub.sup = sup.prototype;
+    for (var prop in sup) {
+        if (sub[prop] === undefined) {
+            sub[prop] = sup[prop];
+        }
+    }
 }
 
 // Error doesn't subclass well, because Error() without "new" creates a new

@@ -478,15 +478,9 @@ Table.prototype.getOrNull = function(k) {
 // Of course, we cannot *actually* delete the record, because then we couldn't
 // replicate the deletion.  We empty it out, mark it deleted, and leave it as
 // a tombstone.
-//
-// Silently ignore attempts to delete records that have already been deleted.
-// But error if the record doesn't exist at all.
 Table.prototype.delete = function(k, r) {
     var o = this;
     o.checkExists(k);
-    if (o.isDeleted(k)) {
-        return (null);
-    }
     // Rather than deleting away all of the fields, just replace it with
     // a deleted record with the right version.
     r = { _version: r._version, _deleted: true };

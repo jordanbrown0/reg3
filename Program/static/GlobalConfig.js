@@ -101,6 +101,6 @@ Global.get = function (cb) {
 
 init.push(function globalConfigInit() {
     table.global = new DBTable(db.reg, 'global',
-        { defaults: Editor.defaults(globalSchema) }
+        { schema: globalSchema }
     );
 });

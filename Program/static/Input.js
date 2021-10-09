@@ -43,6 +43,19 @@ Input.prototype.focus = function () {
 Input.prototype.correct = function () {
 };
 
+Input.toDOM = function (value, params) {
+    var ret = span();
+    if (params.prefix) {
+        ret.appendChild(params.prefix);
+    }
+    ret.appendChild(value.toString());
+    if (params.suffix) {
+        ret.appendChild(params.suffix);
+    }
+    return (ret);
+};
+
+
 // Input widgets based on <input> elements.
 function InputInput(type, params) {
     var o = this;
@@ -190,6 +203,14 @@ function InputCurrency(params) {
 
 extend(InputInt, InputCurrency);
 
+InputCurrency.toDOM = function (value, params) {
+    params = Object.assign({}, params, {
+        prefix: cfg.currencyPrefix,
+        suffix: cfg.currencySuffix
+    });
+    return InputInt.toDOM(value, params);
+};
+
 function InputBool(params)
 {
     var o = this;
@@ -314,6 +335,10 @@ InputDateTime.prototype.set = function (value) {
     InputDateTime.sup.set.call(o, s);
 };
 
+InputDateTime.toDOM = function (value, params) {
+    return (LDate.fromJSON(value).toDisplay({seconds: false}));
+};
+
 // <select> objects aren't willing to accept values that don't
 // match any of their options.  We may get our existing value
 // before we get the options, so save away the existing value
@@ -430,6 +455,10 @@ function InputDBPicker(params)
 }
 extend(InputSelect, InputDBPicker);
 
+InputDBPicker.toDOM = function (value, params) {
+    return (InputDBLookup.toDOM(value, params));
+};
+
 function InputClass(params)
 {
     var o = this;
@@ -468,17 +497,36 @@ InputDBLookup.prototype.set = function (value) {
         InputDBLookup.sup.set.call(o, '');
         return;
     }
-    o.t.getOrNull(value, function (r) {
+    InputDBLookup.asyncToDOM(o.t, value, o.params, function (displayValue) {
+        InputDBLookup.sup.set.call(o, displayValue);
+    });
+};
+
+InputDBLookup.asyncToDOM = function (t, value, params, cb) {
+    t.getOrNull(value, function (r) {
         var displayValue;
         if (!r) {
             displayValue = 'Bad: '+value;
-        } else if (o.params.textField instanceof Function) {
-            displayValue = o.params.textField(r);
+        } else if (params.textField instanceof Function) {
+            displayValue = params.textField(r);
         } else {
-            displayValue = r[o.params.textField];
+            displayValue = r[params.textField];
         }
-        InputDBLookup.sup.set.call(o, displayValue);
+        cb(displayValue);
     });
+};
+
+InputDBLookup.toDOM = function (value, params) {
+    var ret = span();
+    var t = params.table;
+    if (!(t instanceof DBTable)) {
+        t = table[t];
+    }
+
+    InputDBLookup.asyncToDOM(t, value, params, function (v) {
+        ret.appendChild(v);
+    });
+    return (ret);
 };
 
 function InputClassLookup(params)
@@ -491,6 +539,14 @@ function InputClassLookup(params)
     InputClassLookup.sup.constructor.call(o, params);
 }
 extend(InputDBLookup, InputClassLookup);
+
+InputClassLookup.toDOM = function (value, params) {
+    params = Object.assign({}, params, {
+        table: table.classes,
+        textField: 'description'
+    });
+    return InputDBLookup.toDOM(value, params);
+};
 
 // One might think that <select multiple> would do what we want, but I don't
 // like the Ctrl/Shift-click UI at all.
@@ -587,6 +643,10 @@ InputSelectMulti.prototype.focus = function () {
         o.children[key].focus();
         break;
     }
+};
+
+InputSelectMulti.toDOM = function (value, params) {
+    return (value.join(', '));
 };
 
 //
@@ -803,4 +863,13 @@ InputObject.prototype.validate = function () {
 InputObject.prototype.focus = function () {
     var o = this;
     o.first.focus();
+};
+
+InputObject.toDOM = function (value, params) {
+    var ret = div();
+    params.schema.forEach(function (schemaEnt) {
+        var child = schemaEnt.input.toDOM(value[schemaEnt.field], schemaEnt);
+        ret.appendChild(div(child));
+    });
+    return (ret);
 };

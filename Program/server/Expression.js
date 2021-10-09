@@ -426,4 +426,10 @@ verbs.left = function (r, args) {
     return (s.slice(0, n));
 };
 
+// { date: [] }
+// Returns a default name for this server as a string.
+verbs.defaultServerName = function (r, args) {
+    return (global.process.env.COMPUTERNAME + ' ' + global.process.cwd());
+};
+
 export { Expression };

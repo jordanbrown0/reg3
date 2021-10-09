@@ -63,7 +63,7 @@ ConflictResolver.prototype.activate = function () {
         ]);
     }
 
-    var table = new DElement('table', {border: 1}, tr(
+    var conflictTable = new DElement('table', {border: 1}, tr(
         th(),
         th(),
         th(o.params.existingTitle),
@@ -99,21 +99,37 @@ ConflictResolver.prototype.activate = function () {
         emitDeletedRadio(row, right, 'r');
         o.unresolved._deleted = true;
         row.addClass('Difference');
-        table.appendChild(row);
+        conflictTable.appendChild(row);
     }
 
     var f;
+    var displayed = {};
+    var t = table[o.c.t];
+    log('table', o.c.t, t);
+    var schema = t ? t.schema : [];
 
-    function emit(f) {
+    function emit(schemaEntry) {
+        var f = schemaEntry.field;
         if (f.startsWith('_')) {
             return;
         }
+        if (displayed[f]) {
+            return;
+        }
+        displayed[f] = true;
+
         var row = tr();
 
-        row.appendChild(th(f));
+        var label = schemaEntry.label || f;
+        row.appendChild(th(label));
 
-        var lf = left[f] ? left[f].toString() : nbsp();
-        var rf = right[f] ? right[f].toString() : nbsp();
+        function toDOM(r, e) {
+            var f = e.field;
+            var input = e.input || InputText;
+            return r[f] != undefined ? input.toDOM(r[f], e) : nbsp();
+        }
+        var lf = toDOM(left, schemaEntry);
+        var rf = toDOM(right, schemaEntry);
         if (left._deleted) {
             row.appendChild(td());
             row.appendChild(td());
@@ -136,21 +152,31 @@ ConflictResolver.prototype.activate = function () {
             o.unresolved[f] = true;
             row.addClass('Difference');
         }
-        table.appendChild(row);
+        conflictTable.appendChild(row);
     }
+
+    schema.forEach(function (page) {
+        page.forEach(function (entry) {
+            if (!entry.field) {
+                return;
+            }
+            emit(entry);
+        });
+    });
+
     for (f in left) {
         if (f in right) {
-            emit(f);
+            emit({field: f});
         }
     }
     for (f in left) {
         if (!(f in right)) {
-            emit(f);
+            emit({field: f});
         }
     }
     for (f in right) {
         if (!(f in left)) {
-            emit(f);
+            emit({field: f});
         }
     }
     // Finally, if there were no differences then automatically resolve without
@@ -158,7 +184,7 @@ ConflictResolver.prototype.activate = function () {
     if (isEmpty(o.unresolved)) {
         o.resolve();
     } else {
-        o.appendChild(table);
+        o.appendChild(conflictTable);
     }
 };
 
@@ -188,10 +214,8 @@ ConflictResolver.prototype.resolve = function () {
     // We set up our own DBTable object rather than using tables.* because
     // we're doing this in reaction to what's happening on the database, not
     // some operation that *we're* trying to do.  In theory there could be
-    // tables that we've never heard of.  This will probably change to
-    // incorporate tables.* when we bring in the edit schema for display of the
-    // resolution UI.
-    var table = new DBTable(db.reg, o.c.t);
+    // tables that we've never heard of.
+    var table = new DBTable(db.reg, o.c.t, {});
     table.put(o.c.k, o.c.result, null, function (conflict) {
         ConflictResolver.resolve(conflict, o.params.resolved);
     });

@@ -79,7 +79,8 @@ Server.newMembershipNumber = function (cb) {
 
 Server.get = function(cb) {
     Server.id(function (id) {
-        table.servers.getOrAdd(id, {}, null, cb);
+        table.servers.getOrAdd(id, {},
+            { setf: ['serverName', { defaultServerName: []}]}, cb);
     });
 };
 
@@ -96,13 +97,9 @@ Server.id = function (cb) {
 };
 
 init.push(function serversInit(cb) {
-    rpc.defaultServerName(function (n) {
-        var d = Editor.defaults(serverSchema);
-        d.serverName = n;
-        table.servers = new DBTable(db.reg, 'servers',
-            { defaults: d }
-        );
-        cb();
-    });
+    table.servers = new DBTable(db.reg, 'servers',
+        { schema: serverSchema }
+    );
+    cb();
     return (true);
 });

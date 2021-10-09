@@ -35,6 +35,6 @@ Categories.list = function (cb) {
 
 init.push(function categoriesInit() {
     table.categories = new DBTable(db.reg, 'categories',
-        { defaults: Editor.defaults(categoriesSchema) }
+        { schema: categoriesSchema }
     );
 });

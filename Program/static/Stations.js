@@ -182,6 +182,6 @@ var stationSchema = [
 
 init.push(function stationsInit() {
     table.stations = new DBTable(db.reg, 'stations',
-        { defaults: Editor.defaults(stationSchema) }
+        { schema: stationSchema }
     );
 });

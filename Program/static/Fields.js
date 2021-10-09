@@ -64,6 +64,6 @@ FieldsManager.get = function (cb) {
 
 init.push(function fieldsInit() {
     table.fields = new DBTable(db.reg, 'fields',
-        { defaults: Editor.defaults(fieldsSchema) }
+        { schema: fieldsSchema }
     );
 });

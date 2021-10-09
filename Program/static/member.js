@@ -20,7 +20,7 @@ Member.schema = [
         { field: 'addr2', label: '' },
         { field: 'city', label: 'City' },
         { field: 'state', label: 'State' },
-        { field: 'zip', label: 'Postcode' },
+        { field: 'postcode', label: 'Postcode (ZIP)' },
         { field: 'country', label: 'Country' },
         { field: 'phone', label: 'Phone' },
         { field: 'notes', label: 'Notes' }
@@ -562,8 +562,9 @@ MemberUpgrade.prototype.activate = function () {
     });
 };
 
+// NEEDSWORK:  dynamically added fields
 init.push(function memberInit() {
     table.members = new DBTable(db.reg, 'members',
-        { defaults: Editor.defaults(Member.schema) }
+        { schema: Member.schema }
     );
 });

@@ -50,7 +50,8 @@ function DBTable(db, tName, params) {
     o.db = db;
     o.dbName = db.getName(); // Cache so we don't have to call repeatedly.
     o.tName = tName;
-    o.params = params;
+    o.schema = params.schema || [];
+    o.defaults = Editor.defaults(o.schema);
 }
 
 // Gets the specified record.  Calls the callback with the record as an
@@ -146,10 +147,10 @@ DBTable.prototype.inc = function (k, field, limitField, cb) {
 
 DBTable.prototype.applyDefaults = function (r) {
     var o = this;
-    if (o.params.defaults) {
-        for (var f in o.params.defaults) {
+    if (o.defaults) {
+        for (var f in o.defaults) {
             if (r[f] === undefined) {
-                r[f] = o.params.defaults[f];
+                r[f] = o.defaults[f];
             }
         }
     }

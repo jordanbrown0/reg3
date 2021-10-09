@@ -4,11 +4,12 @@ var classSchema = [
         { field: 'description', label: 'Description', required: true },
         { field: 'amount', label: 'Amount', input: InputCurrency,
             required: true },   // Float?  Does anybody need pennies?
-        { field: 'badgeOK', label: 'OK for badging?', input: InputBool },
+        { field: 'badgeOK', label: 'OK for badging?', input: InputBool,
+            default: true },
         { field: 'metaclass', label: 'Metaclass' },
         { field: 'onBadge', label: 'Print on badge' },
         { field: 'phoneLabel', label: 'Print phone number on second label',
-            input: InputBool },
+            input: InputBool, default: false },
         { field: 'order', label: 'Order', input: InputInt, required: true },
         { field: 'start', label: 'Start date', input: InputDate },
         { field: 'end', label: 'End date', input: InputDate },
@@ -164,6 +165,6 @@ Class.getFilter = function () {
 
 init.push(function classInit() {
     table.classes = new DBTable(db.reg, 'classes',
-        { defaults: Editor.defaults(classSchema) }
+        { schema: classSchema }
     );
 });

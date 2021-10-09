@@ -358,6 +358,6 @@ Printer.prototype.inches = function (inches) {
 
 init.push(function printerInit() {
     table.printers = new DBTable(db.reg, 'printers',
-        { defaults: Editor.defaults(printerSchema) }
+        { schema: printerSchema }
     );
 });

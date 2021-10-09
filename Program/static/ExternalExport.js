@@ -113,6 +113,6 @@ ExternalExport.prototype.title = 'External export...';
 
 init.push(function externalExportInit() {
     table.externalExport = new DBTable(db.reg, 'externalExport',
-        { defaults: Editor.defaults(externalExportSchema) }
+        { schema: externalExportSchema }
     );
 });
