@@ -11,7 +11,7 @@ function Base()
         // onblur: function () { console.log('Base blur'); }
     });
     o.clock = new DElement('div');
-    o.numberLeft = new DElement('div', 'test');
+    o.numberLeft = new DElement('div');
     o.rightTitle = new DElement('span', { id: 'headerClock' }, o.clock, o.numberLeft);
     o.help = new DElement('span', {id: 'headerHelp'},
         new Button('?', {onclick: function () { help(true); }}));

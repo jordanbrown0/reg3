@@ -504,6 +504,17 @@ function MemberTransfer(k, r) {
     var o = this;
     o.rTransferFrom = r;
     var r2 = deepishCopy(r);
+    delete r2.lname;
+    delete r2.fname;
+    delete r2.addr1;
+    delete r2.addr2;
+    delete r2.city;
+    delete r2.state;
+    delete r2.country;
+    delete r2.postcode;
+    delete r2.phone;
+    delete r2.badge1;
+    delete r2.badge2;
     r2.transferfrom = k;
     MemberTransfer.sup.constructor.call(o, r2);
 }
