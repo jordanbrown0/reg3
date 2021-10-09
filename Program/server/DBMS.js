@@ -288,11 +288,26 @@ Table.prototype.forEachAsync = async function (cb) {
     }
 };
 
-Table.prototype.check_exists = function(k) {
+Table.prototype.isDeleted = function (k) {
     var o = this;
     var r = o.records[k];
-    if (!r || r._deleted) {
+    return (r._deleted || false);
+};
+
+Table.prototype.checkExists = function (k) {
+    var o = this;
+    var r = o.records[k];
+    if (!r) {
         throw new Error('no such record - '
+            + [ o.db.name, o.name, k ].join(' / '));
+    }
+};
+
+Table.prototype.checkExistsAndNotDeleted = function (k) {
+    var o = this;
+    o.checkExists(k);
+    if (o.isDeleted(k)) {
+        throw new Error('record has been deleted - '
             + [ o.db.name, o.name, k ].join(' / '));
     }
 };
@@ -420,7 +435,7 @@ Table.prototype.reduce = function (params) {
 
 Table.prototype.get = function(k) {
     var o = this;
-    o.check_exists(k);
+    o.checkExistsAndNotDeleted(k);
     return (o.records[k]);
 };
 
@@ -463,8 +478,15 @@ Table.prototype.getOrNull = function(k) {
 // Of course, we cannot *actually* delete the record, because then we couldn't
 // replicate the deletion.  We empty it out, mark it deleted, and leave it as
 // a tombstone.
+//
+// Silently ignore attempts to delete records that have already been deleted.
+// But error if the record doesn't exist at all.
 Table.prototype.delete = function(k, r) {
     var o = this;
+    o.checkExists(k);
+    if (o.isDeleted(k)) {
+        return (null);
+    }
     // Rather than deleting away all of the fields, just replace it with
     // a deleted record with the right version.
     r = { _version: r._version, _deleted: true };
@@ -476,13 +498,18 @@ Table.prototype.delete = function(k, r) {
 // Caller must not access it after the put.
 // Execute expr, if provided, on the record before storing it.
 // On conflict, return a conflict record for client-side resolution.
+//
 // Note that the expression is evaluated *before* checking for a conflict,
 // so the conflict record reflects any changes made by the expression.
 // This allows the conflict resolver to be table-independent, but also
 // means that the expression must not have effects outside this table.
+//
+// With the appropriate version vector, this function can be used to
+// resurrect a deleted record.  This can happen in a delete-vs-update conflict
+// resolved in favor of the update.
 Table.prototype.put = function(k, r, expr) {
     var o = this;
-    o.check_exists(k);
+    o.checkExists(k);
 
     if (expr) {
         (new Expression(expr)).exec(r);
@@ -534,7 +561,7 @@ Table.prototype.conflict = function (k, rExist, rImport) {
 // fail to add it to a record, but mostly "who cares?".
 Table.prototype.inc = function (k, field, limitField) {
     var o = this;
-    o.check_exists(k);
+    o.checkExistsAndNotDeleted(k);
     var r = o.records[k];
     if (!r[field] || r[field] > r[limitField]) {
         return (null);

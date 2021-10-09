@@ -147,7 +147,13 @@ DBEdit.prototype.activate = function () {
 
 DBEdit.prototype.get = function (cb) {
     var o = this;
-    o.params.table.get(o.k, cb);
+    o.params.table.getOrNull(o.k, function (r) {
+        if (r) {
+            cb(r);
+        } else {
+            modal('Record has been deleted on another station.', { ok: home });
+        }
+    });
 };
 
 DBEdit.prototype.getOrAdd = function (cb) {
@@ -177,10 +183,11 @@ DBEdit.prototype.cancel = function () {
 
 DBEdit.prototype.delete = function (cb) {
     var o = this;
-    console.log("Delete");
     modal("Really delete this record?", {
         ok: function () {
-            o.params.table.delete(o.k, o.r, cb);
+            o.params.table.delete(o.k, o.r, function (conflict) {
+                ConflictResolver.resolve(conflict, cb);
+            });
         },
         cancel: function () { working(false); }
     });

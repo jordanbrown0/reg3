@@ -40,8 +40,20 @@ ConflictResolver.prototype.activate = function () {
     var o = this;
     var c = o.c;
 
+    var left = c.existing;
+    var right = c.import;
+    o.unresolved = {};
+
+    // Automatically resolve delete-vs-delete conflicts.
+    if (left._deleted && right._deleted) {
+        o.c.result._deleted = true;
+        o.resolve();
+        return;
+    }
+
     base.addCancel(function () { home(); });
-    o.navResolve = { label: 'Resolve', func: function () { o.resolve(); } };
+    o.navResolve = { label: 'Resolve', key: 'Enter',
+        func: function () { o.resolve(); } };
     base.addNav([o.navResolve]);
     o.navResolve.disable();
 
@@ -59,47 +71,38 @@ ConflictResolver.prototype.activate = function () {
         th(o.params.importTitle)
     ));
 
-    var left = c.existing;
-    var right = c.import;
+    function emitRadio(row, rec, f, side, label) {
+        var radio = new DElement('input',
+            {type: 'radio', name: f, id: side+f, onchange: function () {
+                c.result[f] = rec[f];
+                delete o.unresolved[f];
+                if (isEmpty(o.unresolved)) {
+                    o.navResolve.enable();
+                }
+                row.removeClass('Difference');
+            }});
+        row.appendChild(td(radio));
+
+        row.appendChild(
+            td(new DElement('label', label, { htmlFor: side+f }))
+        );
+    }
+
+    if (left._deleted || right._deleted) {
+        function emitDeletedRadio(row, rec, side) {
+            emitRadio(row, rec, '_deleted', side,
+                rec._deleted ? 'DELETED' : 'Updated');
+        }
+        var row = tr();
+        row.appendChild(nbsp());
+        emitDeletedRadio(row, left, 'r');
+        emitDeletedRadio(row, right, 'r');
+        o.unresolved._deleted = true;
+        row.addClass('Difference');
+        table.appendChild(row);
+    }
+
     var f;
-    o.unresolved = {};
-
-    function equalObject(a, b) {
-        var e;
-
-        // Quick short-circuit for arrays.
-        if (a.length !== b.length) {
-            return (false);
-        }
-        // Next look for properties on one but not the other.
-        for (e in a) {
-            if (!(e in b)) {
-                return (false);
-            }
-        }
-        for (e in b) {
-            if (!(e in a)) {
-                return (false);
-            }
-        }
-        // Now compare the actual elements.
-        for (e in a) {
-            if (!equal(a[e], b[e])) {
-                return (false);
-            }
-        }
-        return (true);
-    }
-    function equal(a, b) {
-        if (typeof (a) !== typeof (b)) {
-            return (false);
-        }
-        // Note that Object includes Array.
-        if (a instanceof Object && b instanceof Object) {
-            return (equalObject(a, b));
-        }
-        return (a === b);
-    }
 
     function emit(f) {
         if (f.startsWith('_')) {
@@ -111,32 +114,25 @@ ConflictResolver.prototype.activate = function () {
 
         var lf = left[f] ? left[f].toString() : nbsp();
         var rf = right[f] ? right[f].toString() : nbsp();
-        if (equal(left[f], right[f])) {
+        if (left._deleted) {
+            row.appendChild(td());
+            row.appendChild(td());
+            row.appendChild(td());
+            row.appendChild(td(rf));
+        } else if (right._deleted) {
+            row.appendChild(td());
+            row.appendChild(td(lf));
+            row.appendChild(td());
+            row.appendChild(td());
+        } else if (equal(left[f], right[f])) {
             row.appendChild(td());
             row.appendChild(td(lf));
             row.appendChild(td());
             row.appendChild(td(rf));
             c.result[f] = left[f];
         } else {
-            function emitRadio(rec, f, side, label) {
-                var radio = new DElement('input',
-                    {type: 'radio', name: f, id: side+f, onchange: function () {
-                        c.result[f] = rec[f];
-                        delete o.unresolved[f];
-                        if (isEmpty(o.unresolved)) {
-                            o.navResolve.enable();
-                        }
-                        row.removeClass('Difference');
-                    }});
-                row.appendChild(td(radio));
-
-                row.appendChild(
-                    td(new DElement('label', label, { htmlFor: side+f }))
-                );
-            }
-
-            emitRadio(left, f, 'l', lf);
-            emitRadio(right, f, 'r', rf);
+            emitRadio(row, left, f, 'l', lf);
+            emitRadio(row, right, f, 'r', rf);
             o.unresolved[f] = true;
             row.addClass('Difference');
         }
@@ -171,6 +167,24 @@ ConflictResolver.prototype.resolve = function () {
     for (var f in o.unresolved) {
         return;
     }
+
+    function copyFieldsToResult(r) {
+        for (var f in r) {
+            if (f.startsWith('_')) {
+                continue;
+            }
+            o.c.result[f] = r[f];
+        }
+    }
+
+    if (o.c.result._deleted) {
+        // nothing
+    } else if (o.c.existing._deleted) {
+        copyFieldsToResult(o.c.import);
+    } else if (o.c.import._deleted) {
+        copyFieldsToResult(o.c.existing);
+    }
+
     // We set up our own DBTable object rather than using tables.* because
     // we're doing this in reaction to what's happening on the database, not
     // some operation that *we're* trying to do.  In theory there could be
@@ -202,7 +216,7 @@ ConflictResolver.resolve = function(conflict, cb) {
     base.switchTo(new ConflictResolver(conflict, {
         existingTitle: 'Changed on other station',
         importTitle: 'Changed on this station',
-        skipped: function () { cb(); },
-        resolved: function () { cb(); }
+        alertOnDelete: true,
+        resolved: cb
     }));
 };

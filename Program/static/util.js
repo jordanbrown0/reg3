@@ -124,6 +124,45 @@ function assertParams(params) {
 	}
 }
 
+function equalObject(a, b) {
+    var e;
+
+    // Quick short-circuit for arrays.
+    if (a.length !== b.length) {
+        return (false);
+    }
+    // Next look for properties on one but not the other.
+    for (e in a) {
+        if (!(e in b)) {
+            return (false);
+        }
+    }
+    for (e in b) {
+        if (!(e in a)) {
+            return (false);
+        }
+    }
+    // Now compare the actual elements.
+    for (e in a) {
+        if (!equal(a[e], b[e])) {
+            return (false);
+        }
+    }
+    return (true);
+}
+
+// Deep equality comparison of two objects
+function equal(a, b) {
+    if (typeof (a) !== typeof (b)) {
+        return (false);
+    }
+    // Note that Object includes Array.
+    if (a instanceof Object && b instanceof Object) {
+        return (equalObject(a, b));
+    }
+    return (a === b);
+}
+
 // Simple lock around "working" segments to avoid reentrancy.
 // It's not mutual exclusion.  Rather, the intent is that the caller
 // will ignore operations that attempt to reenter, e.g.
