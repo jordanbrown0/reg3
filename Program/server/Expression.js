@@ -167,7 +167,7 @@ verbs.match = function (r, args) {
     for (var i = 0; i < args.length; i++) {
         var pat = o.exec(r, args[i]).toLowerCase();
         var found = false;
-        for (f in r) {
+        for (var f in r) {
             if (f.startsWith('_')) {
                 continue;
             }

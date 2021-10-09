@@ -207,7 +207,6 @@ function label_badge(r, done, err) {
 
     function shrink(items, limits, sizes, item, cb) {
         if (sizes.length == 0) {
-            log('Too long', item.text);
             modal('Too long:  '+item.text, {
                 ok: function () { cb(sizes); }
             });

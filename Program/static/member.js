@@ -114,6 +114,22 @@ Member.getName = function (k, cb) {
     });
 };
 
+Member.put = function (k, r, expr, cb) {
+    table.members.put(k, r, expr, function (conflict) {
+        ConflictResolver.resolve(conflict, cb);
+    });
+};
+
+Member.putAndDisplay = function (k, r, expr) {
+    Member.put(k, r, expr, function () {
+        Member.display(k);
+    });
+};
+
+Member.display = function (k) {
+    base.switchTo(new MemberDisplay(k));
+};
+
 function MemberManager() {
     var o = this;
     MemberManager.sup.constructor.call(o, 'div', {className: 'MemberManager' });
@@ -149,7 +165,7 @@ function MemberManager() {
             td({colSpan: 100}, '* picked up / T transferred / X void')
         ),
         pick: function (k) {
-            base.switchTo(new MemberDisplay(k));
+            Member.display(k);
         },
         cancel: home
     });
@@ -214,7 +230,7 @@ MemberDisplay.prototype.activate = function () {
                             return;
                         }
                         o.markPickedUp(function () {
-                            base.switchTo(new MemberDisplay(o.k));
+                            Member.display(o.k);
                         });
                     } }
                 ]);
@@ -228,7 +244,7 @@ MemberDisplay.prototype.activate = function () {
                                 return;
                             }
                             o.unmark(function () {
-                                base.switchTo(new MemberDisplay(o.k));
+                                Member.display(o.k);
                             });
                         }
                     }
@@ -254,7 +270,7 @@ MemberDisplay.prototype.activate = function () {
                         return;
                     }
                     o.setVoid(false, function () {
-                        base.switchTo(new MemberDisplay(o.k));
+                        Member.display(o.k);
                     });
                 } }
             ]);
@@ -265,7 +281,7 @@ MemberDisplay.prototype.activate = function () {
                         return;
                     }
                     o.setVoid(true, function () {
-                        base.switchTo(new MemberDisplay(o.k));
+                        Member.display(o.k);
                     });
                 } }
             ]);
@@ -303,7 +319,7 @@ MemberDisplay.prototype.markPickedUp = function (cb) {
             ? { dateTime: [] }
             : cfg.offlineAsOf;
         var serverDate = { setf: [ 'pickedup', timestampExpr ] };
-        table.members.put(o.k, o.r, serverDate, function (rNew) { cb(); });
+        Member.put(o.k, o.r, serverDate, cb);
         return;
     }
     cb();
@@ -314,7 +330,7 @@ MemberDisplay.prototype.unmark = function (cb) {
 
     if (o.r.pickedup) {
         o.r.pickedup = '';
-        table.members.put(o.k, o.r, null, function (rNew) { cb(); });
+        Member.put(o.k, o.r, null, cb);
         return;
     }
     cb();
@@ -324,7 +340,7 @@ MemberDisplay.prototype.setVoid = function (v, cb) {
     var o = this;
 
     o.r.void = v;
-    table.members.put(o.k, o.r, null, function (rNew) { cb(); });
+    Member.put(o.k, o.r, null, cb);
 };
 
 function MemberEdit(k)
@@ -360,9 +376,7 @@ MemberEdit.prototype.activate = function () {
         if (working(true)) {
             return;
         }
-        table.members.put(o.k, o.r, null,
-            function (rNew) { base.switchTo(new MemberDisplay(o.k)); }
-        );
+        Member.putAndDisplay(o.k, o.r, null);
     }
 };
 
@@ -417,7 +431,7 @@ NewMemberEditor.prototype.activate = function () {
                 return;
             }
             o.add(function (k) {
-                base.switchTo(new MemberDisplay(k));
+                Member.display(k);
             });
         },
         cancel: home
@@ -511,12 +525,10 @@ MemberTransfer.prototype.add = function () {
         o.rTransferFrom.transferto = k;
         o.rTransferFrom.void = true;
         // Write the old record.
-        table.members.put(o.r.transferfrom, o.rTransferFrom, null,
-            function (rNew) {
-                // Continue on to edit the new record.
-                base.switchTo(new MemberDisplay(k));
-            }
-        );
+        Member.put(o.r.transferfrom, o.rTransferFrom, null, function () {
+            // Continue on to edit the new record.
+            Member.display(k);
+        });
     });
 };
 
@@ -540,12 +552,10 @@ MemberUpgrade.prototype.activate = function () {
                     }
                     r.class = rUp.to;
                     r.amount = (r.amount||0) + rUp.amount;
-                    table.members.put(o.k, r, null, function (rNew) {
-                        base.switchTo(new MemberDisplay(o.k));
-                    });
+                    Member.putAndDisplay(o.k, r, null);
                 },
                 cancel: function () {
-                    base.switchTo(new MemberDisplay(o.k));
+                    Member.display(o.k);
                 }
             })
         )

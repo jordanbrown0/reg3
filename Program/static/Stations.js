@@ -91,9 +91,14 @@ Station.get = function (cb) {
     Server.id(function (id) {
         table.stations.getOrAdd(stationID, {server: id}, null, function (r) {
             if (r.server != id) {
+                // Station has been moved to a different server; update it.
+                // This is probably not enough.  Reference issue #158.
                 r.server = id;
-                table.stations.put(stationID, r, null, function (rNew) {
-                    cb(rNew);
+                table.stations.put(stationID, r, null, function (conflict) {
+                    assert(conflict == null, 'Record update conflict');
+                    table.stations.get(stationID, function (rNew) {
+                        cb(rNew);
+                    })
                 });
                 return;
             }

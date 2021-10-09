@@ -4,7 +4,7 @@ import StreamValues from 'stream-json/streamers/StreamValues.js';
 import fs from 'fs';
 import { Version } from './version.js';
 import { Expression } from './Expression.js';
-import { assert, log } from './utils.js';
+import { assert, log, unreachable } from './utils.js';
 import Concurrency from './Concurrency.js';
 import { Debug } from './Debug.js';
 
@@ -297,19 +297,6 @@ Table.prototype.check_exists = function(k) {
     }
 };
 
-Table.prototype.check_version = function(k, r) {
-    var o = this;
-    switch (Version.compare(r._version, o.records[k]._version)) {
-    case 0: // Equal
-    case 1: // Candidate is newer
-        return;
-    case 2: // Existing is newer
-    case 3: // Conflict
-        throw new Error('Record has been changed - ' +
-            [ o.db.name, o.name, k ].join(' / '));
-    }
-};
-
 Table.prototype.list = function (params) {
     var o = this;
     if (!params) {
@@ -478,30 +465,65 @@ Table.prototype.getOrNull = function(k) {
 // a tombstone.
 Table.prototype.delete = function(k, r) {
     var o = this;
-    o.check_exists(k);
-    o.check_version(k, r);
-    o.bump(r);
-    o.records[k] = {_version: r._version, _deleted: true};
-    o.writeRec(k);
-    o.cachedSort = null;
-    return (o.records[k]);
+    // Rather than deleting away all of the fields, just replace it with
+    // a deleted record with the right version.
+    r = { _version: r._version, _deleted: true };
+    return (o.put(k, r, null));
 };
 
 // Replace the specified record with the specified contents.
 // Note:  the record supplied is *not* copied; it *is* the in-memory record.
 // Caller must not access it after the put.
 // Execute expr, if provided, on the record before storing it.
+// On conflict, return a conflict record for client-side resolution.
+// Note that the expression is evaluated *before* checking for a conflict,
+// so the conflict record reflects any changes made by the expression.
+// This allows the conflict resolver to be table-independent, but also
+// means that the expression must not have effects outside this table.
 Table.prototype.put = function(k, r, expr) {
     var o = this;
     o.check_exists(k);
-    o.check_version(k, r);
+
     if (expr) {
         (new Expression(expr)).exec(r);
     }
-    o.bump(r);
-    o.records[k] = r;
-    o.writeRec(k);
-    o.cachedSort = null;
+
+    var rExist = o.records[k];
+    // Note that the comparison rules here are different from the rules in
+    // importResync().  There, the version vectors accurately reflect the
+    // changes in the records, and all four combinations are valid.
+    // Here, the caller has updated the record but has *not* bumped the
+    // version.  They were starting with a record from this server, so there
+    // should be no way that the new edition of the record is, version-wise,
+    // newer than the existing record.
+    switch (Version.compare(r._version, rExist._version)) {
+    case 0: // Equal - normal case
+    case 1: // Candidate is newer (import resolve only)
+        o.bump(r);
+        o.records[k] = r;
+        o.writeRec(k);
+        o.cachedSort = null;
+        return (null);
+    case 2: // Existing is newer - somebody else has updated the record.
+    case 3: // Conflict (import resolve with additional conflict)
+        Debug.version('conflict', o.name, k);
+        return o.conflict(k, rExist, r);
+    }
+    unreachable();
+};
+
+Table.prototype.conflict = function (k, rExist, rImport) {
+    var o = this;
+    return ({
+        t: o.name,
+        k: k,
+        existing: rExist,
+        import: rImport,
+        result: {
+            _version:
+                Version.merge(rExist._version, rImport._version)
+        }
+    });
 };
 
 // Returns the specified field and, if it's within limits, returns the current
@@ -564,6 +586,7 @@ Table.prototype.add = function (k, r, expr) {
 Table.prototype.bump = function (r) {
     var o = this;
     Version.bump(r._version, serverID);
+    Debug.version('bump', serverID, 'to', r._version);
 };
 
 //
@@ -598,16 +621,7 @@ Table.prototype.importResync = function (k, rImport) {
             return (null);
         case 3: // Conflict
             Debug.version('conflict', o.name, k);
-            return ({
-                t: o.name,
-                k: k,
-                existing: rExist,
-                import: rImport,
-                result: {
-                    _version:
-                        Version.merge(rExist._version, rImport._version)
-                }
-            });
+            return (o.conflict(k, rExist, rImport));
         }
     } else {
         Debug.version('created', o.name, k);

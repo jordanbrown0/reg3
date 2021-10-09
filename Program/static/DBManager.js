@@ -111,7 +111,10 @@ DBEdit.prototype.activate = function () {
                 if (working(true)) {
                     return;
                 }
-                o.put(function (rNew) { o.done(); });
+                o.put(function (conflict) {
+                    ConflictResolver.resolve(conflict,
+                        function () { o.done(); });
+                });
             },
             cancel: function () { o.cancel(); }
         });

@@ -33,13 +33,13 @@ function log() {
     }
     console.log.apply(console, arguments);
     logOnNewLine = true;
-};
+}
 
 function status(s) {
     process.stdout.write('\r');
     process.stdout.write(s);
     logOnNewLine = false;
-};
+}
 
 async function streamWritePromise(stream, buf) {
     return new Promise(function (resolve, reject) {
@@ -51,6 +51,17 @@ async function streamWritePromise(stream, buf) {
             }
         });
     });
-};
+}
 
-export { assert, mkdate, log, status, streamWritePromise };
+function unreachable() {
+    throw new Error('Reached point expected to be unreachable');
+}
+
+export {
+    assert,
+    mkdate,
+    log,
+    status,
+    streamWritePromise,
+    unreachable
+};

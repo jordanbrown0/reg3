@@ -110,9 +110,7 @@ DBTable.prototype.getOrNull = function (k, cb) {
 
 DBTable.prototype.put = function (k, r, expr, cb) {
     var o = this;
-    rpc.DBput(o.dbName, o.tName, k, r, expr, function (rNew) {
-        cb(rNew);
-    });
+    rpc.DBput(o.dbName, o.tName, k, r, expr, cb);
 };
 
 DBTable.prototype.add = function (k, r, expr, cb) {

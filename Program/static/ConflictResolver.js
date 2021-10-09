@@ -20,6 +20,8 @@ ConflictListResolver.prototype.select = function (i) {
         return;
     }
     base.switchTo(new ConflictResolver(o.conflicts[i], {
+        existingTitle: 'Existing',
+        importTitle: 'Import',
         skipped: function () { o.select(i+1); },
         resolved: function () { o.select(i+1); }
     }));
@@ -52,12 +54,11 @@ ConflictResolver.prototype.activate = function () {
     var table = new DElement('table', {border: 1}, tr(
         th(),
         th(),
-        th('Existing'),
+        th(o.params.existingTitle),
         th(),
-        th('Import')
+        th(o.params.importTitle)
     ));
 
-    var tName = c.tName;
     var left = c.existing;
     var right = c.import;
     var f;
@@ -177,8 +178,8 @@ ConflictResolver.prototype.resolve = function () {
     // incorporate tables.* when we bring in the edit schema for display of the
     // resolution UI.
     var table = new DBTable(db.reg, o.c.t);
-    table.put(o.c.k, o.c.result, null, function (rNew) {
-        o.params.resolved();
+    table.put(o.c.k, o.c.result, null, function (conflict) {
+        ConflictResolver.resolve(conflict, o.params.resolved);
     });
 };
 
@@ -191,3 +192,17 @@ ConflictResolver.prototype.title = function () {
     var o = this;
     return ('Resolve ' + o.c.t + ' conflict...');
 }
+
+ConflictResolver.resolve = function(conflict, cb) {
+    if (!conflict) {
+        cb();
+        return;
+    }
+
+    base.switchTo(new ConflictResolver(conflict, {
+        existingTitle: 'Changed on other station',
+        importTitle: 'Changed on this station',
+        skipped: function () { cb(); },
+        resolved: function () { cb(); }
+    }));
+};
