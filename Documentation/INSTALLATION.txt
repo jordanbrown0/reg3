@@ -13,24 +13,13 @@ A:  Yes, in a per-version directory.  That way a particular Reg3 instance can us
 
 Q:  Shared Reg3?
 A:  No.  Reg3 itself is quite small, and so having a copy for each convention is not a significant burden.  That way you always have a copy of Reg3 that matches the convention's data.
-BUT:  node_modules is 10MB, mostly because of build overhead in myclinic-drawer-printer.  Should figure out how to trim that down for production environments - basically, just deleting the build artifacts.
 
 Q:  Node.js installation directory path?
-A:  Try to keep it isolated, but $CON\..\node-vXX.YY.Z-win-x86
+A:  Documents\Reg3\node-vXX.YY.Z-win-x86
 
 Q:  Per-convention directory path?
-A:  Best would be to let the user say where the convention directory goes at convention creation time, but it isn't obvious what the UI would be for that (without development to support a directory picker).
-Q:  When creating a new convention based on an existing one?
-A:  Absent a picker, $OLDCON\..\$NEWCON.
-Q:  When creating a new convention ab initio, from an installation wad?
-A:  Easiest is if installation wads *always* represent conventions, and then you set up a new convention from that if you want to.
+A:  Documents\Reg3\$CON
 
-Q:  Making a new convention?  Can you make a new convention directly from an installation wad, or do you need to install primordial ooze and then create a new convention from that?
-
-Q:  Making a new server for an existing convention?
-A:  While it is tempting to distribute an empty convention and import convention data on top of it, that doesn't provide automatic per-convention directory creation.
-
-Q:  Is PowerShell installed by default on Windows 8?
 
 DEVELOPER
 
