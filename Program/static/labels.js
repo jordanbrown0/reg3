@@ -207,9 +207,7 @@ function label_badge(r, done, err) {
 
     function shrink(items, limits, sizes, item, cb) {
         if (sizes.length == 0) {
-            modal('Too long:  '+item.text, {
-                ok: function () { cb(sizes); }
-            });
+            modal('Too long:  '+item.text, { ok: err });
             return;
         }
         item.size = sizes[0];
