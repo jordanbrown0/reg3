@@ -68,12 +68,18 @@ DBManager.prototype.summarize = function (k, r) {
 
 DBManager.prototype.pick = function (k, r) {
     var o = this;
-    base.switchTo(new o.Edit(k, o.params));
+    var params = Object.assign({}, o.params, {
+        help: o.params.helpEdit
+    });
+    base.switchTo(new o.Edit(k, params));
 };
 
 DBManager.prototype.add = function () {
     var o = this;
-    base.switchTo(new o.Add(o.params));
+    var params = Object.assign({}, o.params, {
+        help: o.params.helpAdd || o.params.helpEdit
+    });
+    base.switchTo(new o.Add(params));
 };
 
 DBManager.prototype.cancel = function () {
@@ -93,6 +99,9 @@ function DBEdit(k, params) {
     DBEdit.sup.constructor.call(o,'div');
     o.k = k;
     o.params = params;
+    if (o.params.help) {
+        o.help = o.params.help;
+    }
 }
 extend(DElement, DBEdit);
 
@@ -218,6 +227,9 @@ function DBAdd(params) {
     var o = this;
     DBAdd.sup.constructor.call(o,'div');
     o.params = params;
+    if (o.params.help) {
+        o.help = o.params.help;
+    }
 }
 extend(DElement, DBAdd);
 

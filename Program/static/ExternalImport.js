@@ -73,7 +73,8 @@ function ExternalImportManager() {
         canSaveCopy: true,
         titleManager: 'External Import',
         titleEdit: 'Edit import mapping',
-        titleAdd: 'New import mapping'
+        titleAdd: 'New import mapping',
+        helpEdit: 'ExternalImportEdit'
     };
 
     ExternalImportManager.sup.constructor.call(o, params);
