@@ -1,4 +1,6 @@
 window.onload = function () {
+    toLoad.push('Common');
+
     function loadNext() {
         var n = toLoad.shift();
         if (!n) {
@@ -12,9 +14,9 @@ window.onload = function () {
             var node = document.createElement('div');
             node.innerHTML = req.responseText;
             document.body.appendChild(node);
+            loadNext();
         };
         req.send();
-        loadNext();
     }
     loadNext();
 }

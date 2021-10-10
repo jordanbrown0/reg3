@@ -138,11 +138,10 @@ UpgradeAdHocPicker.prototype.activate = function () {
                 class: r,
                 pick: function (r) { o.params.pick(null, r); }
             }));
-        }
+        },
+        help: 'UpgradeClassPicker'
     }));
 };
-
-
 
 function UpgradeAdHocPicker2(params) {
     var o = this;
