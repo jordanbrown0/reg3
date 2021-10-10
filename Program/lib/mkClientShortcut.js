@@ -30,10 +30,20 @@ var variations = [
     {
         prog: '\\Program Files (x86)\\Mozilla Firefox\\firefox.exe',
         args: '--kiosk http://'+servername,
-        desc: 'Firefox kiosk'
+        desc: 'Firefox kiosk (x86)'
     },
     {
         prog: '\\Program Files (x86)\\Mozilla Firefox\\firefox.exe',
+        args: 'http://'+servername,
+        desc: 'Firefox (x86)'
+    },
+    {
+        prog: '\\Program Files\\Mozilla Firefox\\firefox.exe',
+        args: '--kiosk http://'+servername,
+        desc: 'Firefox kiosk'
+    },
+    {
+        prog: '\\Program Files\\Mozilla Firefox\\firefox.exe',
         args: 'http://'+servername,
         desc: 'Firefox'
     },
