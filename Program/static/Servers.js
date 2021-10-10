@@ -67,6 +67,31 @@ extend(DBEdit, ServerEdit);
 
 ServerEdit.prototype.title = 'Server configuration...';
 
+ServerEdit.prototype.delete = function (cb) {
+    var o = this;
+    ServerEdit.sup.delete.call(o, function (deleted) {
+        if (deleted) {
+            sequence(cb, [
+                { f: deleteDependents, a: ['stations'] },
+                { f: deleteDependents, a: ['printers'] }
+            ]);
+        } else {
+            base.switchTo(new ServerEdit(o.k, o.params));
+        }
+    });
+
+    function deleteDependents(cb, tName) {
+        table[tName].reduce({
+            expr: {
+                if: [
+                    { eq: [ { f: 'server' }, o.k ] },
+                    { delete: [] }
+                ]
+            }
+        }, cb);
+    }
+};
+
 var Server = {};
 
 Server.newMembershipNumber = function (cb) {

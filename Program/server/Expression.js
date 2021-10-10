@@ -3,14 +3,8 @@
 // A expression is true if the verb returns true.
 // It is undefined to specify more than one verb; use the "and" or "or"
 // verbs.
-import { assert, mkdate } from './utils.js';
-
-var trace = false;
-function log() {
-    if (trace) {
-        console.log.apply(console, arguments);
-    }
-}
+import { assert, mkdate, log } from './utils.js';
+import { Debug } from './Debug.js';
 
 function Expression(e, params) {
     var o = this;
@@ -18,15 +12,6 @@ function Expression(e, params) {
     o.params = params || {};
     o.variables = o.params.init || {};
 }
-
-Expression.trace = function (t) {
-    var old = trace;
-    var old = trace;
-    if (t !== undefined) {
-        trace = t;
-    }
-    return (old);
-};
 
 Expression.prototype.exec = function (r, e) {
     var o = this;
@@ -43,16 +28,16 @@ Expression.prototype.exec = function (r, e) {
             if (!(args instanceof Array)) {
                 args = [ args ];
             }
-            log('verb', verb, args);
+            Debug.expr('verb', verb, args);
             var ret = verbs[verb].call(o, r, args);
-            log('verb', verb, '=>', ret);
+            Debug.expr('verb', verb, '=>', ret);
             return (ret);
         }
         throw new Error('Expression without verb');
     }
     // NEEDSWORK:  should an undefined expression be true, or false?  It's currently falsey,
     // because it falls through here and returns undefined.
-    log('constant', e);
+    Debug.expr('constant', e);
     return (e);
 };
 
@@ -430,6 +415,26 @@ verbs.left = function (r, args) {
 // Returns a default name for this server as a string.
 verbs.defaultServerName = function (r, args) {
     return (global.process.env.COMPUTERNAME + ' ' + global.process.cwd());
+};
+
+verbs.delete = function (r, args) {
+    var version = r._version;
+    for (var f in r) {
+        delete r[f];
+    }
+    r._version = version;
+    r._deleted = true;
+    r._dirty = true;
+    return (undefined);
+};
+
+verbs.echo = function (r, args) {
+    var o = this;
+    var values = []
+    args.forEach(function (arg) {
+       values.push(o.exec(r, arg));
+    });
+    log.apply(null, values);
 };
 
 export { Expression };

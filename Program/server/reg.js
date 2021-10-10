@@ -433,7 +433,6 @@ process.stdin.on('data', function (c) {
         break;
     case 'e':
         log(Debug.expr.toggle());
-        Expression.trace(Debug.expr());
         break;
     case '?':
         log('q - quit');

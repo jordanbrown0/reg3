@@ -126,7 +126,7 @@ DBEdit.prototype.activate = function () {
                     if (working(true)) {
                         return;
                     }
-                    o.delete(function () { o.done(); });
+                    o.delete(function (deleted) { o.done(); });
                 }}
             ]);
         }
@@ -186,10 +186,20 @@ DBEdit.prototype.delete = function (cb) {
     modal("Really delete this record?", {
         ok: function () {
             o.params.table.delete(o.k, o.r, function (conflict) {
-                ConflictResolver.resolve(conflict, cb);
+                if (conflict) {
+                    ConflictResolver.resolve(conflict, function (res) {
+                        if (res._deleted) {
+                            cb(true);
+                        } else {
+                            cb(false);
+                        }
+                    });
+                } else {
+                    cb(true);
+                }
             });
         },
-        cancel: function () { working(false); }
+        cancel: function () { cb(false); }
     });
 };
 

@@ -217,7 +217,11 @@ ConflictResolver.prototype.resolve = function () {
     // tables that we've never heard of.
     var table = new DBTable(db.reg, o.c.t, {});
     table.put(o.c.k, o.c.result, null, function (conflict) {
-        ConflictResolver.resolve(conflict, o.params.resolved);
+        if (conflict) {
+            ConflictResolver.resolve(conflict, o.params.resolved);
+        } else {
+            o.params.resolved(o.c.result);
+        }
     });
 };
 
@@ -233,7 +237,7 @@ ConflictResolver.prototype.title = function () {
 
 ConflictResolver.resolve = function(conflict, cb) {
     if (!conflict) {
-        cb();
+        cb(null);
         return;
     }
 
