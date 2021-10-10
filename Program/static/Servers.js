@@ -72,8 +72,8 @@ ServerEdit.prototype.delete = function (cb) {
     ServerEdit.sup.delete.call(o, function (deleted) {
         if (deleted) {
             sequence(cb, [
-                { f: deleteDependents, a: ['stations'] },
-                { f: deleteDependents, a: ['printers'] }
+                [ deleteDependents, 'stations' ],
+                [ deleteDependents, 'printers' ]
             ]);
         } else {
             base.switchTo(new ServerEdit(o.k, o.params));
@@ -89,6 +89,7 @@ ServerEdit.prototype.delete = function (cb) {
                 ]
             }
         }, cb);
+        return (true);
     }
 };
 

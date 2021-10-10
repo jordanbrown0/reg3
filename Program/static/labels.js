@@ -57,10 +57,10 @@ function label_badge(r, done, err) {
         var phoneItems = [];
 
         if (cfg.badgeNumber.print && r.number) {
-            todo.push({f: addRight, a: [r.number.toString()]});
+            todo.push([ addRight, r.number.toString() ]);
         }
         if (cl.onBadge) {
-            todo.push({f: addRight, a: [cl.onBadge]});
+            todo.push([ addRight, cl.onBadge ]);
         }
         if (cfg.badgeCity.print) {
             todo.push(doBottom);
@@ -72,20 +72,19 @@ function label_badge(r, done, err) {
         todo.push(calcNameLimits);
 
         if (doBadgeNameLabel) {
-            todo.push({ f: drawName,
-                a: [badgeNameItems, nameLimits, r.badge1, r.badge2] });
-            printSeq.push({ f: print, a: [smallItems, badgeNameItems] });
+            todo.push([ drawName,
+                badgeNameItems, nameLimits, r.badge1, r.badge2 ]);
+            printSeq.push([ print, smallItems, badgeNameItems ]);
         }
         if (doRealNameLabel) {
-            todo.push({ f: drawName,
-                a: [realNameItems, nameLimits, r.fname, r.lname] });
-            printSeq.push({ f: print, a: [smallItems, realNameItems] });
+            todo.push([ drawName,
+                realNameItems, nameLimits, r.fname, r.lname ]);
+            printSeq.push([ print, smallItems, realNameItems ]);
         }
 
         if (cl.phoneLabel && r.phone) {
-            todo.push({f: drawName,
-                a: [phoneItems, phoneLimits, r.phone, undefined]});
-            printSeq.push({f: print, a: [phoneItems]});
+            todo.push([ drawName, phoneItems, phoneLimits, r.phone, undefined]);
+            printSeq.push([ print, phoneItems ]);
         }
 
         for (var i = 0; i < cfg.badgeCopies; i++) {
@@ -114,6 +113,7 @@ function label_badge(r, done, err) {
                 cb();
             }
         );
+        return (true);
     }
 
     function doBottom(cb, items) {
@@ -143,6 +143,7 @@ function label_badge(r, done, err) {
                 cb();
             }
         );
+        return (true);
     }
 
     function calcNameLimits(cb) {
@@ -150,20 +151,18 @@ function label_badge(r, done, err) {
         nameLimits.y = bottom.y;
         nameLimits.h = p.limits.h - right.width;
         nameLimits.v = p.limits.v - bottom.v;
-        cb();
     }
 
     function drawName(cb, items, limits, name1, name2) {
         if (name1 && name2) {
             drawTwoNames(name1, name2);
-            return;
+            return true;
         } else if (name1 || name2) {
             drawOneName(name1 || name2);
-            return;
+            return true;
         }
-        // No name?  How sad.
-        cb();
-        return;
+        // No name?  How sad.  But at least it's synchronous.
+        return undefined;
 
         function drawTwoNames() {
             var s = [name1, name2].join(' ');
@@ -268,14 +267,14 @@ function label_badge(r, done, err) {
     function print(cb /* ... */) {
         var allItems = [ {font: cfg.font} ];
         for (var i = 1; i < arguments.length; i++) {
-            allItems = allItems.concat(arguments[i]);
+            allItems.push(arguments[i]);
         }
         p.print(allItems, cb);
+        return true;
     }
     
-    function timestamp(cb) {
+    function timestamp() {
         log('Time to layout and print ', Date.now()-t0, 'ms');
-        cb();
     }
 }
 

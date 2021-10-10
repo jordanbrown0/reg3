@@ -59,20 +59,33 @@ function joinTruthy(a, sep) {
 	return (a2.join(sep));
 }
 
+// Execute a series of possible-asynchronous calls.
+// cb - calls this when done.
+// a - array of calls, either:
+//     - function
+//     - [ function, arg1, ... argN ]
+// Functions are called as f(cb, arg1, ... argN).
+// Functions should either:
+// - Execute synchronously and return undefined.
+// - Return true and call the callback function when done.
+// Note:  must not modify a.
 function sequence(cb, a) {
+    var i = 0;
     seq1();
     return;
 
     function seq1() {
-        var e = a.shift();
-        if (!e) {
-            cb();
-        } else if (e instanceof Function) {
-            e(seq1);
-        } else {
-            e.a.unshift(seq1);
-            e.f.apply(null, e.a);
-        }
+        do {
+            if (i >= a.length) {
+                cb();
+                return;
+            }
+            var e = a[i];
+            i++;
+            if (e instanceof Function) {
+                e = [e];
+            }
+        } while (!e[0].apply(null, [seq1].concat(e.slice(1))));
     }
 }
 
