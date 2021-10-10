@@ -422,24 +422,28 @@ process.stdin.on('data', function (c) {
     case 'q':
         process.exit();
         break;
-    case 'r':
-        log(Debug.rpc.toggle());
-        break;
     case 'b':
         log(Debug.busy.toggle());
         break;
-    case 'v':
-        log(Debug.version.toggle());
+    case 'd':
+        log(Debug.db.toggle());
         break;
     case 'e':
         log(Debug.expr.toggle());
         break;
+    case 'r':
+        log(Debug.rpc.toggle());
+        break;
+    case 'v':
+        log(Debug.version.toggle());
+        break;
     case '?':
         log('q - quit');
-        log('r - toggle RPC tracing');
-        log('e - toggle expression tracing');
-        log('v - toggle version tracing');
         log('b - toggle busy/memory monitor');
+        log('d - toggle database tracing');
+        log('e - toggle expression tracing');
+        log('r - toggle RPC tracing');
+        log('v - toggle version tracing');
         break;
     default:
         log('Huh?  Press ? for a list of commands.');

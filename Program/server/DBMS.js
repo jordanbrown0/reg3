@@ -28,7 +28,7 @@ DB.prototype.load = async function() {
     var o = this;
     var t0 = Date.now();
     var nrecs = 0;
-    log('starting load', o.name);
+    Debug.db('starting load', o.name);
     assert(!o.loadInProgress, 'DB.load entered reentrantly!');
     o.loadInProgress = true;
     var pipeline = new Chain([
@@ -46,7 +46,7 @@ DB.prototype.load = async function() {
         pipeline.on('end', function () {
             o.loadInProgress = false;
             pipeline.destroy();
-            log('finished load',
+            Debug.db('finished load',
                 o.name,
                 nrecs, 'records took',
                 (Date.now()-t0)+'ms'
@@ -93,7 +93,7 @@ DB.prototype.importResync = async function(stream) {
     return (new Promise(function (resolve, reject) {
         pipeline.on('end', function () {
             o.write();
-            log('finished import',
+            Debug.db('finished import',
                 nrec, 'records',
                 conflicts.length, 'conflicts',
                 (Date.now()-t0)+'ms'
@@ -159,7 +159,7 @@ DB.prototype.write = function() {
     }
     fs.closeSync(fd);
     fs.renameSync(o.filename+'.new', o.filename);
-    log('wrote',o.name,nrec,'records took', (Date.now()-t0)+'ms');
+    Debug.db('wrote',o.name,nrec,'records took', (Date.now()-t0)+'ms');
 };
 
 DB.prototype.writeStream = function (stream, tables) {
@@ -179,7 +179,7 @@ DB.prototype.writeStream = function (stream, tables) {
             stream.write('\n');
         });
     });
-    log('export finished', nrecs, 'records took', (Date.now()-t0)+'ms');
+    Debug.db('export finished', nrecs, 'records took', (Date.now()-t0)+'ms');
 };
 
 DB.prototype.writeRec = function (tName, k, r) {
@@ -195,7 +195,7 @@ DB.prototype.writeRec = function (tName, k, r) {
     fs.writeSync(fd, '\n');
     fs.fsyncSync(fd);
     fs.closeSync(fd);
-    log('wrote',o.name,'record took', (Date.now()-t0)+'ms');
+    Debug.db('wrote',o.name,'record took', (Date.now()-t0)+'ms');
 };
 
 DB.prototype.listTables = function () {

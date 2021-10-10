@@ -13,6 +13,13 @@ var debug = {
             true: 'Showing busy percentage / memory usage'
         }
     },
+    db: {
+        value: true,
+        messages: {
+            false: 'Not tracing database operations',
+            true: 'Tracing database operations'
+        }
+    },
     expr: {
         value: false,
         messages: {
