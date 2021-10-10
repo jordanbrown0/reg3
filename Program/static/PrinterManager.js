@@ -181,7 +181,13 @@ Printers.refresh = function (cb) {
         function sync() {
             var p;
             if (p = newPrinters.pop()) {
-                table.printers.add(null, { server: id, windows: p }, null, sync);
+                var pRec = {
+                    server: id,
+                    windows: p,
+                    hide: Printers.inList(p, Printers.autoHideList),
+                    isLabel: Printers.inList(p, Printers.autoLabelList)
+                };
+                table.printers.add(null, pRec, null, sync);
             } else if (p = deletePrinters.pop()) {
                 table.printers.delete(p.k, p.r, sync);
             } else {
@@ -190,6 +196,15 @@ Printers.refresh = function (cb) {
         }
         sync();
     };
+};
+
+Printers.autoHideList = [ 'Fax', 'PDF', 'XPS', 'OneNote' ];
+Printers.autoLabelList = [ 'DYMO' ];
+
+Printers.inList = function (winName, list) {
+    return (list.some(function(s) {
+        return (winName.indexOf(s) >= 0);
+    }));
 };
 
 Printers.get = function (id, cb) {
