@@ -28,3 +28,9 @@ function helpLoad(/*...*/) {
         toLoad.push(arguments[i]);
     }
 }
+
+document.documentElement.onkeydown = function (e) {
+    if (e.key == 'Escape') {
+        window.close();
+    }
+};
