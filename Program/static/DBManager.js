@@ -120,10 +120,7 @@ DBEdit.prototype.activate = function () {
                 if (working(true)) {
                     return;
                 }
-                o.put(function (conflict) {
-                    ConflictResolver.resolve(conflict,
-                        function () { o.done(); });
-                });
+                o.put(function () { o.done(); });
             },
             cancel: function () { o.cancel(); }
         });
@@ -172,7 +169,9 @@ DBEdit.prototype.getOrAdd = function (cb) {
 
 DBEdit.prototype.put = function (cb) {
     var o = this;
-    o.params.table.put(o.k, o.r, null, cb);
+    o.params.table.put(o.k, o.r, null, function (conflict) {
+        ConflictResolver.resolve(conflict, cb);
+    });
 };
 
 DBEdit.prototype.done = function () {

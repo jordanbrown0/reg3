@@ -119,15 +119,14 @@ Base.prototype.tick = function () {
     var o = this;
     rpc.eval(null, {dateTime: []}, function (d) {
         o.clock.replaceChildren(LDate.fromJSON(d).toDisplay({seconds: false}));
-        Server.get(function (svr) {
-            var left = svr.lastNumber - svr.nextNumber + 1;
+        Server.getMembershipNumbers(function (mn) {
             var s;
-            if (svr.lastNumber == null || svr.nextNumber == null) {
+            if (mn.lastNumber == null || mn.nextNumber == null) {
                 s = 'Member numbers not configured';
-            } else if (left <= 0) {
+            } else if (mn.nextNumber > mn.lastNumber) {
                 s = 'No member numbers left';
             } else {
-                s = left + ' member numbers left';
+                s = (mn.lastNumber - mn.nextNumber + 1) + ' member numbers left';
             }
             o.numberLeft.replaceChildren(s);
         });

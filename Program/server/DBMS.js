@@ -472,8 +472,9 @@ Table.prototype.getOrNull = function(k) {
 
 // Delete the specified record.
 //
-// Caller must include the current version of the record, so that we won't
-// delete a record if it's been changed by somebody else.
+// Caller normally includes the current version of the record, so that we won't
+// delete a record if it's been changed by somebody else.  However, for special
+// cases they can pass null and we won't check for a conflict.
 //
 // Of course, we cannot *actually* delete the record, because then we couldn't
 // replicate the deletion.  We empty it out, mark it deleted, and leave it as
@@ -481,6 +482,9 @@ Table.prototype.getOrNull = function(k) {
 Table.prototype.delete = function(k, r) {
     var o = this;
     o.checkExists(k);
+    if (r == null) {
+        r = o.records[k];
+    }
     // Rather than deleting away all of the fields, just replace it with
     // a deleted record with the right version.
     r = { _version: r._version, _deleted: true };

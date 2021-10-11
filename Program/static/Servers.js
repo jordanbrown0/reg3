@@ -10,6 +10,16 @@ var serverSchema = [
             input: InputInt, default: null, required: true },
     ],
 ];
+
+var membershipNumbersSchema = [
+    [
+        { field: 'nextNumber', label: 'Next membership number to assign',
+            input: InputInt, default: null, required: true },
+        { field: 'lastNumber', label: 'Last membership number to assign',
+            input: InputInt, default: null, required: true },
+    ],
+];
+
 var serverDefault = undefined;
 var serverID = undefined;
 
@@ -31,10 +41,16 @@ extend(DBManager, ServerManager);
 ServerManager.prototype.title = 'Administer servers...';
 
 ServerManager.prototype.summarize = function (k, r) {
-    return (new DElement('tr',
-        new DElement('td', r.serverName, { id: 'name' }),
-        new DElement('td', r.nextNumber || '', { id: 'nextNumber' }),
-        new DElement('td', r.lastNumber || '', { id: 'lastNumber' })
+    var tdNext = td({ id: 'nextNumber' });
+    var tdLast = td({ id: 'lastNumber' });
+    table.membershipNumbers.getOrAdd(k, {}, null,   function (mn) {
+        tdNext.replaceChildren(mn.nextNumber || '');
+        tdLast.replaceChildren(mn.lastNumber || '');
+    });
+    return (tr(
+        td(r.serverName, { id: 'name' }),
+        tdNext,
+        tdLast
     ));
 };
 
@@ -67,13 +83,55 @@ extend(DBEdit, ServerEdit);
 
 ServerEdit.prototype.title = 'Server configuration...';
 
+ServerEdit.prototype.get = function (cb) {
+    var o = this;
+    ServerEdit.sup.get.call(o, function (r) {
+        table.membershipNumbers.getOrAdd(o.k, {}, null, function (r2) {
+            o.rMembershipNumbers = r2;
+            // Don't use Object.assign, because we don't want to copy
+            // _version.
+            r.nextNumber = r2.nextNumber;
+            r.lastNumber = r2.lastNumber;
+            cb(r);
+        })
+    });
+};
+
+ServerEdit.prototype.put = function (cb) {
+    var o = this;
+    var r2 = Object.assign({}, o.rMembershipNumbers);
+    r2.nextNumber = o.r.nextNumber;
+    r2.lastNumber = o.r.lastNumber;
+    delete o.r.nextNumber;
+    delete o.r.lastNumber;
+    ServerEdit.sup.put.call(o, function () {
+        o.r.nextNumber = r2.nextNumber;
+        o.r.lastNumber = r2.lastNumber;
+        if (r2.nextNumber === o.rMembershipNumbers.nextNumber
+            && r2.lastNumber === o.rMembershipNumbers.lastNumber) {
+            cb();
+            return;
+        }
+        table.membershipNumbers.put(o.k, r2, null, function (conflict) {
+            ConflictResolver.resolve(conflict, function (rNew) {
+                if (rNew) {
+                    o.r.nextNumber = rNew.nextNumber;
+                    o.r.lastNumber = rNew.lastNumber;
+                }
+                cb();
+            });
+        });
+    });
+};
+
 ServerEdit.prototype.delete = function (cb) {
     var o = this;
     ServerEdit.sup.delete.call(o, function (deleted) {
         if (deleted) {
             sequence(cb, [
                 [ deleteDependents, 'stations' ],
-                [ deleteDependents, 'printers' ]
+                [ deleteDependents, 'printers' ],
+                [ deleteMN ]
             ]);
         } else {
             base.switchTo(new ServerEdit(o.k, o.params));
@@ -91,13 +149,17 @@ ServerEdit.prototype.delete = function (cb) {
         }, cb);
         return (true);
     }
+
+    function deleteMN(cb) {
+        table.membershipNumbers.delete(o.k, null, cb);
+    }
 };
 
 var Server = {};
 
 Server.newMembershipNumber = function (cb) {
     Server.id(function (id) {
-        table.servers.inc(id, 'nextNumber', 'lastNumber', function (n) {
+        table.membershipNumbers.inc(id, 'nextNumber', 'lastNumber', function (n) {
             cb(n);
         });
     });
@@ -107,6 +169,12 @@ Server.get = function(cb) {
     Server.id(function (id) {
         table.servers.getOrAdd(id, {},
             { setf: ['serverName', { defaultServerName: []}]}, cb);
+    });
+};
+
+Server.getMembershipNumbers = function(cb) {
+    Server.id(function (id) {
+        table.membershipNumbers.getOrAdd(id, {}, null, cb);
     });
 };
 
@@ -125,6 +193,9 @@ Server.id = function (cb) {
 init.push(function serversInit(cb) {
     table.servers = new DBTable(db.reg, 'servers',
         { schema: serverSchema }
+    );
+    table.membershipNumbers = new DBTable(db.reg, 'membershipNumbers',
+        { schema: membershipNumbersSchema }
     );
     cb();
     return (true);
