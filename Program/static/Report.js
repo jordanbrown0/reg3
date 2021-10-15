@@ -35,3 +35,5 @@ Report.prototype.activate = function () {
 };
 
 Report.prototype.title = 'Reports';
+
+Report.prototype.noArrows = true;

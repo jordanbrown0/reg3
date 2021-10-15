@@ -66,20 +66,24 @@ Base.prototype.switchToNoDeactivate = function (n) {
             func: function (e) {
                 o.doBackTab(e);
             }
-        },
-        {
-            key: 'ArrowDown',
-            func: function (e) {
-                o.doTab(e);
-            }
-        },
-        {
-            key: 'ArrowUp',
-            func: function (e) {
-                o.doBackTab(e);
-            }
         }
     ]);
+    if (!n.noArrows) {
+            o.addNav([
+                {
+                    key: 'ArrowDown',
+                    func: function (e) {
+                        o.doTab(e);
+                    }
+                },
+                {
+                    key: 'ArrowUp',
+                    func: function (e) {
+                        o.doBackTab(e);
+                    }
+                }
+            ]);
+    }
     o.title.replaceChildren(n.title instanceof Function ? n.title() : n.title);
     working(false);
     if(cfg.help) {
