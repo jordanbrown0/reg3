@@ -690,7 +690,7 @@ extend(InputSelectMulti, InputSelectMultiDB);
 
 // Value is an array of values
 // params.input = an input constructor
-// params.subParams = parameters for the input constructor
+// params.params = parameters for the input constructor
 // table
 //      (+) (-) summary
 //      (+)
