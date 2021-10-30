@@ -1,0 +1,84 @@
+<html>
+<head>
+    <title>
+        Station Configuration
+    </title>
+    <script src="HelpCommon.js"> </script>
+    <script>
+        helpLoad('SaveCommon', 'DeleteCommon', 'FormCommon',
+            'PageFlipCommon', 'NavCommon');
+    </script>
+</head>
+<body>
+    <h2>
+        Station Configuration
+    </h2>
+    <h3>
+        General
+    </h3>
+    <li>
+        Station name - typically a label on the station.
+    </li>
+    <li>
+        Server name - that the station is attached to (read only).
+    </li>
+    <li>
+        Label printer - that this station will use.
+    </li>
+    <li>
+        Metaclasses - if not empty, this station is only allowed to issue
+        these metaclasses.  See <a href="ClassEdit.html">membership class
+        edit</a>.
+    </li>
+    <h3>
+        Offline Operations
+    </h3>
+    <li>
+        Print badges now - disable if you want to mark somebody checked in
+        without printing a badge.
+    </li>
+    <li>
+        Mark badges picked up - disable if you want to print badges without
+        marking the member picked up.
+    </li>
+    <li>
+        Use current time for records - disable if you want to mark members
+        entered or picked up as of another date and time.
+    </li>
+    <li>
+        If not, keep records as of - what date and time to use for records.
+    </li>
+    <h3>
+        Permissions
+    </h3>
+    <li>
+        Add new member
+    </li>
+    <li>
+        Administration
+    </li>
+    <li>
+        Reports
+    </li>
+    <li>
+        Process upgrades
+    </li>
+    <li>
+        Ad hoc upgrades (requires "Process upgrades")
+    </li>
+    <li>
+        Process transfers
+    </li>
+    <li>
+        Mark membership as not-picked-up
+    </li>
+    <li>
+        Void / unvoid memberships
+    </li>
+    <p>
+    Note that disabling the Administration menu means that you cannot use the
+    entry on the main menu to get back to this form to re-enable it.  However,
+    you can use <button>!</button> to get to the Administration menu even if
+    the menu entry is disabled.
+</body>
+</html>

@@ -145,10 +145,7 @@ var stationSchema = [
             filter: Station.labelPrinterFilter,
             default: ''
         },
-        { field: 'metaclasses', label: 'Metaclasses', default: '' },
-        { field: 'help', label: 'Always show help?', input: InputBool,
-            default: false
-        }
+        { field: 'metaclasses', label: 'Metaclasses', default: '' }
     ],
     [
         { title: 'Offline Operations' },
