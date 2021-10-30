@@ -5,18 +5,18 @@ var serverSchema = [
         { field: 'noPrint', label: 'Disable printing?', input: InputBool,
             default: false },
         { field: 'nextNumber', label: 'Next membership number to assign',
-            input: InputInt, default: null, required: true },
+            input: InputInt, default: null, minimum: 1, required: true },
         { field: 'lastNumber', label: 'Last membership number to assign',
-            input: InputInt, default: null, required: true },
+            input: InputInt, default: null, minimum: 1, required: true },
     ],
 ];
 
 var membershipNumbersSchema = [
     [
         { field: 'nextNumber', label: 'Next membership number to assign',
-            input: InputInt, default: null, required: true },
+            input: InputInt, default: null, minimum: 1, required: true },
         { field: 'lastNumber', label: 'Last membership number to assign',
-            input: InputInt, default: null, required: true },
+            input: InputInt, default: null, minimum: 1, required: true },
     ],
 ];
 

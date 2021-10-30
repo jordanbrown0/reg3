@@ -23,7 +23,7 @@ var reportDupsSchema = [[
             input: InputObject,
             schema: [
                 { field: 'field', input: InputText },
-                { field: 'prefix', input: InputInt }
+                { field: 'prefix', input: InputInt, minimum: 1 }
             ]
         }
     }

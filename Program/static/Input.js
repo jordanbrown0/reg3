@@ -178,14 +178,20 @@ InputInt.prototype.set = function (value) {
     InputInt.sup.set.call(this, v);
 };
 
-// NEEDSWORK:  this detects errors of the form "xxx" and "xxx123",
-// but not "123xxx"; the xxx is silently ignored.
 InputInt.prototype.validate = function () {
     var o = this;
     if (o.content.n.value) {
-        var val = parseInt(o.content.n.value, 10);
-        if (isNaN(val)) {
-            return (["Invalid number"]);
+        var n = parseInt(o.content.n.value, 10);
+        if (isNaN(n) || !o.content.n.value.match(/^-?[0-9][0-9]*$/)) {
+            return (['Bad number']);
+        }
+        if (o.params.minimum != undefined
+            && n < o.params.minimum) {
+                return (['Must be ' + o.params.minimum + ' or greater']);
+        }
+        if (o.params.maximum != undefined
+            && n > o.params.maximum) {
+                return (['Must be ' + o.params.maximum + ' or less']);
         }
     }
     return (InputInt.sup.validate.call(o));

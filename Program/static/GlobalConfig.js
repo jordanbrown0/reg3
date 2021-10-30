@@ -5,11 +5,8 @@ var globalSchema = [
             input: InputDate },
         { field: 'currencyPrefix', label: 'Currency prefix', default: '$' },
         { field: 'currencySuffix', label: 'Currency suffix', default: '' },
-        { field: 'screenFontSize',
-            label: 'Screen font size',
-            input: InputInt,
-            default: 14,
-            suffix: 'pt' },
+        { field: 'screenFontSize', label: 'Screen font size', input: InputInt,
+            minimum: 5, maximum: 30, default: 14, suffix: 'pt' },
     ],
     [
         { title: 'Badges' },
@@ -22,6 +19,8 @@ var globalSchema = [
             label: 'Number of copies',
             input: InputInt,
             default: 1,
+            minimum: 1,
+            maximum: 5, // don't let them accidentally waste a ton of labels
             required: true
         },
         { field: 'realNameLabel',
@@ -35,7 +34,8 @@ var globalSchema = [
             default: { print: true, size: 45 },
             schema: [
                 { field: 'print', input: InputBool },
-                { field: 'size', input: InputInt, required: true }
+                { field: 'size', input: InputInt, minimum: 5, maximum: 300,
+                    required: true }
             ]
         },
         { field: 'badgeNumber',
@@ -44,7 +44,8 @@ var globalSchema = [
             default: { print: true, size: 45 },
             schema: [
                 { field: 'print', input: InputBool },
-                { field: 'size', input: InputInt, required: true }
+                { field: 'size', input: InputInt, minimum: 5, maximum: 300,
+                    required: true }
             ]
         },
         { field: 'nameSizes',
@@ -52,7 +53,7 @@ var globalSchema = [
             input: InputIntList,
             default: [160,140,120,100],
             required: true,
-            params: { required: true }
+            params: { minimum: 5, maximum: 300, required: true }
         },
         { field: 'margins',
             label: 'Margins: Left, Right, Top, Bottom',
@@ -71,6 +72,7 @@ var globalSchema = [
             label: 'How often to check configuration',
             input: InputInt,
             default: 60,
+            minimum: 1,
             required: true,
         }
     ],
