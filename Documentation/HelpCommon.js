@@ -1,31 +1,45 @@
 window.onload = function () {
-    toLoad.push('Common');
+    helpCommon('Common');
 
-    function loadNext() {
-        var n = toLoad.shift();
-        if (!n) {
-            return;
-        }
-        var req = new XMLHttpRequest();
-        req.open('GET', n+'.html');
-        req.onload = function () {
-            document.body.appendChild(document.createElement('p'));
-            document.body.appendChild(document.createElement('hr'));
-            var node = document.createElement('div');
-            node.innerHTML = req.responseText;
-            document.body.appendChild(node);
-            loadNext();
-        };
-        req.send();
-    }
-    loadNext();
+    document.body.appendChild(helpAddenda);
 }
 
-var toLoad = [];
+var helpAddenda = document.createElement('div');
+
+function helpElem(/*...*/) {
+    var ret = undefined;
+    for (var i = 0; i < arguments.length; i++) {
+        ret = arguments[i];
+        helpAddenda.appendChild(ret);
+    }
+    return (ret);
+}
+
+function helpCreateElem(/*...*/) {
+    var ret = undefined;
+    for (var i = 0; i < arguments.length; i++) {
+        ret = helpElem(document.createElement(arguments[i]));
+    }
+    return (ret);
+}
 
 function helpLoad(/*...*/) {
     for (var i = 0; i < arguments.length; i++) {
-        toLoad.push(arguments[i]);
+        var node = helpCreateElem('div');
+        var req = new XMLHttpRequest();
+        req.open('GET', arguments[i]+'.html');
+        req.onload = function () {
+            node.innerHTML = req.responseText;
+        };
+        req.send();       
+    }
+}
+
+function helpCommon(/*...*/) {
+    for (var i = 0; i < arguments.length; i++) {
+        helpCreateElem('p');
+        helpCreateElem('hr');
+        helpLoad('Common/' + arguments[i]);
     }
 }
 

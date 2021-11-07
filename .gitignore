@@ -1,4 +1,5 @@
 .hg
+Documentation/Built
 SampleData
 Program/Data
 Program/node_modules
