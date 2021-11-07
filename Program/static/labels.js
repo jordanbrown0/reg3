@@ -267,7 +267,14 @@ function label_badge(r, done, err) {
     function print(cb /* ... */) {
         var allItems = [ {font: cfg.font} ];
         for (var i = 1; i < arguments.length; i++) {
-            allItems.push(arguments[i]);
+            var item = arguments[i];
+            if (item instanceof Array) {
+                item.forEach(function (e) {
+                    allItems.push(e);
+                });
+            } else {
+                allItems.push(item);
+            }
         }
         p.print(allItems, cb);
         return true;
