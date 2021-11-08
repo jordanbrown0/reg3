@@ -183,8 +183,8 @@ DElement.prototype.toString = function () {
     return ('<'+this.n.nodeName+'>');
 };
 
-DElement.prototype.focus = function () {
-    this.n.focus();
+DElement.prototype.focus = function (options) {
+    this.n.focus(options);
 };
 
 // Set the class(es) of the element.

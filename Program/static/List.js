@@ -28,7 +28,11 @@ function List(params)
             o.search = this.value.split(' ');
             o.refresh();
         },
-        onblur: function () { setTimeout(function () {o.searchbox.focus();}); }
+        onblur: function () {
+            setTimeout(function () {
+                o.searchbox.focus({preventScroll: true});
+            });
+        }
     });
     o.appendChild('Search', o.searchbox);
 
