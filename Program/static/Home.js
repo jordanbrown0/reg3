@@ -30,7 +30,9 @@ Home.prototype.activate = function () {
     var o = this;
     base.addNav([
         { key: '!', page: Admin },
-        { key: '?', page: DebugControl }
+        { key: '?', page: DebugControl },
+        { label: 'Quit', key: 'Escape', order: 0,
+            func: function () { window.close(); } }
     ]);
     Config.refresh(function () {
         o.menu.activate();
