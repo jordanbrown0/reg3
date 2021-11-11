@@ -187,6 +187,10 @@ DElement.prototype.focus = function (options) {
     this.n.focus(options);
 };
 
+DElement.prototype.scrollIntoView = function (options) {
+    this.n.scrollIntoView(options);
+};
+
 // Set the class(es) of the element.
 // arguments:  strings or  arrays of strings
 DElement.prototype.setClass = function () {

@@ -171,6 +171,7 @@ List.prototype.select = function(n) {
     }
     if (n != null) {
         o.rows[n].element.addClass('Selected');
+        o.rows[n].element.scrollIntoView({block: 'center'});
     }
     o.selected = n;
 };
