@@ -414,7 +414,9 @@ verbs.left = function (r, args) {
 // { date: [] }
 // Returns a default name for this server as a string.
 verbs.defaultServerName = function (r, args) {
-    return (global.process.env.COMPUTERNAME + ' ' + global.process.cwd());
+    var top =
+        global.process.cwd().match('(C:\\\\Users\\\\)?(.*)(\\\\Program)')[2];
+    return (global.process.env.COMPUTERNAME + ' ' + top);
 };
 
 verbs.delete = function (r, args) {
