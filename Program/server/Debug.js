@@ -14,7 +14,7 @@ var debug = {
         }
     },
     db: {
-        value: true,
+        value: false,
         messages: {
             false: 'Not tracing database operations',
             true: 'Tracing database operations'
