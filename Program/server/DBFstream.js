@@ -62,7 +62,7 @@ var DBFstream = {};
 
 DBFstream.import = async function(fileName, params, cb) {
     var o = this;
-    stream = fs.createReadStream(fileName);
+    var stream = fs.createReadStream(fileName);
 
     const PREHEADER = 0;
     const HEADER = 1;
