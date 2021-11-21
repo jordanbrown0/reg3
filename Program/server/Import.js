@@ -151,7 +151,7 @@ Import.import = async function (file, t, params) {
         map.forEach(function (m) {
             r[m.to] = m.convert(importRecord[m.from]);
         });
-        for (fieldName in params.contentMap) {
+        for (var fieldName in params.contentMap) {
             let v = params.contentMap[fieldName][r[fieldName]];
             if (v) {
                 r[fieldName] = v;
