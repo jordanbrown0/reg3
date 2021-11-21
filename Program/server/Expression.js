@@ -354,9 +354,9 @@ verbs.concat = function (r, args) {
     var ret = '';
     for (var i = 0; i < args.length; i++) {
         var val = o.exec(r, args[i]);
-	if (val !== null && val !== undefined) {
-	    ret += val;
-	}
+        if (val !== null && val !== undefined) {
+            ret += val;
+        }
     }
     return (ret);
 };
