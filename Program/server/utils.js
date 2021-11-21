@@ -32,6 +32,7 @@ function log() {
         process.stdout.write('\n');
     }
     console.log.apply(console, arguments);
+    // NEEDSWORK Also write to a file.
     logOnNewLine = true;
 }
 
