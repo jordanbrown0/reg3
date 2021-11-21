@@ -9,3 +9,4 @@ call Program\lib\nodever
 PATH %PATH%;%NODEDIR%
 cd Program
 node server\reg.js
+pause
