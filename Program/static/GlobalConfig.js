@@ -75,6 +75,7 @@ var globalSchema = [
             default: 60,
             minimum: 1,
             required: true,
+            suffix: ' seconds'
         }
     ],
 ];
