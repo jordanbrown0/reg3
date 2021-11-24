@@ -32,7 +32,14 @@ Home.prototype.activate = function () {
         { key: '!', page: Admin },
         { key: '?', page: DebugControl },
         { label: 'Quit', key: 'Escape', order: 0,
-            func: function () { window.close(); } }
+            func: function () {
+                window.close();
+                // FF won't let you close a window that the user opened,
+                // only ones opened via a script.  (Which includes ones
+                // opened via the FF command line.)
+                modal('You will have to close this window manually.');
+            }
+        }
     ]);
     Config.refresh(function () {
         o.menu.activate();
