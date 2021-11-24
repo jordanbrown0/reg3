@@ -30,4 +30,5 @@ cd %~p0
 echo set filename=%filename% > ReleaseInfo/release.bat
 echo set release=%release% >> ReleaseInfo/release.bat
 echo var release='%release%'; > ReleaseInfo/release.js
-rem git tag -a -m "%release%"
+git tag -a -m "%release%"
+
