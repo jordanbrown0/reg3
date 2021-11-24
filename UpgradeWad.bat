@@ -1,5 +1,5 @@
 :: Build a self-extracting wad that upgrades an existing convention.
-@echo off
+rem @echo off
 setlocal
 
 set dir=%CD%

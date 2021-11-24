@@ -27,8 +27,10 @@ set release=%datestamp% %timestamp%
 %~d0
 cd %~p0
 
-echo set token=%token% > ReleaseInfo\release.bat
-echo set release=%release% >> ReleaseInfo\release.bat
+rem Note that there must not be any space before the ">" because it will go
+rem into the file and thence into the variable values.
+echo set token=%token%> ReleaseInfo\release.bat
+echo set release=%release%>> ReleaseInfo\release.bat
 echo var release='%release%'; > ReleaseInfo\release.js
 git add -f ReleaseInfo\release.bat
 git add -f ReleaseInfo\release.js
