@@ -30,7 +30,7 @@ cd %~p0
 echo set token=%token% > ReleaseInfo\release.bat
 echo set release=%release% >> ReleaseInfo\release.bat
 echo var release='%release%'; > ReleaseInfo\release.js
-git add ReleaseInto\release.bat
+git add ReleaseInfo\release.bat
 git add ReleaseInfo\release.js
 git commit -m "%release%"
 git tag -a -m "%release%" %token%
