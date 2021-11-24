@@ -30,7 +30,6 @@ const port = 80;
 import express from 'express';
 import cookieParser from 'cookie-parser';
 const app = express();
-// const bodyParser = require('body-parser');
 import { Debug, debugKey } from './Debug.js';
 import { DBMS } from './DBMS.js';
 import { api as label } from 'myclinic-drawer-printer';
