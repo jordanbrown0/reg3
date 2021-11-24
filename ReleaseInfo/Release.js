@@ -1,2 +1,2 @@
-var release='2021-11-24 11:25:37';
-export { release };
+var Release={ name: '2021-11-24 11:30:32' };
+export { Release };
