@@ -4,7 +4,7 @@ setlocal
 
 set ok=yes
 for /f %%i in ('git status --porcelain') do (
-    if not "%%i%" == "" set ok=no
+    set ok=no
 )
 echo %ok%
 
