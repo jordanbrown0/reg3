@@ -2,12 +2,10 @@ rem date format: Wed 11/24/2021
 rem time format:  7:59:49.92
 setlocal
 
-git status --porcelain > status.tmp
 set ok=yes
-for /f %%i in (status.tmp) do (
-    set ok=no
+for /f %%i in ('git status --porcelain') do (
+    if not "%%i%" == "" set ok=no
 )
-erase status.tmp
 echo %ok%
 
 set datestamp=%DATE:~-4,4%-%DATE:~-10,2%-%DATE:~-7,2%
