@@ -20,15 +20,15 @@ set h=%h:~-2,2%
 set m=%TIME:~3,2%
 set s=%TIME:~6,2%
 set timestamp=%h%:%m%:%s%
-set filename=%datestamp%.%h%.%m%.%s%
+set token=%datestamp%.%h%.%m%.%s%
 set release=%datestamp% %timestamp%
 
 :: Get us to the top of the convention directory.
 %~d0
 cd %~p0
 
-echo set filename=%filename% > ReleaseInfo/release.bat
+echo set token=%token% > ReleaseInfo/release.bat
 echo set release=%release% >> ReleaseInfo/release.bat
 echo var release='%release%'; > ReleaseInfo/release.js
-git tag -a -m "%release%"
+git tag -a -m "%release%" %token%
 
