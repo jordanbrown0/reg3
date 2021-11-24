@@ -225,7 +225,6 @@ REST.export = function () {
 
 RESTdownload = function (method, params) {
     var form = new DElement('form', {
-        target: "_blank",
         method: "POST",
         action: "/REST"
     });
@@ -238,7 +237,11 @@ RESTdownload = function (method, params) {
     setTimeout(function () {
         // NEEDSWORK:  I don't know of any way to detect an error here.
         // Or, for that matter, to detect completion.
+        unloadOK = true;
         form.n.submit();
         document.body.removeChild(form.n);
+        setTimeout(function () {
+            unloadOK = false;
+        });
     });
 };

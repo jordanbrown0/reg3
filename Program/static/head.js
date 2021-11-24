@@ -14,14 +14,18 @@ window.addEventListener('error', function(e) {
     if (!('modal' in window)) {
         alert(errorEventToString(e));
     } else {
-        modal(new DElement('pre', errorEventToString(e)), {
-            ok: function () {}
-        });
+        modal(new DElement('pre', errorEventToString(e)));
     }
 });
+
+var unloadOK = false;
+
 window.addEventListener('beforeunload', function (e) {
-  // Cancel the event
-  e.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
-  // Chrome requires returnValue to be set
-  e.returnValue = 'blah';
+    if (unloadOK) {
+        return;
+    }
+    // Cancel the event
+    e.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
+    // Chrome requires returnValue to be set
+    e.returnValue = 'blah';
 });
