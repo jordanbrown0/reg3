@@ -34,6 +34,21 @@ ReportTallyByClass.prototype.body = function (cb) {
         var free = 0;
         var bad = 0;
 
+        function line(title, count) {
+            body.push(tr(
+                td(count || '', {className: 'Count'}),
+                td(title)
+            ));
+        }
+
+        function total(title, count) {
+            body.push(tr(
+                { className: 'Total' },
+                td(count, {className: 'Count'}),
+                td(title)
+            ));
+        }
+
         classes.toArray()
             .sort(compareFunction(['order']))
             .forEach(function (c) {
@@ -44,49 +59,24 @@ ReportTallyByClass.prototype.body = function (cb) {
                 } else {
                     free += t;
                 }
-                body.push(tr(
-                    td(t || '', {className: 'Count'}),
-                    td(c.description)
-                ));
+                line(c.description, t);
                 delete o.totals[c.code];
             });
 
         for (var code in o.totals) {
             var t = o.totals[code];
             bad += t;
-            body.push(tr(
-                td(t, {className: 'Count'}),
-                td('Bad code "' + code + '"')
-            ));
+            grand += t;
+            line('Bad code "' + code + '"', t);
         }
 
         body.push(tr());
 
-        body.push(tr(
-            { className: 'Total' },
-            td(paid, {className: 'Count'}),
-            td('Paid')
-        ));
-        body.push(tr(
-            { className: 'Total' },
-            td(free, {className: 'Count'}),
-            td('Free')
-        ));
-        body.push(tr(
-            { className: 'Total' },
-            td(bad, {className: 'Count'}),
-            td('Bad class')
-        ));
-        body.push(tr(
-            { className: 'Total' },
-            td(grand, {className: 'Count'}),
-            td('Grand total')
-        ));
-        body.push(tr(
-            { className: 'Total' },
-            td(voidTotal, {className: 'Count'}),
-            td('Void')
-        ));
+        total('Paid', paid);
+        total('Free', free);
+        total('Bad class', bad);
+        total('Grand total', grand);
+        total('Void', voidTotal);
 
         cb(body);
     }
