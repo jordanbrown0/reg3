@@ -27,13 +27,16 @@ set release=%datestamp% %timestamp%
 %~d0
 cd %~p0
 
+set rib=Program\ReleaseInfo\release.bat
+set rij=Program\ReleaseInfo\release.js
+
 rem Note that there must not be any space before the ">" because it will go
 rem into the file and thence into the variable values.
-echo set token=%token%> ReleaseInfo\release.bat
-echo set release=%release%>> ReleaseInfo\release.bat
+echo set token=%token%> %rib%
+echo set release=%release%>> %rib%
 
-echo var Release={ name: '%release%' };> ReleaseInfo\Release.js
-echo export { Release };>> ReleaseInfo\Release.js
+echo var Release={ name: '%release%' };> %rij%
+echo export { Release };>> %rij%
 
 git add ReleaseInfo\release.bat
 git add ReleaseInfo\Release.js
