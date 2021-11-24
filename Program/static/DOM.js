@@ -187,6 +187,10 @@ DElement.prototype.focus = function (options) {
     this.n.focus(options);
 };
 
+DElement.prototype.select = function () {
+    this.n.select();
+};
+
 DElement.prototype.scrollIntoView = function (options) {
     this.n.scrollIntoView(options);
 };

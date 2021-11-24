@@ -70,6 +70,11 @@ function InputInput(type, params) {
         onblur: function () {
             o.correct();
         },
+        onfocus: function () {
+            if (!params.readOnly) {
+                o.content.select();
+            }
+        },
         autocomplete: 'off'
     });
     if (params.id) {
