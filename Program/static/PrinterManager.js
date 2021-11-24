@@ -341,6 +341,8 @@ Printer.prototype.init = function (cb, abort) {
         o.horzres = caps.horzres;
         o.vertres = caps.vertres;
         // Perhaps these margins should be configured on a per-printer basis.
+        // Ref #301.  Retain global settings to allow for, e.g., poor badge
+        // design; add the global setting to the per-printer setting.
         o.limits = {
             x: cfg.margins.left,
             y: caps.vertres - cfg.margins.bottom - 1,
