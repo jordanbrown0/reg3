@@ -362,6 +362,22 @@ verbs.concat = function (r, args) {
     return (ret);
 };
 
+// { join: [ sep, arg1, ... ]
+// Join the second and later args using the separator, if they are non-empty.
+// Like [arg1, ...].join(sep) but only for truthy args.
+verbs.join = function (r, args) {
+    var o = this;
+    let results = [];
+    let sep = o.exec(r, args[0]);
+    for (let i = 1; i < args.length; i++) {
+        let v = o.exec(r, args[i]);
+        if (v) {
+            results.push(v);
+        }
+    }
+    return (results.join(sep));
+};
+
 // { array: [ v, ... ] }
 // Evaluates each argument, and returns the results as an array.
 //

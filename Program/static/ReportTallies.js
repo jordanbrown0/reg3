@@ -4,6 +4,22 @@ function ReportTallies()
     ReportTallies.sup.constructor.call(o, {
         items: [
             { label: '&Summary', page: ReportSummary },
+            { label: '&Geographic', func: function () {
+                base.switchTo(new ReportTally({
+                    expr: {
+                        if: [
+                            { or: [ {f: 'country'}, {f: 'state'} ] },
+                            { join: [ ', ',
+                                { or: [ {f: 'country'}, 'USA' ] },
+                                {f: 'state'}
+                            ]},
+                            ''
+                        ]
+                    },
+                    empty: 'Unknown',
+                    header: 'Memberships by Geography'
+                })); }
+            },
             { label: '&Picked up', page: ReportTallyPickedUp },
             { label: '&New', page: ReportTallyNew },
             { label: 'by &Class', page: ReportTallyByClass }
@@ -106,7 +122,9 @@ ReportTally.prototype.body = function (cb) {
     function gotTotals(totals) {
         var body = [];
         var grand = 0;
-        Object.keys(totals).sort().forEach(function (d) {
+        var collator =
+            new Intl.Collator(undefined, { sensitivity: 'base' }).compare;
+        Object.keys(totals).sort(collator).forEach(function (d) {
             body.push(tr(
                 td(totals[d], {className: 'Count'}),
                 td(d || o.empty)
