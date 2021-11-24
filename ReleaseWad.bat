@@ -6,7 +6,11 @@ set ok=yes
 for /f %%i in ('git status --porcelain') do (
     set ok=no
 )
-echo %ok%
+if %ok% == no (
+    echo Everything must be checked in.
+    git status --short
+    goto :EOF
+)
 
 set datestamp=%DATE:~-4,4%-%DATE:~-10,2%-%DATE:~-7,2%
 set h=%TIME:~0,2%
