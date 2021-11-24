@@ -4,6 +4,7 @@ SampleData
 Program/Data
 Program/node_modules
 Program/Temp
+ReleaseInfo
 *~
 *.exe
 *.sfx

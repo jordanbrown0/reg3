@@ -34,3 +34,8 @@ git add ReleaseInfo\release.bat
 git add ReleaseInfo\release.js
 git commit -m "Release %release%"
 git tag -a -m "%release%" %token%
+rem git push
+rem make the wad here
+echo set token=Development > ReleaseInfo\release.bat
+echo set release=Development >> ReleaseInfo\release.bat
+echo var release='Development'; > ReleaseInfo\release.js
