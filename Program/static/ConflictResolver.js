@@ -27,6 +27,8 @@ ConflictListResolver.prototype.select = function (i) {
     }));
 };
 
+ConflictListResolver.prototype.title = 'Importing...';
+
 function ConflictResolver(c, params) {
     var o = this;
     o.c = c;
