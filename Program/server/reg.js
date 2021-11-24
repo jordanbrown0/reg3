@@ -31,7 +31,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 const app = express();
 // const bodyParser = require('body-parser');
-import { Debug } from './Debug.js';
+import { Debug, debugKey } from './Debug.js';
 import { DBMS } from './DBMS.js';
 import { api as label } from 'myclinic-drawer-printer';
 import { sprintf } from 'sprintf-js';
@@ -414,7 +414,14 @@ process.title = 'Registration Server';
 process.stdin.setEncoding('utf8');
 process.stdin.setRawMode(true);
 var count = 0;
+
 process.stdin.on('data', function (c) {
+    let debugName = debugKey(c);
+    if (debugName) {
+        Debug[debugName].toggle();
+        log(Debug[debugName].toString());
+        return;
+    }
     switch (c) {
     case '\x03':
         process.exit();
@@ -422,28 +429,12 @@ process.stdin.on('data', function (c) {
     case 'q':
         process.exit();
         break;
-    case 'b':
-        log(Debug.busy.toggle());
-        break;
-    case 'd':
-        log(Debug.db.toggle());
-        break;
-    case 'e':
-        log(Debug.expr.toggle());
-        break;
-    case 'r':
-        log(Debug.rpc.toggle());
-        break;
-    case 'v':
-        log(Debug.version.toggle());
-        break;
     case '?':
         log('q - quit');
-        log('b - toggle busy/memory monitor');
-        log('d - toggle database tracing');
-        log('e - toggle expression tracing');
-        log('r - toggle RPC tracing');
-        log('v - toggle version tracing');
+        for (let debugName in Debug) {
+            log(Debug[debugName].key + ' - ' + Debug[debugName].description
+                + ' (' + Debug[debugName].toString() + ')');
+        }
         break;
     default:
         log('Huh?  Press ? for a list of commands.');
