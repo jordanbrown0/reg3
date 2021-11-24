@@ -59,7 +59,7 @@ DB.prototype.load = async function() {
             o.loadInProgress = false;
             pipeline.destroy();
             if (e.code == 'ENOENT') {
-                log('nonexistent', o.name);
+                log('Creating new database "' + o.name + '".');
                 resolve();
             } else {
                 log('load error', o.name);
