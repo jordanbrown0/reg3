@@ -32,7 +32,7 @@ erase myname.bat
 
 echo ;!@Install@!UTF-8!                                              > tmp.cfg
 echo Title="Reg3"                                                    >> tmp.cfg
-echo BeginPrompt="Do you want to install Reg3 for a %myname%?"       >> tmp.cfg
+echo BeginPrompt="Do you want to install Reg3 for %myname%?"       >> tmp.cfg
 echo RunProgram="Program\lib\Setup.bat"                              >> tmp.cfg
 echo ;!@InstallEnd@!                                                 >> tmp.cfg
 
