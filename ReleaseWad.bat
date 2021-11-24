@@ -34,12 +34,12 @@ rem Note that there must not be any space before the ">" because it will go
 rem into the file and thence into the variable values.
 echo set token=%token%> %rib%
 echo set release=%release%>> %rib%
+git add %rib%
 
 echo var Release={ name: '%release%' };> %rij%
 echo export { Release };>> %rij%
+git add %rij%
 
-git add ReleaseInfo\release.bat
-git add ReleaseInfo\Release.js
 git commit -m "Release %release%"
 git tag -a -m "%release%" %token%
 rem git push
