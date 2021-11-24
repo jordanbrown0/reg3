@@ -1,6 +1,7 @@
 var globalSchema = [
     [
-        { field: 'convention', label: 'Convention name', default: 'My Convention', required: true },
+        { field: 'convention', label: 'Convention name',
+            default: 'Unnamed Convention', required: true },
         { field: 'startDate', label: 'Convention start date',
             input: InputDate },
         { field: 'currencyPrefix', label: 'Currency prefix', default: '$' },
@@ -98,7 +99,8 @@ GlobalEdit.prototype.get = function (cb) {
 var Global = {};
 
 Global.get = function (cb) {
-    table.global.getOrAdd("", {}, null, cb);
+    table.global.getOrAdd("", {},
+        { setf: [ 'convention', { defaultConventionName: [] } ] }, cb);
 };
 
 init.push(function globalConfigInit() {

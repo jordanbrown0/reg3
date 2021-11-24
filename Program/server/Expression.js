@@ -5,6 +5,7 @@
 // verbs.
 import { assert, mkdate, log } from './utils.js';
 import { Debug } from './Debug.js';
+import * as path from 'path';
 
 function Expression(e, params) {
     var o = this;
@@ -417,6 +418,10 @@ verbs.defaultServerName = function (r, args) {
     var top =
         global.process.cwd().match('(C:\\\\Users\\\\)?(.*)(\\\\Program)')[2];
     return (global.process.env.COMPUTERNAME + ' ' + top);
+};
+
+verbs.defaultConventionName = function (r, args) {
+    return path.basename(path.dirname(global.process.cwd()));;
 };
 
 verbs.delete = function (r, args) {
