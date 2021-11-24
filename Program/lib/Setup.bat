@@ -35,7 +35,7 @@ if not exist %parent%\%NODE% (
 )
 erase %NODE%.7z
 
-xcopy /e . %dest%
+xcopy /q /e . %dest%
 
 cd %dest%
 
