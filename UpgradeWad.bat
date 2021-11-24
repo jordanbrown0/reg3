@@ -1,5 +1,4 @@
 :: Build a self-extracting wad that upgrades an existing convention.
-:: Does not upgrade node.js.
 @echo off
 setlocal
 
@@ -9,7 +8,8 @@ set dir=%CD%
 %~d0
 cd %~p0
 
-set myname=Reg3upgrade
+call Program\ReleaseInfo\Release.bat
+set myname=Reg3upgrade-%token%
 
 set outz=%dir%\%myname%.7z
 if exist %outz% (

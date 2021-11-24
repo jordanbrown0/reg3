@@ -10,16 +10,22 @@ function Base()
         // onfocus: function () { console.log('Base focus'); },
         // onblur: function () { console.log('Base blur'); }
     });
+    var help = new Button('?', {
+        onclick: function () { Help.pop(); },
+        id: 'headerHelp'
+    });
+    rpc.release(function (Release) {
+        help.setProperties({title: Release.name});
+    });
     o.clock = new DElement('div');
-    o.numberLeft = new DElement('div');
-    o.rightTitle = new DElement('span', { id: 'headerClock' }, o.clock, o.numberLeft);
-    o.help = new DElement('span', {id: 'headerHelp'},
-        new Button('?', {onclick: function () { Help.pop(); }}));
+    o.numberRemaining = new DElement('div');
+    var rightText = new DElement('div', { id: 'rightText' }, o.clock, o.numberRemaining);
+    var right = new DElement('span', { id: 'headerClock' }, rightText, help);
+
     o.title = new DElement('span', { id: 'headerTitle'});
     o.header = new DElement('div', { className: 'Header' },
         o.title,
-        o.rightTitle,
-        o.help
+        right
     );
     o.body = new DElement('div', { className: 'Body' });
     o.active = new DElement('div');
@@ -130,7 +136,7 @@ Base.prototype.tick = function () {
             } else {
                 s = (mn.lastNumber - mn.nextNumber + 1) + ' member numbers left';
             }
-            o.numberLeft.replaceChildren(s);
+            o.numberRemaining.replaceChildren(s);
         });
     });
 };
