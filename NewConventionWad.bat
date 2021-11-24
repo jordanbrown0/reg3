@@ -8,7 +8,8 @@ set dir=%CD%
 %~d0
 cd %~p0
 
-set myname=Reg3
+call ReleaseInfo\release.bat
+set myname=Reg3-%token%
 
 set outz=%dir%\%myname%.7z
 if exist %outz% (
@@ -23,6 +24,7 @@ if exist %outexe% (
 set z=Program\imported\7za
 
 call Program\lib\mkwad %outz% program data node
+
 echo set /p myname=Directory for new convention? > myname.bat
 %z% a %outz% myname.bat > nul
 erase myname.bat

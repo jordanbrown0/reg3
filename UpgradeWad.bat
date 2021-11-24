@@ -1,5 +1,5 @@
 :: Build a self-extracting wad that upgrades an existing convention.
-rem @echo off
+@echo off
 setlocal
 
 set dir=%CD%
@@ -9,7 +9,6 @@ set dir=%CD%
 cd %~p0
 
 call ReleaseInfo\release.bat
-
 set myname=Reg3upgrade-%token%
 
 set outz=%dir%\%myname%.7z

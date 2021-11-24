@@ -26,6 +26,9 @@ process.on('uncaughtException', function (err, origin) {
     }
 });
 
+import { release } from '../../ReleaseInfo/release.js';
+log('Reg3 server - ' + release);
+
 const port = 80;
 import express from 'express';
 import cookieParser from 'cookie-parser';
@@ -131,6 +134,10 @@ methods.label_measureText = function (p, fontname, fontsize, s) {
     var ret = label.measureText(hdc, s);
     label.deleteDc(hdc);
     return (ret);
+};
+
+methods.release = function () {
+    return release;
 };
 
 var fonts = {};
