@@ -51,6 +51,11 @@ ReportSummary.prototype.body = function (cb) {
                             atdExpr,
                             { addto: [ 'atTheDoor', 1 ]},
                             { addto: [ 'prereg', 1 ]}
+                        ]},
+                        { if: [
+                            { f: 'amount' },
+                            { addto: [ 'paid', 1 ]},
+                            { addto: [ 'free', 1 ]}
                         ]}
                     ]
                 ]}
@@ -65,6 +70,8 @@ ReportSummary.prototype.body = function (cb) {
                 { v: ret.prereg,        t: 'Preregistered' },
                 { v: ret.atTheDoor,     t: 'At the door' },
                 { v: ret.grand,         t: 'Grand total' },
+                { v: ret.paid,          t: 'Paid' },
+                { v: ret.free,          t: 'Free' },
                 { v: ret.transferred,   t: 'Transferred' },
                 { v: ret.void,          t: 'Void' }
             ];
