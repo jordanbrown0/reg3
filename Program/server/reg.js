@@ -26,7 +26,7 @@ process.on('uncaughtException', function (err, origin) {
     }
 });
 
-import { release } from '../../ReleaseInfo/release.js';
+import Release from '../../ReleaseInfo/Release.js';
 log('Reg3 server - ' + release);
 
 const port = 80;
