@@ -21,4 +21,5 @@ copy Program\static\Reg.ico %parent%\Reg.ico > nul
 call servername
 erase servername.bat
 cscript /Nologo Program\lib\mkClientShortcut.js %servername%
+echo Client shortcuts installed.
 pause
