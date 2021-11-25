@@ -26,13 +26,15 @@ if exist %outexe% (
 set z=Program\imported\7za -bsp2
 
 call Program\lib\mkwad %outz% program data node
-echo set myname=%myname% > myname.bat
-%z% a %outz% myname.bat > nul
-erase myname.bat
+
+echo set installmode=server> installmode.bat
+echo set myname=%myname%>> installmode.bat
+%z% a %outz% installmode.bat > nul
+erase installmode.bat
 
 echo ;!@Install@!UTF-8!                                              > tmp.cfg
 echo Title="Reg3"                                                    >> tmp.cfg
-echo BeginPrompt="Do you want to install Reg3 for %myname%?"       >> tmp.cfg
+echo BeginPrompt="Install a new Reg3 server for %myname%?"           >> tmp.cfg
 echo RunProgram="Program\lib\Setup.bat"                              >> tmp.cfg
 echo ;!@InstallEnd@!                                                 >> tmp.cfg
 

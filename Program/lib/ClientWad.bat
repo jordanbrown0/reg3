@@ -1,9 +1,8 @@
+:: Create client install wad.
+:: This batch file lives in Program\lib.
+:: This is usually executed during server install.
 @echo off
-:: Client install wad
-:: This batch file lives in the main convention directory.
 setlocal
-
-set SAVECD=%CD%
 
 if "%1" NEQ "" goto usage
 
@@ -14,7 +13,7 @@ set outexe=%out%.exe
 
 :: Get us to the top of the convention directory.
 %~d0
-cd %~p0
+cd %~p0\..\..
 
 if exist %outz% (
 	erase %outz%
@@ -49,10 +48,7 @@ erase %outz%
 
 echo %outexe% is ready.
 
-goto :done
+goto :EOF
 
 :usage
 echo "Usage:  ClientWad"
-
-:done
-cd %SAVECD%

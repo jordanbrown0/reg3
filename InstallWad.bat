@@ -1,4 +1,5 @@
-:: Build a self-extracting wad that sets up a new convention.
+:: Build a self-extracting wad that installs a new convention or upgrades an
+:: existing convention.
 @echo off
 setlocal
 
@@ -21,17 +22,17 @@ if exist %outexe% (
 	erase %outexe%
 )
 
-set z=Program\imported\7za
+set z=Program\imported\7za -bsp2
 
-call Program\lib\mkwad %outz% program data node
+call Program\lib\mkwad %outz% program node
 
-echo set /p myname=Directory for new convention? > myname.bat
-%z% a %outz% myname.bat > nul
-erase myname.bat
+echo set installmode=any> installmode.bat
+%z% a %outz% installmode.bat > nul
+erase installmode.bat
 
 echo ;!@Install@!UTF-8!                                              > tmp.cfg
 echo Title="Reg3"                                                    >> tmp.cfg
-echo BeginPrompt="Do you want to install Reg3 for a new convention?" >> tmp.cfg
+echo BeginPrompt="Install/upgrade Reg3?"                             >> tmp.cfg
 echo RunProgram="Program\lib\Setup.bat"                              >> tmp.cfg
 echo ;!@InstallEnd@!                                                 >> tmp.cfg
 
