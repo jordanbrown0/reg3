@@ -6,7 +6,7 @@ BASE
 	A directory containing per-convention directories.  For the moment, it is probably necessary that none of the ancestral or per-convention directories have spaces in their names.  It is not yet clear how this location is defined.  Ideal would be to allow the user to specify a location at installation time, but that requires creating a UI.  For now, it's USER/Documents/Reg3.
 	
 BASE/node-vXX.YY.z-win-x86
-	Node.js installation.  Possibly trimmed to remove npm.  This installation is shared between conventions.
+	Node.js installation, trimmed to remove npm.  This installation is shared between conventions.
 
 BASE/CONVENTION
 	This directory, the root of the source tree.  One copy per convention.
