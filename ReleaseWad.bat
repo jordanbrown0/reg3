@@ -39,7 +39,6 @@ git add %rib%
 echo var Release={ name: '%release%' };> %rij%
 echo export { Release };>> %rij%
 git add %rij%
-git status
 
 git commit -m "Release %release%"
 git tag -a -m "%release%" %token%
