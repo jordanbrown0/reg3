@@ -17,7 +17,8 @@ function ReportTallies()
                         ]
                     },
                     empty: 'Unknown',
-                    header: 'Memberships by Geography'
+                    header: 'Memberships by Geography',
+                    help: 'ReportTalliesGeographic'
                 })); }
             },
             { label: '&Picked up', page: ReportTallyPickedUp },
@@ -101,6 +102,7 @@ function ReportTally(params)
     o.headerStr = params.header;
     o.expr = params.expr;
     o.empty = params.empty;
+    o.help = params.help;
     ReportTally.sup.constructor.call(o);
 }
 extend(Report, ReportTally);
