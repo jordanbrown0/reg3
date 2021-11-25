@@ -27,8 +27,8 @@ set release=%datestamp% %timestamp%
 %~d0
 cd %~p0
 
-set rib=Program\ReleaseInfo\release.bat
-set rij=Program\ReleaseInfo\release.js
+set rib=Program\ReleaseInfo\Release.bat
+set rij=Program\ReleaseInfo\Release.js
 
 rem Note that there must not be any space before the ">" because it will go
 rem into the file and thence into the variable values.
