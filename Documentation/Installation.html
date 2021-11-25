@@ -1,0 +1,51 @@
+<html>
+<head>
+    <title>Installation</title>
+    <script src="HelpCommon.js"> </script>
+    <!-- INDEX: Installation -->
+    <!-- INDEX: Browsers -->
+    <!-- INDEX: Developer -->
+</head>
+<body>
+    <h2>
+        Installation
+    </h2>
+    <h3>Client</h3>
+    <p>
+        There is almost no client installation required.  The client needs to
+        have the latest version of Internet Explorer (or pretty much any other
+        modern web browser).
+    </p>
+    <p>
+        The client has to join the appropriate network, typically via WiFi.
+    </p>
+    <p>
+        The <a href="Admin.html">administration menu</a> offers a small
+        installer that will create desktop shortcuts.
+    </p>
+    <h3>Server</h3>
+    <p>
+        Conventions each get their own directory, in
+        Documents\Reg3\$CON.
+    </p>
+    <p>
+        Conventions share Node.js installations, in per-version directories.
+        That way a particular Reg3 instance can use its favorite Node.js
+        version. Node.js is installed in Documents\Reg3\node-vXX.YY.Z-win-x86.
+    </p>
+    <p>
+        Conventions do <b>not</b> share Reg3 itself.  This keeps the convention
+        data with a matched copy of the program.
+    </p>
+</body>
+</html>
+
+
+
+
+DEVELOPER
+
+The reference copy is on github at
+https://github.com/jordanbrown0/reg3
+
+For JavaScript development, you can extract that on top of a convention directory and work.  However, that won't let you make changes to the C++ printing module, and you can't start with *just* the sources and produce a working environment.  You need the prerequisites for full Node.js installations, which include Python and Microsoft Visual C++.  I don't remember the details and will need to rediscover them.
