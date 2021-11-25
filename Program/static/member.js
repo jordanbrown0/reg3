@@ -266,22 +266,32 @@ MemberDisplay.prototype.activate = function () {
         if (r.void) {
             base.addNav([
                 { label: 'Unvoid', perms: 'void', order: 80, func: function () {
-                    if (working(true)) {
-                        return;
-                    }
-                    o.setVoid(false, function () {
-                        Member.display(o.k);
+                    modal('Return this membership to being active?', {
+                        ok: function () {
+                            if (working(true)) {
+                                return;
+                            }
+                            o.setVoid(false, function () {
+                                Member.display(o.k);
+                            });
+                        },
+                        cancel: function () {}
                     });
                 } }
             ]);
         } else {
             base.addNav([
                 { label: 'Void', perms: 'void', order: 80, func: function () {
-                    if (working(true)) {
-                        return;
-                    }
-                    o.setVoid(true, function () {
-                        Member.display(o.k);
+                    modal('Mark this membership as void?', {
+                        ok: function () {
+                            if (working(true)) {
+                                return;
+                            }
+                            o.setVoid(true, function () {
+                                Member.display(o.k);
+                            });
+                        },
+                        cancel: function () {}
                     });
                 } }
             ]);
