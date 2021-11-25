@@ -26,8 +26,8 @@ process.on('uncaughtException', function (err, origin) {
     }
 });
 
-import { Release } from '../../ReleaseInfo/Release.js';
-log('Reg3 server - ' + Release.name);
+import { Release } from '../ReleaseInfo/Release.js';
+log('Reg3 server - Release ' + Release.name);
 
 const port = 80;
 import express from 'express';
@@ -137,7 +137,7 @@ methods.label_measureText = function (p, fontname, fontsize, s) {
 };
 
 methods.release = function () {
-    return release;
+    return Release;
 };
 
 var fonts = {};

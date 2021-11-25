@@ -79,4 +79,4 @@ Config.get = function(cb) {
     }
 
     Config.getVersions(got);
-}
+};
