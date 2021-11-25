@@ -1,7 +1,7 @@
-rem date format: Wed 11/24/2021
-rem time format:  7:59:49.92
+@echo off
 setlocal
 
+rem Confirm that everything is checked in before we create a release.
 set ok=yes
 for /f %%i in ('git status --porcelain') do (
     set ok=no
@@ -12,6 +12,8 @@ if %ok% == no (
     goto :EOF
 )
 
+rem date format: Wed 11/24/2021
+rem time format:  7:59:49.92
 set datestamp=%DATE:~-4,4%-%DATE:~-10,2%-%DATE:~-7,2%
 set h=%TIME:~0,2%
 set h=%h: =%
@@ -43,4 +45,4 @@ git add %rij%
 git commit -m "Release %release%"
 git tag -a -m "%release%" %token%
 rem git push
-rem call UpgradeWad
+call UpgradeWad
