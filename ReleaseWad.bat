@@ -1,4 +1,4 @@
-rem @echo off
+@echo off
 setlocal
 
 rem Confirm that everything is checked in before we create a release.
