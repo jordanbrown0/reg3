@@ -42,7 +42,7 @@ echo var Release={ name: '%release%' };> %rij%
 echo export { Release };>> %rij%
 git add %rij%
 
-git commit -m "Release %release%"
+git commit -m "Release %release%" > nul
 git tag -a -m "%release%" %token%
 rem git push
 call UpgradeWad
