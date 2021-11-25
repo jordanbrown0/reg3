@@ -15,17 +15,20 @@ if %installmode% == any (
 )
 
 set dest=%parent%\%myname%
-if %installmode% == server (
-    if exist %dest% (
+
+if exist %dest% (
+    if %installmode% == server (
         echo %dest% already exists.
-        set /p ans=Upgrade instead [y/n]?
-        if "!ans!" == "y" (
-            rmdir /s /q Program\Data
-        ) else (
-            echo Aborting...
-            goto done
-        )
+        call Program\lib\confirm "Upgrade instead [y/n]? "
+        if errorlevel 1 goto abort
+        rmdir /s /q Program\Data
+    ) else (
+        call Program\lib\confirm "Upgrade %myname% [y/n]? "
+        if errorlevel 1 goto abort
     )
+) else (
+    call Program\lib\confirm "New install of %myname% [y/n]? "
+    if errorlevel 1 goto abort
 )
 
 if exist %dest% (
@@ -45,16 +48,13 @@ if exist %dest% (
     echo Installing %myname%...
     if not exist %parent% (
         mkdir %parent%
-        if errorlevel 1 (
-            echo Aborting.
-            goto :done
-        )
+        if errorlevel 1 goto abort
     )
 
     mkdir %dest%
     if errorlevel 1 (
-        echo Bad directory name %myname%, aborting.
-        goto :done
+        echo Bad directory name %myname%.
+        goto :abort
     )
 )
 
@@ -73,6 +73,10 @@ cscript /Nologo Program\lib\mkServerShortcut.js %myname%
 call Program\lib\ClientWad > nul
 
 echo %dest% is ready.
+goto done
+
+:abort
+echo Aborted.
 
 :done
 pause
