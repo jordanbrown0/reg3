@@ -8,7 +8,7 @@ set dir=%CD%
 %~d0
 cd %~p0
 
-call ReleaseInfo\release.bat
+call Program\ReleaseInfo\Release.bat
 set myname=Reg3-%token%
 
 set outz=%dir%\%myname%.7z
