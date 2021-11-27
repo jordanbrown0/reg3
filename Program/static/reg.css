@@ -355,7 +355,7 @@ body {
 
 .Base .Header #headerTitle {
     display: inline-block;  /* NEEDSWORK: Why? */
-    width: 75%;
+    width: 50%;
     text-align: left;
     font-size: larger;
     font-weight: bolder;
@@ -364,7 +364,7 @@ body {
 
 .Base .Header #headerClock {
     display: inline-block;  /* NEEDSWORK: Why? */
-    width: 25%;
+    width: 50%;
     text-align: right;
 }
 
