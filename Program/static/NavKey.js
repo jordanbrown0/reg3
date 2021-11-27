@@ -101,6 +101,7 @@ var keyAliases = {
 // CapsLock
 // Ctrl + Tab, Ctrl + BackTab
 // Alt+F4
+// Control+N, T, U, W (Firefox)
 
 // These are keys that are always a problem and should always be
 // suppressed.
