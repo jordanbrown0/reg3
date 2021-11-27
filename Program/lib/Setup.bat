@@ -34,7 +34,7 @@ if exist %dest% (
 if exist %dest% (
     echo Upgrading %myname%...
     :: First, delete the old stuff.
-    for %%i in (imported static server src node_modules lib install) do (
+    for %%i in (imported static server src node_modules lib install ReleaseInfo) do (
         rmdir /s /q %dest%\Program\%%i
     )
     rmdir /s /q %dest%\Documentation
@@ -64,7 +64,7 @@ if not exist %parent%\%NODE% (
 )
 erase %NODE%.7z
 
-xcopy /q /e . %dest% > nul
+xcopy /q /e . %dest%
 
 cd %dest%
 

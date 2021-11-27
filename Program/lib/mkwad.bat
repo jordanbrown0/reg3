@@ -35,6 +35,7 @@ goto done
 :program
 
 %z% a %out% Program\imported Program\static Program\server Program\src > nul
+%z% a %out% Program\ReleaseInfo > nul
 :: OK, so I'm obsessing.  But these build artifacts total to
 :: more than 7MB.
 
