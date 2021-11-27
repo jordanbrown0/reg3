@@ -116,7 +116,7 @@ ReportDups.prototype.body = function (cb) {
             td(r.lname || ''),
             td(r.fname || ''),
             td(joinTruthy(
-                [ r.addr1, r.addr2, r.city, r.state, r.zip, r.country ],
+                [ r.addr1, r.addr2, r.city, r.state, r.postcode, r.country ],
                 ' / '
             ))
         ));

@@ -455,7 +455,7 @@ NewMemberEditor.prototype.activate = function () {
                     addr2: lastRec.addr2,
                     city: lastRec.city,
                     state: lastRec.state,
-                    zip: lastRec.zip,
+                    postcode: lastRec.postcode,
                     country: lastRec.country
                 });
             } }
