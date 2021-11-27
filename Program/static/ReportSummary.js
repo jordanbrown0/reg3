@@ -36,7 +36,7 @@ ReportSummary.prototype.body = function (cb) {
     table.members.reduce(
         { expr:
             { if: [
-                { f: 'transferTo' },
+                { f: 'transferto' },
                 { addto: [ 'transferred', 1 ]},
                 { if: [
                     { f: 'void' },
