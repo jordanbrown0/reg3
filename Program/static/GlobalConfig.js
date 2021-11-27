@@ -97,6 +97,37 @@ GlobalEdit.prototype.get = function (cb) {
     Global.get(cb);
 };
 
+function ReportConfigGlobal()
+{
+    var o = this;
+    ReportConfigGlobal.sup.constructor.call(o);
+}
+extend(Report, ReportConfigGlobal);
+
+ReportConfigGlobal.prototype.activate = function () {
+    var o = this;
+    ReportConfigGlobal.sup.activate.call(o);
+};
+
+ReportConfigGlobal.prototype.header = function () {
+    var o = this;
+    return (tr(th('Global Configuration', { colSpan: 2 })));
+};
+
+ReportConfigGlobal.prototype.body = function (cb) {
+    var o = this;
+
+    Global.get(function (g) {
+        var body = [];
+        for (var n in g) {
+            body.push(tr(td(n), td(g[n])));
+        }
+        cb(body);
+    });
+};
+
+ReportConfigGlobal.prototype.title = 'Global Configuration Report';
+
 var Global = {};
 
 Global.get = function (cb) {
