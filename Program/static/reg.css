@@ -373,9 +373,9 @@ body {
 }
 
 .Base .Header #headerHelp {
-    width: 1em;
-    font-size: 170%;
-    margin-left: 0.3em;
+    width: 30px;
+    font-size: 30px;
+    margin-left: 10px;
     vertical-align: top;
 }
 
