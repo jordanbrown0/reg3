@@ -131,7 +131,7 @@ InputText.prototype.get = function () {
 
 InputText.prototype.set = function (value) {
     var o = this;
-    InputText.sup.set.call(o, value || '');
+    InputText.sup.set.call(o, value == undefined ? '' : value);
 };
 
 InputText.prototype.correct = function () {
