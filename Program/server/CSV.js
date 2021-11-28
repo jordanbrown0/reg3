@@ -200,7 +200,7 @@ CSV.export = async function (res, t, params) {
     if (params.headers) {
         let header = {};
         params.map.forEach(function (m) {
-            header[m.to] = m.to;
+            header[m.from] = m.to;
         });
         await streamWritePromise(res,
             Buffer.from(toCSV(header, params), params.encoding));
