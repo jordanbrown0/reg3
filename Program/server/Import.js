@@ -31,12 +31,17 @@ Import.converters.datev2 = function (v) {
         return (undefined);
     }
     var result = v.match(
-        '^([0-9]+)/([0-9]+)/([0-9]+) ([0-9]+):([0-9]+):([0-9]+)$');
+        '^([0-9]+)/([0-9]+)/([0-9]+)( ([0-9]+):([0-9]+):([0-9]+))?$');
     if (!result) {
         return (undefined);
     }
 
-    var [ , month, day, year, hour, minute, second ] = result;
+    var [ , month, day, year, junk, hour, minute, second ] = result;
+
+    year = parseInt(year);
+    if (year < 100) {
+        year += 2000;
+    }
 
     return (mkdate(year, month, day, hour, minute, second));
 };
