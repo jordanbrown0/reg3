@@ -10,7 +10,7 @@ Export.formats.CSV = CSV;
 Export.formats.DBF = DBF;
 Export.formats.CSVh = {
     export: function (res, t, params) {
-        params.headers = true;
+        params = Object.assign({}, params, { headers: true });
         return (CSV.export(res, t, params));
     },
     extension: CSV.extension,

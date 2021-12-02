@@ -114,7 +114,7 @@ Import.formats.CSV = CSV;
 Import.formats.DBF = DBF;
 Import.formats.CSVh = {
     import: async function (path, params, cb) {
-        params.headers = true;
+        params = Object.assign({}, params, { headers: true });
         await CSV.import(path, params, cb);
     }
 };
@@ -140,14 +140,13 @@ Import.import = async function (file, t, params) {
     t.sync(false);
     await importer(file.path, params, function (importRecord) {
         if (importRecord._deleted) {
-            // NEEDSWORK:  dBASE deleted records have data preserved.
+            // Note:  dBASE deleted records have data preserved.
             // Our deleted records do not; they are only a tombstone.
             // Adding a deleted record with data would be a violation of the
             // definition.
             // Adding a tombstone would be pointless because this is a new
             // record, from our DBMS's point of view.
-            // We'll just ignore dBASE deleted records for now.
-            // Is that the best answer? Issue #179.
+            // We just ignore dBASE deleted records.
             return;
         }
         delete importRecord._deleted;

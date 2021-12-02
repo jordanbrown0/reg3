@@ -312,7 +312,7 @@ function EditorEntry(schemaEntry, params)
     o.appendChild(td(schemaEntry.label || new EntityNode('nbsp'),
         {className: 'Label'}));
 
-    o.params = merge(
+    o.params = Object.assign(
         {
             input: InputText,
             id: schemaEntry.field,

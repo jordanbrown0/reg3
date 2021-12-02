@@ -67,7 +67,9 @@ function ServerEdit(k, params) {
     if (!k) {
         k = serverID;
     }
-    if (!params) {
+    if (params) {
+        params = Object.assign({}, params);
+    } else {
         params = {
             table: table.servers,
             schema: serverSchema

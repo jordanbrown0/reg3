@@ -56,7 +56,9 @@ function StationEdit(k, params) {
     if (!k) {
         k = stationID;
     }
-    if (!params) {
+    if (params) {
+        params = Object.assign({}, params);
+    } else {
         params = {
             table: table.stations,
             schema: stationSchema,

@@ -152,6 +152,9 @@ List.prototype.refresh = function () {
 
 List.prototype.setFilter = function(f) {
     var o = this;
+    // Note:  This is an exception to the general rule that callees must not
+    // modify parameter objects.  It's OK here because we are doing it at the
+    // caller's direction.
     o.params.filter = f;
 };
 

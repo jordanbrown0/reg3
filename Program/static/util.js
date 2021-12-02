@@ -110,19 +110,6 @@ function MyError(msg) {
 }
 extend(Error, MyError);
 
-function merge() {
-	var res = {};
-	for (var i = 0; i < arguments.length; i++) {
-		var arg = arguments[i];
-		if (arg) {
-			for (var k in arg) {
-				res[k] = arg[k];
-			}
-		}
-	}
-	return (res);
-}
-
 var cookies = null;
 function cookie(name) {
 	if (!cookies) {

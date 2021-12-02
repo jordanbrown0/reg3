@@ -40,12 +40,10 @@ Modal.prototype.close = function () {
 // Who is responsible for keyboard handling?
 function modal(contents, params) {
     params = params || {};
-    if (params.ok === undefined) {   // but null makes it explicitly disabled.
-        params.ok = function () {};
-    }
-
     mparams = Object.assign({}, params);
-    if (params.ok) {
+    if (params.ok === undefined) {   // but null makes it explicitly disabled.
+        mparams.ok = function () { m.close(); };
+    } else if (params.ok) {
         mparams.ok = function () { m.close(); params.ok(); };
     }
     if (params.cancel) {

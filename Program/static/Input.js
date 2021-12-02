@@ -611,7 +611,7 @@ InputSelectMulti.prototype.get = function (val) {
 
 InputSelectMulti.prototype.addOption = function (key, text) {
     var o = this;
-    var boolParams = Object.assign(o.params, {
+    var boolParams = Object.assign({}, o.params, {
         onchange: function () {
             o.value[key] = input.get();
         }
