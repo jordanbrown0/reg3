@@ -1,0 +1,632 @@
+<html>
+<head>
+    <title>Schema</title>
+    <script src="HelpCommon.js"> </script>
+    <!-- INDEX: Schema -->
+    <!-- INDEX: Developer -->
+    <style>
+    .Table {
+        text-align: center;
+        font-size: larger;
+    }
+    </style>
+</head>
+<body>
+    <h2>
+        Schema
+    </h2>
+    <table border=1>
+        <tr><th class="Table" colspan=3>members</th></tr>
+        <tr>
+            <td>fname</td>
+            <td>text</td>
+            <td>First name</td>
+        </tr>
+        <tr>
+            <td>lname</td>
+            <td>text</td>
+            <td>Last name</td>
+        </tr>
+        <tr>
+            <td>badge1</td>
+            <td>text</td>
+            <td>First badge name - analogous to fname</td>
+        </tr>
+        <tr>
+            <td>badge2</td>
+            <td>text</td>
+            <td>Second badge name - analogous to lname</td>
+        </tr>
+        <tr>
+            <td>addr1</td>
+            <td>text</td>
+            <td>First line of address</td>
+        </tr>
+        <tr>
+            <td>addr2</td>
+            <td>text</td>
+            <td>Second line of address</td>
+        </tr>
+        <tr>
+            <td>city</td>
+            <td>text</td>
+            <td>City</td>
+        </tr>
+        <tr>
+            <td>state</td>
+            <td>text</td>
+            <td>State, province, or equivalent</td>
+        </tr>
+        <tr>
+            <td>postcode</td>
+            <td>text</td>
+            <td>Postal code - ZIP or equivalent</td>
+        </tr>
+        <tr>
+            <td>country</td>
+            <td>text</td>
+            <td>Country</td>
+        </tr>
+        <tr>
+            <td>phone</td>
+            <td>text</td>
+            <td>Phone number</td>
+        </tr>
+        <tr>
+            <td>notes</td>
+            <td>text</td>
+            <td>Notes - for any purpose</td>
+        </tr>
+        <tr>
+            <td>entered</td>
+            <td>date+time</td>
+            <td>Date membership was added</td>
+        </tr>
+        <tr>
+            <td>pickedup</td>
+            <td>date+time</td>
+            <td>Date membership was picked up</td>
+        </tr>
+        <tr>
+            <td>class</td>
+            <td>text</td>
+            <td>Code for membership class</td>
+        </tr>
+        <tr>
+            <td>amount</td>
+            <td>number</td>
+            <td>Total amount paid</td>
+        </tr>
+        <tr>
+            <td>number</td>
+            <td>number</td>
+            <td>Membership number</td>
+        </tr>
+        <tr>
+            <td>transferfrom</td>
+            <td>record ID</td>
+            <td>ID of member record transfered from</td>
+        </tr>
+        <tr>
+            <td>transferto</td>
+            <td>record ID</td>
+            <td>ID of member record transfered to</td>
+        </tr>
+        <tr>
+            <td>categories</td>
+            <td>list of text</td>
+            <td>Category codes</td>
+        </tr>
+        <tr>
+            <td>void</td>
+            <td>boolean</td>
+            <td>Membership is void</td>
+        </tr>
+        <tr>
+            <td>???</td>
+            <td>text(?)</td>
+            <td>Fields added using Admin/Member/Fields</td>
+        </tr>
+        <tr><th class="Table" colspan=3>classes</th></tr>
+        <tr>
+            <td>code</td>
+            <td>text</td>
+            <td>Code for class</td>
+        </tr>
+        <tr>
+            <td>description</td>
+            <td>text</td>
+            <td>Description</td>
+        </tr>
+        <tr>
+            <td>amount</td>
+            <td>number</td>
+            <td>Cost of membership</td>
+        </tr>
+        <tr>
+            <td>badgeOK</td>
+            <td>boolean</td>
+            <td>Do we print badges for this class?</td>
+        </tr>
+        <tr>
+            <td>metaclass</td>
+            <td>text</td>
+            <td>Single-character metaclass</td>
+        </tr>
+        <tr>
+            <td>onBadge</td>
+            <td>text</td>
+            <td>What (if anything) to print on badge</td>
+        </tr>
+        <tr>
+            <td>phoneLabel</td>
+            <td>boolean</td>
+            <td>Print a second label with phone number?</td>
+        </tr>
+        <tr>
+            <td>order</td>
+            <td>number</td>
+            <td>Display order</td>
+        </tr>
+        <tr>
+            <td>start</td>
+            <td>date</td>
+            <td>First day to sell this class</td>
+        </tr>
+        <tr>
+            <td>end</td>
+            <td>date</td>
+            <td>Last day to sell this class</td>
+        </tr>
+        <tr><th class="Table" colspan=3>servers</th></tr>
+        <tr>
+            <td>serverName</td>
+            <td>text</td>
+            <td>Human-friendly name for server</td>
+        </tr>
+        <tr>
+            <td>noPrint</td>
+            <td>boolean</td>
+            <td>Disable printing (mostly for development)</td>
+        </tr>
+        <tr><th class="Table" colspan=3>membershipNumbers</th></tr>
+        <tr><td colspan=3>
+            Parallel to "server", but separate so that allocating
+            a membership number does not trigger reloading the configuration.
+        </td></tr>
+        <tr>
+            <td>nextNumber</td>
+            <td>number</td>
+            <td>Next membership number to issue</td>
+        </tr>
+        <tr>
+            <td>lastNumber</td>
+            <td>number</td>
+            <td>Last membership number to issue</td>
+        </tr>
+        <tr><th class="Table" colspan=3>stations</th></tr>
+        <tr>
+            <td>stationName</td>
+            <td>text</td>
+            <td>Human-friendly name for station</td>
+        </tr>
+        <tr>
+            <td>server</td>
+            <td>record ID</td>
+            <td>Server this station belongs to</td>
+        </tr>
+        <tr>
+            <td>server</td>
+            <td>record ID</td>
+            <td>Server this station belongs to</td>
+        </tr>
+        <tr>
+            <td>label</td>
+            <td>record ID</td>
+            <td>Assigned label printer</td>
+        </tr>
+        <tr>
+            <td>metaclass</td>
+            <td>text</td>
+            <td>Single-character metaclasses</td>
+        </tr>
+        <tr>
+            <td>offlinePrint</td>
+            <td>boolean</td>
+            <td>Print badges now?</td>
+        </tr>
+        <tr>
+            <td>offlineMarkPickedUp</td>
+            <td>boolean</td>
+            <td>Mark badges picked up?</td>
+        </tr>
+        <tr>
+            <td>offlineRealTime</td>
+            <td>boolean</td>
+            <td>Use current time for records?</td>
+        </tr>
+        <tr>
+            <td>offlineAsOf</td>
+            <td>date+time</td>
+            <td>Time to use for records</td>
+        </tr>
+        <tr>
+            <td>permissions</td>
+            <td>list of text</td>
+            <td>
+                Operations authorized for this station
+                <br>
+                newMember, admin, reports, upgrade, adHocUpgrades, transfer,
+                unmark, void
+            </td>
+        </tr>
+        <tr><th class="Table" colspan=3>printers</th></tr>
+        <tr>
+            <td>server</td>
+            <td>record ID</td>
+            <td>Server this printer is attached to</td>
+        </tr>
+        <tr>
+            <td>windows</td>
+            <td>text</td>
+            <td>Windows name for this printer</td>
+        </tr>
+        <tr>
+            <td>name</td>
+            <td>text</td>
+            <td>Human-friendly name for this printer</td>
+        </tr>
+        <tr>
+            <td>isLabel</td>
+            <td>boolean</td>
+            <td>This is a label printer</td>
+        </tr>
+        <tr>
+            <td>hide</td>
+            <td>boolean</td>
+            <td>Hide this printer</td>
+        </tr>
+        <tr><th class="Table" colspan=3>categories</th></tr>
+        <tr>
+            <td>name</td>
+            <td>text</td>
+            <td>Category name</td>
+        </tr>
+        <tr>
+            <td>description</td>
+            <td>text</td>
+            <td>Description</td>
+        </tr>
+        <tr><th class="Table" colspan=3>upgrades</th></tr>
+        <tr>
+            <td>from</td>
+            <td>text</td>
+            <td>From class code</td>
+        </tr>
+        <tr>
+            <td>to</td>
+            <td>text</td>
+            <td>To class code</td>
+        </tr>
+        <tr>
+            <td>amount</td>
+            <td>number</td>
+            <td>Cost of this upgrade</td>
+        </tr>
+        <tr>
+            <td>metaclass</td>
+            <td>text</td>
+            <td>Single-letter metaclass code</td>
+        </tr>
+        <tr>
+            <td>description</td>
+            <td>text</td>
+            <td>Description of upgrade</td>
+        </tr>
+        <tr>
+            <td>start</td>
+            <td>date</td>
+            <td>First day this upgrade is available</td>
+        </tr>
+        <tr>
+            <td>end</td>
+            <td>date</td>
+            <td>Last day this upgrade is available</td>
+        </tr>
+        <tr><th class="Table" colspan=3>externalImport</th></tr>
+        <tr>
+            <td>description</td>
+            <td>text</td>
+            <td>Description of this import mapping</td>
+        </tr>
+        <tr>
+            <td>table</td>
+            <td>text</td>
+            <td>Name of table to import to</td>
+        </tr>
+        <tr>
+            <td>type</td>
+            <td>text</td>
+            <td>
+                Type of import
+                <br>
+                DBF - dBASE
+                <br>
+                CSVh - Excel compatible comma separated, with headers
+                <br>
+                CSV - Excel compatible comma separated
+            </td>
+        </tr>
+        <tr>
+            <td>encoding</td>
+            <td>text</td>
+            <td>
+                Character set of imported file
+                <br>
+                utf8 - UTF-8
+                <br>
+                latin1 - ASCII / ISO 8859-1 / ISO Latin 1 (also Win-1252?)
+            </td>
+        </tr>
+        <tr>
+            <td>map</td>
+            <td>list of object</td>
+            <td>Each describes one field to import</td>
+        </tr>
+        <tr>
+            <td><li>from</td>
+            <td>text</td>
+            <td>Name of field in original</td>
+        </tr>
+        <tr>
+            <td><li>to</td>
+            <td>text</td>
+            <td>Name of Reg3 field</td>
+        </tr>
+        <tr>
+            <td><li>conversion</td>
+            <td>text</td>
+            <td>
+                Conversion to apply
+                <br>
+                (empty) - default conversion
+                <br>
+                Number - convert to number
+                <br>
+                datev2 - convert from Reg v2 date+time format
+                <br>
+                mmddyyyy - mm/dd/yyyy or mm/dd/yy
+                <br>
+                ddmmyyyy - dd/mm/yyyy or dd/mm/yy
+                <br>
+                dateMS - Member Solutions date
+            </td>
+        </tr>
+        <tr>
+            <td>classMap</td>
+            <td>list of object</td>
+            <td>Each describes the imported and Reg3 names for a class</td>
+        </tr>
+        <tr>
+            <td><li>from</td>
+            <td>text</td>
+            <td>Name of class in original</td>
+        </tr>
+        <tr>
+            <td><li>to</td>
+            <td>text</td>
+            <td>Name of Reg3 class</td>
+        </tr>
+        <tr><th class="Table" colspan=3>corrections</th></tr>    [
+        <tr>
+            <td>table</td>
+            <td>text</td>
+            <td>Name of table to apply corrections to</td>
+        </tr>
+        <tr>
+            <td>field</td>
+            <td>text</td>
+            <td>Name of field to apply corrections to</td>
+        </tr>
+        <tr>
+            <td>corrections</td>
+            <td>list of object</td>
+            <td>List of corrections to apply</td>
+        </tr>
+        <tr>
+            <td><li>from</td>
+            <td>text</td>
+            <td>Value to correct</td>
+        </tr>
+        <tr>
+            <td><li>to</td>
+            <td>text</td>
+            <td>Replacement value</td>
+        </tr>
+        <tr><th class="Table" colspan=3>fields</th></tr>
+        <tr>
+            <td>page</td>
+            <td>number</td>
+            <td>Page number to create or add to</td>
+        </tr>
+        <tr>
+            <td>title</td>
+            <td>text</td>
+            <td>Title for page (if new)</td>
+        </tr>
+        <tr>
+            <td>fields</td>
+            <td>list of object</td>
+            <td>List of fields to add</td>
+        </tr>
+        <tr>
+            <td><li>field</td>
+            <td>text</td>
+            <td>Name of new field</td>
+        </tr>
+        <tr>
+            <td><li>label</td>
+            <td>text</td>
+            <td>Display label for new field</td>
+        </tr>
+        <tr><th class="Table" colspan=3>externalExport</th></tr>
+        <tr>
+            <td>description</td>
+            <td>text</td>
+            <td>Description of this export mapping</td>
+        </tr>
+        <tr>
+            <td>table</td>
+            <td>text</td>
+            <td>Name of table to export</td>
+        </tr>
+        <tr>
+            <td>type</td>
+            <td>text</td>
+            <td>
+                Type of file to export to
+                <br>
+                CSVh - Comma Separated (Excel compatible), with headers
+                <br>
+                CSV - Comma Separated (Excel compatible), no headers
+                <br>
+                (future) DBF - dBASE 3
+            </td>
+        </tr>
+        <tr>
+            <td>encoding</td>
+            <td>text</td>
+            <td>
+                Encoding of exported file
+                <br>
+                latin1 - ISO 8859-1 / ISO Latin 1
+                <br>
+                utf8 - UTF-8
+                <br>
+                Note:  behavior for both is the same for plain ASCII data.
+            </td>
+        </tr>
+        <tr>
+            <td>map</td>
+            <td>list of object</td>
+            <td>Each describes one field to export</td>
+        </tr>
+        <tr>
+            <td><li>from</td>
+            <td>text</td>
+            <td>Name of Reg3 field</td>
+        </tr>
+        <tr>
+            <td><li>to</td>
+            <td>text</td>
+            <td>Name of field in exported file</td>
+        </tr>
+        <tr><th class="Table" colspan=3>global</th></tr>
+        <tr>
+            <td>convention</td>
+            <td>text</td>
+            <td>Convention name</td>
+        </tr>
+        <tr>
+            <td>startDate</td>
+            <td>date</td>
+            <td>Convention start date</td>
+        </tr>
+        <tr>
+            <td>currencyPrefix</td>
+            <td>text</td>
+            <td>Currency prefix</td>
+        </tr>
+        <tr>
+            <td>currencySuffix</td>
+            <td>text</td>
+            <td>Currency suffix</td>
+        </tr>
+        <tr>
+            <td>screenFontSize</td>
+            <td>number</td>
+            <td>Screen font size</td>
+        </tr>
+        <tr>
+            <td>font</td>
+            <td>text</td>
+            <td>Badge font</td>
+        </tr>
+        <tr>
+            <td>badgeCopies</td>
+            <td>number</td>
+            <td>Number of copies of labels to print</td>
+        </tr>
+        <tr>
+            <td>realNameLabel</td>
+            <td>boolean</td>
+            <td>Print a real-name label in addition to badge-name label?</td>
+        </tr>
+        <tr>
+            <td>badgeCity</td>
+            <td>object</td>
+            <td>Options controlling printing city on badges</td>
+        </tr>
+        <tr>
+            <td><li>print</td>
+            <td>boolean</td>
+            <td>Print the city?</td>
+        </tr>
+        <tr>
+            <td><li>size</td>
+            <td>number</td>
+            <td>Font size</td>
+        </tr>
+        <tr>
+            <td>badgeNumber</td>
+            <td>object</td>
+            <td>Options controlling printing membership number on badges</td>
+        </tr>
+        <tr>
+            <td><li>print</td>
+            <td>boolean</td>
+            <td>Print the membership number?</td>
+        </tr>
+        <tr>
+            <td><li>size</td>
+            <td>number</td>
+            <td>Font size</td>
+        </tr>
+        <tr>
+            <td>nameSizes</td>
+            <td>list of number</td>
+            <td>Sizes to try for name</td>
+        </tr>
+        <tr>
+            <td>margins</td>
+            <td>object</td>
+            <td>Margins for labels</td>
+        </tr>
+        <tr>
+            <td><li>left</td>
+            <td>number</td>
+            <td>Left margin</td>
+        </tr>
+        <tr>
+            <td><li>right</td>
+            <td>number</td>
+            <td>Right margin</td>
+        </tr>
+        <tr>
+            <td><li>top</td>
+            <td>number</td>
+            <td>Top margin</td>
+        </tr>
+        <tr>
+            <td><li>bottom</td>
+            <td>number</td>
+            <td>Bottom margin</td>
+        </tr>
+        <tr>
+            <td>ttl</td>
+            <td>number</td>
+            <td>How often to check configuration, in seconds</td>
+        </tr>
+    </table>
+</body>
+</html>
