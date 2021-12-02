@@ -104,6 +104,10 @@ ExternalExport.prototype.activate = function () {
 ExternalExport.prototype.export = function (r) {
     var o = this;
     table.externalExport.get(r.map, function (rMap) {
+        rMap.map.forEach(function (e) {
+            e.from = e.from.toLowerCase();
+        });
+
         var t = table[rMap.table];
         t.externalExport(rMap, home);
     });
