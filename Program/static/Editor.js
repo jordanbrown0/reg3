@@ -361,7 +361,13 @@ EditorEntry.prototype.get = function (r) {
     // Perversely, "get" is prohibited for read-only entries because
     // "get" is the operation that writes to the record.
     if (!o.params.readOnly) {
-        r[o.schemaEntry.field] = o.input.get();
+        var v;
+        if (o.input.isEmpty() && o.schemaEntry.default == undefined) {
+            v = undefined;
+        } else {
+            v = o.input.get();
+        }
+        r[o.schemaEntry.field] = v;
     }
 };
 

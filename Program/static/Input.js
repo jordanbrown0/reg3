@@ -43,6 +43,10 @@ Input.prototype.focus = function () {
 Input.prototype.correct = function () {
 };
 
+Input.prototype.isEmpty = function () {
+    return (false);
+};
+
 Input.toDOM = function (value, params) {
     var ret = span();
     if (params.prefix) {
@@ -119,19 +123,15 @@ function InputText(params) {
 }
 extend(InputInput, InputText);
 
-InputText.prototype.get = function () {
-    var o = this;
-    var v = InputText.sup.get.call(this);
-    // Note that the validator might disallow empty values.
-    if (!v) {
-        return (undefined);
-    }
-    return (v);
-};
-
 InputText.prototype.set = function (value) {
     var o = this;
     InputText.sup.set.call(o, value == undefined ? '' : value);
+};
+
+InputText.prototype.isEmpty = function () {
+    var o = this;
+    var v = InputText.prototype.get.call(o);
+    return (v == undefined || v == '');
 };
 
 InputText.prototype.correct = function () {
@@ -139,15 +139,13 @@ InputText.prototype.correct = function () {
     if (o.params.readOnly) {
         return;
     }
+    // This explicitly calls InputText.get() instead of o.get() so that it
+    // will get the text form of the value - versus, say, a number.
     var v = InputText.prototype.get.call(o);
     if (v == undefined) {
         return;
     }
     var newv = v.trim();
-    if (newv == '') {
-        o.set(undefined);
-        return;
-    }
     if (o.params.corrections) {
         var c = o.params.corrections[newv.toLowerCase()];
         if (c) {
@@ -252,7 +250,7 @@ function InputFile(params)
 
 extend(InputInput, InputFile);
 
-InputFile.prototype.get = function (value) {
+InputFile.prototype.get = function () {
     var o = this;
     assert(!o.params.readOnly, 'get of readOnly');
     return (o.content.n.files.item(0));
@@ -561,11 +559,6 @@ InputClassLookup.toDOM = function (value, params) {
 
 // One might think that <select multiple> would do what we want, but I don't
 // like the Ctrl/Shift-click UI at all.
-// Note that this is willing to have a value of [].  One might think that
-// would lead to undefined, so that it doesn't get stored, but that wouldn't
-// allow for a non-empty default, that you could then edit down to empty.
-// (Note:  This is asymmetric with standard values, which won't let you
-// have a non-empty default and override it to the empty string.)
 function InputSelectMulti(params)
 {
     var o = this;
@@ -597,7 +590,7 @@ InputSelectMulti.prototype.set = function (listVal) {
 
 // NEEDSWORK:  if the value supplied includes entries that aren't in the
 // list of options, should the result include them?
-InputSelectMulti.prototype.get = function (val) {
+InputSelectMulti.prototype.get = function () {
     var o = this;
     assert(!o.params.readOnly, 'get of readOnly');
     var ret = [];
@@ -607,6 +600,16 @@ InputSelectMulti.prototype.get = function (val) {
         }
     }
     return (ret);
+};
+
+InputSelectMulti.prototype.isEmpty = function () {
+    var o = this;
+    for (var name in o.children) {
+        if (o.children[name].get()) {
+            return (false);
+        }
+    }
+    return (true);
 };
 
 InputSelectMulti.prototype.addOption = function (key, text) {
@@ -813,7 +816,7 @@ extend(InputMulti, InputIntList);
 // params.schema: array of
 //      name: member name
 //      input: input constructor
-//      header: table header
+//      header: table header (not implemented)
 // NEEDSWORK:  The structure of this, as an independent table for each
 // InputObject, requires that you use CSS to arrange that an InputMultiObject
 // has its columns aligned.  Cleverer might be to allow an Input to return
