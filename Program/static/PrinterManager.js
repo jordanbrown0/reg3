@@ -12,6 +12,17 @@ var printerSchema = [
             default: false },
         { field: 'hide', label: 'Hide printer?', input: InputBool,
             default: false },
+        { field: 'margins',
+            label: 'Margins: Left, Right, Top, Bottom',
+            input: InputObject,
+            default: { left: 0, right: 0, top: 0, bottom: 0 },
+            schema: [
+                { field: 'left', input: InputInt, required: true },
+                { field: 'right', input: InputInt, required: true },
+                { field: 'top', input: InputInt, required: true },
+                { field: 'bottom', input: InputInt, required: true }
+            ]
+        }
     ]
 ];
 
@@ -309,6 +320,12 @@ Printer.prototype.init = function (cb, abort) {
     function gotPrinter(pRec) {
         o.pname = pRec.name;
         o.winName = pRec.windows;
+        o.margins = {
+            left: pRec.margins.left + cfg.margins.left,
+            right: pRec.margins.right + cfg.margins.right,
+            top: pRec.margins.top + cfg.margins.top,
+            bottom: pRec.margins.bottom + cfg.margins.bottom
+        };
         rpc.printers(gotPrinters);
     }
 
@@ -340,14 +357,11 @@ Printer.prototype.init = function (cb, abort) {
         o.dpiy = caps.dpiy;
         o.horzres = caps.horzres;
         o.vertres = caps.vertres;
-        // Perhaps these margins should be configured on a per-printer basis.
-        // Ref #301.  Retain global settings to allow for, e.g., poor badge
-        // design; add the global setting to the per-printer setting.
         o.limits = {
-            x: cfg.margins.left,
-            y: caps.vertres - cfg.margins.bottom - 1,
-            h: caps.horzres - cfg.margins.left - cfg.margins.right,
-            v: caps.vertres - cfg.margins.bottom - cfg.margins.top
+            x: o.margins.left,
+            y: caps.vertres - o.margins.bottom - 1,
+            h: caps.horzres - o.margins.left - o.margins.right,
+            v: caps.vertres - o.margins.bottom - o.margins.top
         };
         cb();
     }
