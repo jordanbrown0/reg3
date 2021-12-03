@@ -16,7 +16,7 @@ function ReportTallies()
                             ''
                         ]
                     },
-                    empty: 'Unknown',
+                    emptyTitle: 'Unknown',
                     header: 'Memberships by Geography',
                     help: 'ReportTalliesGeographic'
                 })); }
@@ -39,14 +39,16 @@ function ReportTallyPickedUp()
             { label: '&Date', func: function () {
                 base.switchTo(new ReportTally({
                     expr: {left: [ {f: 'pickedup'}, 10 ]},
-                    empty: 'Not picked up',
+                    emptyTitle: 'Not picked up',
+                    notEmptyTitle: 'Total picked up',
                     header: 'Memberships picked up by date'
                 }));
             }},
             { label: '&Hour', func: function () {
                 base.switchTo(new ReportTally({
                     expr: {left: [ {f: 'pickedup'}, 13 ]},
-                    empty: 'Not picked up',
+                    emptyTitle: 'Not picked up',
+                    notEmptyTitle: 'Total picked up',
                     header: 'Memberships Picked Up by Hour'
                 }));
             }}
@@ -65,7 +67,7 @@ function ReportTallyNew()
             { label: '&Date', func: function () {
                 base.switchTo(new ReportTally({
                     expr: {left: [ {f: 'entered'}, 10 ]},
-                    empty: 'unknown',
+                    emptyTitle: 'unknown',
                     header: 'New Memberships by Date'
                 }));
             }},
@@ -78,14 +80,14 @@ function ReportTallyNew()
                             {f: 'class'}
                         ]
                     },
-                    empty: 'unknown',
+                    emptyTitle: 'unknown',
                     header: 'New Memberships by Date and Class'
                 }));
             }},
             { label: '&Hour', func: function () {
                 base.switchTo(new ReportTally({
                     expr: {left: [ {f: 'entered'}, 13 ]},
-                    empty: 'unknown',
+                    emptyTitle: 'unknown',
                     header: 'New Memberships by Hour'
                 }));
             }}
@@ -101,7 +103,8 @@ function ReportTally(params)
     var o = this;
     o.headerStr = params.header;
     o.expr = params.expr;
-    o.empty = params.empty;
+    o.emptyTitle = params.emptyTitle;
+    o.notEmptyTitle = params.notEmptyTitle;
     o.help = params.help;
     ReportTally.sup.constructor.call(o);
 }
@@ -123,20 +126,31 @@ ReportTally.prototype.body = function (cb) {
 
     function gotTotals(totals) {
         var body = [];
-        var grand = 0;
+        var grandTotal = 0;
+        var notEmptyTotal = 0;
         var collator =
             new Intl.Collator(undefined, { sensitivity: 'base' }).compare;
         Object.keys(totals).sort(collator).forEach(function (d) {
             body.push(tr(
                 td(totals[d], {className: 'Count'}),
-                td(d || o.empty)
+                td(d || o.emptyTitle)
             ));
-            grand += totals[d];
+            if (d) {
+                notEmptyTotal += totals[d];
+            }
+            grandTotal += totals[d];
         });
 
+        if (o.notEmptyTitle) {
+            body.push(tr(
+                {className: 'Total'},
+                td(notEmptyTotal, {className: 'Count'}),
+                td(o.notEmptyTitle)
+            ));
+        }
         body.push(tr(
             {className: 'Total'},
-            td(grand, {className: 'Count'}),
+            td(grandTotal, {className: 'Count'}),
             td('Grand total')
         ));
 
