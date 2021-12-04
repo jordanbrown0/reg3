@@ -3,6 +3,7 @@
 :: This is usually executed during server install.
 @echo off
 setlocal
+SETLOCAL ENABLEDELAYEDEXPANSION
 
 if "%1" NEQ "" goto usage
 
@@ -36,11 +37,11 @@ echo set servername=%COMPUTERNAME% > servername.bat
 %z% a %outz% servername.bat                                         > nul
 erase servername.bat
 
-echo ;!@Install@!UTF-8!                                              > tmp.cfg
+echo ;^^!@Install@^^!UTF-8^^!                                              > tmp.cfg
 echo Title="Reg3"                                                    >> tmp.cfg
 echo BeginPrompt="Do you want to install Reg3 client support?"       >> tmp.cfg
 echo RunProgram="Program\lib\SetupClient.bat"                        >> tmp.cfg
-echo ;!@InstallEnd@!                                                 >> tmp.cfg
+echo ;^^!@InstallEnd@^^!                                                 >> tmp.cfg
 
 copy /b Program\imported\7zSD-noadmin.sfx + tmp.cfg + %outz% %outexe% > nul
 erase tmp.cfg
