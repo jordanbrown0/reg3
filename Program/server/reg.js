@@ -1,4 +1,4 @@
-import { assert, log, status }  from './utils.js';
+import { assert, log, status, UserError }  from './utils.js';
 
 // Catch unhandled errors really early, to cover all cases.
 
@@ -300,9 +300,13 @@ async function methodCall(body, file) {
         // This is a programmer error.
         // It would be good if we could *both* return an error *and*
         // dump one on the Node.js console.
-        // Maybe we should have two exception classes, one for
-        // server-side programmer errors and one for caller errors.
-        log(e);
+        // Maybe we should have three exception classes:
+        // - Server-side programmer error
+        // - Caller-side programmer error
+        // - User error
+        if (!e instanceof UserError) {
+            log(e);
+        }
         return ({ error: e.toString() });
     }
     if (retval === undefined) {

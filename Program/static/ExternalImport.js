@@ -4,6 +4,7 @@ var externalImportSchema = [
         { field: 'table',
             label: 'Destination table',
             input: InputTablePicker,
+            default: 'members',
             required: true
         },
         { field: 'type', label: 'File type', required: true,
@@ -22,6 +23,7 @@ var externalImportSchema = [
                 utf8: 'UTF-8'
             }
         },
+        { field: 'key', label: 'Unique identifier field'}
     ],[
         { title: 'Field Map' },
         { field: 'map',
@@ -110,13 +112,18 @@ ExternalImport.prototype.activate = function () {
             textField: 'description',
             required: true
         },
-        {
-            field: 'zap',
-            label: 'Zap table first?',
-            input: InputBool
+        { field: 'existing', label: 'Existing records',
+            input: InputSelect,
+            default: 'keep',
+            options: {
+                keep: 'Keep existing record',
+                replace: 'Replace existing record',
+                zap: 'Zap all existing records',
+                add: 'Add duplicate'
+            }
         }
     ]];
-    var options = {}
+    var options = Editor.defaults(schema);
     var editor = new Editor(options, {
         schema: schema,
         doneButton: 'Import',
@@ -129,9 +136,9 @@ ExternalImport.prototype.activate = function () {
     editor.activate();
 };
 
-ExternalImport.prototype.import = function (r) {
+ExternalImport.prototype.import = function (options) {
     var o = this;
-    table.externalImport.get(r.map, function (rMap) {
+    table.externalImport.get(options.map, function (rMap) {
         var classMap = {};
         rMap.classMap.forEach(function (e) {
             classMap[e.from] = e.to;
@@ -143,17 +150,28 @@ ExternalImport.prototype.import = function (r) {
             e.to = e.to.toLowerCase();
         });
 
+        rMap.existing = options.existing;
+
         var t = table[rMap.table];
-        if (r.zap) {
-            t.zap(doImport);
-        } else {
-            doImport();
-        }
-        function doImport() {
-            t.externalImport(r.file, rMap, function () {
-                modal("Import complete", { ok: home });
-            });
-        }
+        t.externalImport(options.file, rMap, function (ret) {
+            var content = div();
+            if (options.existing == 'zap') {
+                content.appendChild(div('Zapped all existing records.'));
+            }
+            if (ret.added) {
+                content.appendChild(div(
+                    'Added ' + ret.added + ' new records.'));
+            }
+            if (ret.replaced) {
+                content.appendChild(div(
+                    'Replaced ' + ret.replaced + ' existing records.'));
+            }
+            if (ret.kept) {
+                content.appendChild(div(
+                    'Kept ' + ret.kept + ' existing records.'));
+            }
+            modal(content, { ok: home });
+        });
     });
 };
 

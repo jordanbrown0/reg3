@@ -58,11 +58,23 @@ function unreachable() {
     throw new Error('Reached point expected to be unreachable');
 }
 
+function UserError(msg) {
+    var o = this;
+    o.message = msg;
+    o.stack = (new Error()).stack;
+}
+
+UserError.prototype.toString = function () {
+    var o = this;
+    return (o.message);
+};
+
 export {
     assert,
     mkdate,
     log,
     status,
     streamWritePromise,
-    unreachable
+    unreachable,
+    UserError
 };

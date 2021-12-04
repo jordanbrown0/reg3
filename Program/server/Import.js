@@ -1,4 +1,4 @@
-import { mkdate, assert, log } from './utils.js';
+import { mkdate, assert, log, UserError } from './utils.js';
 import { DBMS } from './DBMS.js';
 import { DBF } from './DBFstream.js';
 import { CSV } from './CSV.js';
@@ -121,8 +121,15 @@ Import.formats.CSVh = {
 
 Import.import = async function (file, t, params) {
     let t0 = Date.now();
-    let n = 0;
+    let ret = {
+        kept: 0,
+        replaced: 0,
+        added: 0,
+    };
     let map = [];
+    var keyField = params.key ? params.key.toLowerCase() : null;
+    var keys = {};
+
     params.map.forEach(function (ent) {
         let cnvfunc = Import.converters[ent.conversion];
         assert(cnvfunc, 'Bad conversion '+ent.conversion);
@@ -137,37 +144,93 @@ Import.import = async function (file, t, params) {
     assert(format, 'Bad format '+params.type);
     var importer = format.import;
     assert(importer, 'No importer for '+params.type);
-    t.sync(false);
-    await importer(file.path, params, function (importRecord) {
-        if (importRecord._deleted) {
-            // Note:  dBASE deleted records have data preserved.
-            // Our deleted records do not; they are only a tombstone.
-            // Adding a deleted record with data would be a violation of the
-            // definition.
-            // Adding a tombstone would be pointless because this is a new
-            // record, from our DBMS's point of view.
-            // We just ignore dBASE deleted records.
-            return;
-        }
-        delete importRecord._deleted;
-
-        var r = {};
-        map.forEach(function (m) {
-            r[m.to] = m.convert(importRecord[m.from]);
-        });
-        for (var fieldName in params.contentMap) {
-            let v = params.contentMap[fieldName][r[fieldName]];
-            if (v) {
-                r[fieldName] = v;
+    try {
+        t.sync(false);
+        switch (params.existing) {
+        case 'keep':
+        case 'replace':
+            if (!keyField) {
+                throw new UserError('"Keep" and "Replace" modes require a key'
+                    + ' field in the import map.');
             }
-        };
+            break;
+        case 'zap':
+            t.zap();
+            break;
+        case 'add':
+            break;
+        }
+        await importer(file.path, params, function (importRecord) {
+            if (importRecord._deleted) {
+                // Note:  dBASE deleted records have data preserved.
+                // Our deleted records do not; they are only a tombstone.
+                // Adding a deleted record with data would be a violation of the
+                // definition.
+                // Adding a tombstone would be pointless because this is a new
+                // record, from our DBMS's point of view.
+                // We just ignore dBASE deleted records.
+                return;
+            }
+            delete importRecord._deleted;
 
-        t.add(null, r, null);
-        n++;
-    });
-    t.sync(true);
-    log('imported',n,'records from', file.originalname,
+            var r = {};
+            map.forEach(function (m) {
+                r[m.to] = m.convert(importRecord[m.from]);
+            });
+            for (var fieldName in params.contentMap) {
+                let v = params.contentMap[fieldName][r[fieldName]];
+                if (v) {
+                    r[fieldName] = v;
+                }
+            };
+
+            var k = keyField ? importRecord[keyField] : null;
+            if (k) {
+                if (keys[k]) {
+                    throw new UserError('Duplicate key "'+k+'" in imported data');
+                }
+                keys[k] = true;
+                var rOld = t.getOrNull(k);
+                if (rOld) {
+                    switch (params.existing) {
+                    case 'replace':
+                        // Existing record, delete and replace it.
+                        t.delete(k, null);
+                        t.add(k, r, null);
+                        ret.replaced++;
+                        break;
+                    case 'keep':
+                        // Existing record, keep it and discard the import.
+                        ret.kept++;
+                        break;
+                    case 'zap':
+                        // Should not be possible, means duplicate key in import,
+                        // which we checked for above.
+                        unreachable();
+                    case 'add':
+                        t.add(null, r, null);
+                        ret.added++;
+                        break;
+                    default:
+                        unreachable();
+                    }
+                } else {
+                    // We have a key, but no existing record; add it.
+                    t.add(k, r, null);
+                    ret.added++;
+                }
+            } else {
+                // No key, just add.
+                t.add(null, r, null);
+                ret.added++;
+            }
+        });
+    } finally {
+        t.sync(true);
+    }
+    log('imported',ret.added+ret.replaced,'records from', file.originalname,
         'took', Date.now()-t0, 'ms');
+    return (ret);
 };
 
 export { Import };

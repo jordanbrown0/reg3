@@ -5,6 +5,7 @@ var externalExportSchema = [
         { field: 'table',
             label: 'Source table',
             input: InputTablePicker,
+            default: 'members',
             required: true
         },
         { field: 'type', label: 'File type', required: true,
@@ -88,7 +89,7 @@ ExternalExport.prototype.activate = function () {
             required: true
         }
     ]];
-    var options = {}
+    var options = Editor.defaults(schema);
     var editor = new Editor(options, {
         schema: schema,
         doneButton: 'Export',
