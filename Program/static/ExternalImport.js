@@ -39,6 +39,7 @@ var externalImportSchema = [
                         options: {
                             '': '',
                             number: 'Number',
+                            phone: 'Telephone number',
                             datev2: 'Reg v2 date',
                             mmddyyyy: 'mm/dd/yyyy or mm/dd/yy date',
                             ddmmyyyy: 'dd/mm/yyyy or dd/mm/yy date',

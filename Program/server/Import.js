@@ -109,6 +109,24 @@ Import.converters.dateMS = function (v) {
     return (mkdate(year, month, day, hour, minute));
 };
 
+Import.converters.phone = function (v) {
+    if (!v) {
+        return (undefined);
+    }
+    let result;
+
+    result = v.match(
+        '^(`?\\+?1)? *([2-9][0-9][0-9]) *-*/*([2-9][0-9][0-9]) *-*([0-9][0-9][0-9][0-9])$')
+        || v.match(
+        '^(`?\\+?1)? *\\(([2-9][0-9][0-9])\\) *([2-9][0-9][0-9]) *-*([0-9][0-9][0-9][0-9])$');
+    if (result) {
+        var [ , , p1, p2, p3 ] = result;
+        return (p1 + '-' + p2 + '-' + p3);
+    }
+
+    return (v);
+};
+
 Import.formats = {};
 Import.formats.CSV = CSV;
 Import.formats.DBF = DBF;
