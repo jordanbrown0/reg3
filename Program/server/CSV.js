@@ -1,6 +1,6 @@
 // Read and write CSV files
 import fs from 'fs';
-import { assert, streamWritePromise } from './utils.js';
+import { assert, log, streamWrapper, streamWritePromise } from './utils.js';
 
 var CSV = {};
 
@@ -19,7 +19,7 @@ CSV.import = async function(path, params, cb) {
     var state = NORMAL;
     var curField = '';
     var r = [];
-    stream.on('data', function (s) {
+    function dataHandler(s) {
         var start = 0;
         var i;
         for (i = 0; i < s.length; i++) {
@@ -146,8 +146,8 @@ CSV.import = async function(path, params, cb) {
             cb(r);
             r = [];
         }
-    });
-
+    }
+    stream.on('data', streamWrapper(dataHandler));
     return (new Promise(function (resolve, reject) {
         stream.on('end', function () {
             // Note:  we ignore a final line that does not end in a newline.
@@ -156,6 +156,11 @@ CSV.import = async function(path, params, cb) {
             // line which does not end in a newline.
             stream.close();
             resolve();
+        });
+        stream.on('error', function (e) {
+            log('CSV import encountered an error: '+e.toString());
+            stream.close();
+            reject(e);
         });
     }));
 };

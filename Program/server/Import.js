@@ -186,6 +186,7 @@ Import.import = async function (file, t, params) {
 
             var k = keyField ? importRecord[keyField] : null;
             if (k) {
+                k = k.toString();
                 if (keys[k]) {
                     throw new UserError('Duplicate key "'+k+'" in imported data');
                 }

@@ -304,7 +304,7 @@ async function methodCall(body, file) {
         // - Server-side programmer error
         // - Caller-side programmer error
         // - User error
-        if (!e instanceof UserError) {
+        if (!(e instanceof UserError)) {
             log(e);
         }
         return ({ error: e.toString() });

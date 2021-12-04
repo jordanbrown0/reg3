@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { Charset } from './Charset.js';
-import { assert, mkdate, log } from './utils.js';
+import { assert, log, mkdate, streamWrapper } from './utils.js';
 
 function DBFField(off, name, type, length, dec) {
     var o = this;
@@ -79,7 +79,7 @@ DBFstream.import = async function(fileName, params, cb) {
     var version;
     var hdrSize;
 
-    stream.on('data', function (chunk) {
+    function dataHandler(chunk) {
         chunks.push(chunk);
         have += chunk.length;
         while (have >= need) {
@@ -138,13 +138,19 @@ DBFstream.import = async function(fileName, params, cb) {
                 break;
             }
         }
-    });
+    }
+    stream.on('data', streamWrapper(dataHandler));
 
     return (new Promise(function (resolve, reject) {
         stream.on('end', function () {
             // Note:  we ignore a partial record.
             stream.close();
             resolve();
+        });
+        stream.on('error', function (e) {
+            log('DBF import encountered an error: '+e.toString());
+            stream.close();
+            reject(e);
         });
     }));
 };

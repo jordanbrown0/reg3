@@ -69,11 +69,23 @@ UserError.prototype.toString = function () {
     return (o.message);
 };
 
+function streamWrapper(f) {
+    return (function () {
+        var stream = this;
+        try {
+            f.apply(stream, arguments);
+        } catch (e) {
+            stream.emit('error', e);
+        }
+    });
+}
+
 export {
     assert,
     mkdate,
     log,
     status,
+    streamWrapper,
     streamWritePromise,
     unreachable,
     UserError
