@@ -166,6 +166,7 @@ var stationSchema = [
                 { newMember: 'Add new member' },
                 { admin: 'Administration' },
                 { reports: 'Reports' },
+                { allDays: 'Issue classes on all days' },
                 { upgrade: 'Process upgrades' },
                 { adHocUpgrades: 'Ad hoc upgrades (requires "Process upgrades")' },
                 { transfer: 'Process transfers' },

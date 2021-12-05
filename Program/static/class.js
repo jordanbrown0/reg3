@@ -93,7 +93,7 @@ function ClassPicker(params)
     var myparams = {
         table: table.classes,
         schema: classSchema,
-        canShowAll: true
+        canShowAll: cfg.permissions.includes('allDays')
     };
     Object.assign(myparams, params);
     ClassManager.sup.constructor.call(o, myparams);
