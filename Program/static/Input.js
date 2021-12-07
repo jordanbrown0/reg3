@@ -157,6 +157,37 @@ InputText.prototype.correct = function () {
     }
 };
 
+function InputPhone(params) {
+    var o = this;
+    InputPhone.sup.constructor.call(o, params);
+}
+
+extend(InputText, InputPhone);
+
+InputPhone.prototype.correct = function () {
+    var o = this;
+    if (o.params.readOnly) {
+        return;
+    }
+
+    var v = o.get();
+    if (v == undefined) {
+        return;
+    }
+    var newv = v;
+
+    var result = newv.match(
+        '^ *(`?\\+?1)?[( ]*([2-9][0-9][0-9])[-/). ]*([2-9][0-9][0-9])[-. ]*([0-9][0-9][0-9][0-9]) *$');
+    if (result) {
+        var [ , , p1, p2, p3 ] = result;
+        var newv = '+1 (' + p1 + ')' + p2 + '-' + p3;
+    }
+
+    if (newv != v) {
+        o.set(newv);
+    }
+};
+
 function InputInt(params)
 {
     var o = this;

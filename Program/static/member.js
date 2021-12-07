@@ -22,7 +22,7 @@ Member.schema = [
         { field: 'state', label: 'State' },
         { field: 'postcode', label: 'Postcode (ZIP)' },
         { field: 'country', label: 'Country' },
-        { field: 'phone', label: 'Phone' },
+        { field: 'phone', label: 'Phone', input: InputPhone },
         { field: 'notes', label: 'Notes' }
     ],
     [
