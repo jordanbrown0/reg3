@@ -34,10 +34,18 @@ StationManager.prototype.summarize = function (k, r) {
             serverName.appendChild(r.serverName);
         });
     }
+    // NEEDSWORK UPGRADE old versions have metaclasses as a string; new
+    // versions have it as an array.  How should we really handle upgrades
+    // like this?  Ideally, we would not keep legacy interpretations like this
+    // around indefinitely.  However, it's also desirable to be able to
+    // upgrade old conventions to use new software.
+    if (typeof(r.metaclasses) == 'string') {
+        r.metaclasses = [ r.metaclasses ];
+    }
     return (tr(
         serverName,
         td(r.stationName, { id: 'name' }),
-        td(r.metaclasses, { id: 'metaclasses' }),
+        td(r.metaclasses ? r.metaclasses.join(', ') : '', { id: 'metaclasses' }),
         labelName
     ));
 };
@@ -82,7 +90,22 @@ StationEdit.prototype.activate = function () {
     });
 };
 
-// NEEDSWORK:  A > S > StationEdit should maybe create record if needed.
+StationEdit.prototype.get = function (cb) {
+    var o = this;
+    StationEdit.sup.get.call(o, function (r) {
+        // NEEDSWORK UPGRADE old versions have metaclasses as a string; new
+        // versions have it as an array.  How should we really handle upgrades
+        // like this?  Ideally, we would not keep legacy interpretations like this
+        // around indefinitely.  However, it's also desirable to be able to
+        // upgrade old conventions to use new software.
+        if (typeof(r.metaclasses) == 'string') {
+            r.metaclasses = [ r.metaclasses ];
+        }
+        cb(r);
+    });
+};
+
+// NEEDSWORK:  A > C > StationEdit should maybe create record if needed.
 
 var Station = {};
 
@@ -147,7 +170,8 @@ var stationSchema = [
             filter: Station.labelPrinterFilter,
             default: ''
         },
-        { field: 'metaclasses', label: 'Metaclasses', default: '' }
+        { field: 'metaclasses', label: 'Metaclasses', input: InputSelectMultiDB,
+            table: 'metaclasses', keyField: 'name', textField: 'description'},
     ],
     [
         { title: 'Offline Operations' },

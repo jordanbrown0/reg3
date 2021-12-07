@@ -394,6 +394,50 @@ verbs.array = function (r, args) {
     return (ret);
 };
 
+// { empty: [ v, ... ] }
+// Returns true if all v are empty.
+// v is empty if it is null, undefined, an empty array, or an empty object.
+verbs.empty = function (r, args) {
+    var o = this;
+    for (let i = 0; i < args.length; i++) {
+        let a = o.exec(r, args[i]);
+        if (a === null || a === undefined) {
+            continue;
+        }
+        if (a instanceof Array) {
+            if (a.length > 0) {
+                return (false);
+            }
+            continue;
+        }
+        if (a instanceof Object) {
+            for (var p in a) {
+                return (false);
+            }
+            continue;
+        }
+        return (false);
+    }
+    return (true);
+};
+
+// { overlaps: [ a, b ] }
+// True if there is at least one element that is common to both arguments
+verbs.overlaps = function (r, args) {
+    let o = this;
+    assert(args.length == 2);
+    let a = o.exec(r, args[0]);
+    assert(a instanceof Array);
+    let b = o.exec(r, args[1]);
+    assert(b instanceof Array);
+    for (let i = 0; i < a.length; i++) {
+        if (b.includes(a[i])) {
+            return (true);
+        }
+    }
+    return (false);
+};
+
 // { dateTime: [] }
 // Returns the current date and time.
 // This returns a string rather than a Date, because the JSON-RPC and

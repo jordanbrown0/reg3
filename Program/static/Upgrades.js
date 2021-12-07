@@ -5,7 +5,8 @@ var upgradesSchema = [
         { field: 'to', label: 'To class', required: true, input: InputClass },
         { field: 'amount', label: 'Amount', required: true,
             input: InputCurrency },
-        { field: 'metaclass', label: 'Metaclass' },
+        { field: 'metaclasses', label: 'Metaclasses', input: InputSelectMultiDB,
+            table: 'metaclasses', keyField: 'name', textField: 'description'},
         { field: 'description', label: 'Description' },
         { field: 'start', label: 'Start date', input: InputDate },
         { field: 'end', label: 'End date', input: InputDate },
@@ -43,7 +44,7 @@ UpgradesManager.prototype.summarize = function (k, r) {
         tdFrom,
         tdTo,
         td(r.amount, { id: 'amount' }),
-        td(r.description, { id: 'description' })
+        td(r.description || '', { id: 'description' })
     ));
 };
 

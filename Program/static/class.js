@@ -6,7 +6,8 @@ var classSchema = [
             required: true },   // Float?  Does anybody need pennies?
         { field: 'badgeOK', label: 'OK for badging?', input: InputBool,
             default: true },
-        { field: 'metaclass', label: 'Metaclass' },
+        { field: 'metaclasses', label: 'Metaclasses', input: InputSelectMultiDB,
+            table: 'metaclasses', keyField: 'name', textField: 'description'},
         { field: 'onBadge', label: 'Print on badge' },
         { field: 'phoneLabel', label: 'Print phone number on second label',
             input: InputBool, default: false },
@@ -41,7 +42,7 @@ ClassManager.prototype.summarize = function (k, r) {
         td(cfg.currencyPrefix + r.amount + cfg.currencySuffix, {id: 'amount'}),
         td(r.code, { id: 'code' }),
         td(r.description, { id: 'description' }),
-        td(r.metaclass || '', { id: 'metaclass' }),
+        td(r.metaclasses ? r.metaclasses.join(', ') : '', { id: 'metaclass' }),
         td(LDate.fromJSON(r.start).toDisplayDate(), { id: 'start' }),
         td(LDate.fromJSON(r.end).toDisplayDate(), { id: 'end' })
     ));
@@ -137,12 +138,17 @@ Class.getDescription = function (id, cb) {
 // Return a filter expression that checks for metaclass and start/end times.
 // Applicable to both classes and upgrades.
 Class.getFilter = function () {
-    var f = { and: [] };
-    if (cfg.metaclasses) {
-        f.and.push(
-            { includes: [ cfg.metaclasses, { f: 'metaclass' } ] }
-        );
-    }
+    var f = { and: [ ] };
+
+    f.and.push(
+        { or: [
+            { empty: { f: 'metaclasses' } },
+            { overlaps: [
+                { f: 'metaclasses' },
+                { c: [ cfg.metaclasses || [] ] }
+            ]}
+        ]}
+    );
 
     var nowExpr =  cfg.offlineRealTime
         ? { date: [] }

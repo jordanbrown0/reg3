@@ -73,6 +73,7 @@ function AdminMember()
     AdminMember.sup.constructor.call(o, {
         items: [
             { label: '&Classes', page: ClassManager },
+            { label: '&Metaclasses', page: MetaclassesManager },
             { label: '&Upgrades', page: UpgradesManager },
             { label: 'Categories', page: CategoriesManager },
             { label: 'Corrections', page: CorrectionsManager },
