@@ -1,98 +1,3 @@
-function DBManager(params) {
-    var o = this;
-    assertParams(params, 'table');
-
-    o.params = params;
-    if (o.params.help) {
-        o.help = o.params.help;
-    }
-    DBManager.sup.constructor.call(o, 'div');
-    o.addClass(getClassName(o));
-    // Lazy, to avoid forward references at load time.
-    DBManager.prototype.Edit = DBEdit;
-    DBManager.prototype.Add = DBAdd;
-}
-extend(DElement, DBManager);
-
-DBManager.prototype.activate = function () {
-    var o = this;
-    list = new List({
-        table: o.params.table,
-        filter: o.getFilter(),
-        summarize: function (k, r) { return (o.summarize(k, r)); },
-        header: o.header(),
-        pick: function (k, r) { o.pick(k, r); },
-        sort: o.sort,
-        cancel: function () { o.cancel(); },
-        limit: 20
-    });
-    o.appendChild(list);
-    if (o.params.canShowAll) {
-        var allText = new DElement('span', 'All');
-        base.addNav([
-            { label: allText, func: function () {
-                if (list.getFilter()) {
-                    allText.removeChildren();
-                    allText.appendChild('Limit');
-                    list.setFilter(null);
-                } else {
-                    list.setFilter(o.getFilter());
-                    allText.removeChildren();
-                    allText.appendChild('All');
-                }
-                list.refresh();
-            } }
-        ]);
-    }
-    if (o.params.canAdd) {
-        base.addNav([
-            { label: 'Add', func: function () { o.add(); } }
-        ]);
-    }
-    list.activate();
-};
-
-DBManager.prototype.title = function () {
-    var o = this;
-    return (o.params.titleManager);
-};
-
-DBManager.prototype.getFilter = function () {
-    var o = this;
-    return (undefined);
-};
-
-DBManager.prototype.summarize = function (k, r) {
-    return (r.values().join(' / '));
-};
-
-DBManager.prototype.pick = function (k, r) {
-    var o = this;
-    var params = Object.assign({}, o.params, {
-        help: o.params.helpEdit
-    });
-    base.switchTo(new o.Edit(k, params));
-};
-
-DBManager.prototype.add = function () {
-    var o = this;
-    var params = Object.assign({}, o.params, {
-        help: o.params.helpAdd || o.params.helpEdit
-    });
-    base.switchTo(new o.Add(params));
-};
-
-DBManager.prototype.cancel = function () {
-    home();
-};
-
-DBManager.prototype.header = function () {
-    return (null);
-};
-
-// Default is no sorting.
-DBManager.prototype.sort = null;
-
 function DBEdit(k, params) {
     var o = this;
 
@@ -273,3 +178,98 @@ DBAdd.prototype.title = function () {
     var o = this;
     return (o.params.titleAdd);
 };
+
+function DBManager(params) {
+    var o = this;
+    assertParams(params, 'table');
+
+    o.params = params;
+    if (o.params.help) {
+        o.help = o.params.help;
+    }
+    DBManager.sup.constructor.call(o, 'div');
+    o.addClass(getClassName(o));
+}
+extend(DElement, DBManager);
+
+DBManager.prototype.Edit = DBEdit;
+DBManager.prototype.Add = DBAdd;
+
+DBManager.prototype.activate = function () {
+    var o = this;
+    list = new List({
+        table: o.params.table,
+        filter: o.getFilter(),
+        summarize: function (k, r) { return (o.summarize(k, r)); },
+        header: o.header(),
+        pick: function (k, r) { o.pick(k, r); },
+        sort: o.sort,
+        cancel: function () { o.cancel(); },
+        limit: 20
+    });
+    o.appendChild(list);
+    if (o.params.canShowAll) {
+        var allText = new DElement('span', 'All');
+        base.addNav([
+            { label: allText, func: function () {
+                if (list.getFilter()) {
+                    allText.removeChildren();
+                    allText.appendChild('Limit');
+                    list.setFilter(null);
+                } else {
+                    list.setFilter(o.getFilter());
+                    allText.removeChildren();
+                    allText.appendChild('All');
+                }
+                list.refresh();
+            } }
+        ]);
+    }
+    if (o.params.canAdd) {
+        base.addNav([
+            { label: 'Add', func: function () { o.add(); } }
+        ]);
+    }
+    list.activate();
+};
+
+DBManager.prototype.title = function () {
+    var o = this;
+    return (o.params.titleManager);
+};
+
+DBManager.prototype.getFilter = function () {
+    var o = this;
+    return (undefined);
+};
+
+DBManager.prototype.summarize = function (k, r) {
+    return (r.values().join(' / '));
+};
+
+DBManager.prototype.pick = function (k, r) {
+    var o = this;
+    var params = Object.assign({}, o.params, {
+        help: o.params.helpEdit
+    });
+    base.switchTo(new o.Edit(k, params));
+};
+
+DBManager.prototype.add = function () {
+    var o = this;
+    var params = Object.assign({}, o.params, {
+        help: o.params.helpAdd || o.params.helpEdit
+    });
+    base.switchTo(new o.Add(params));
+};
+
+DBManager.prototype.cancel = function () {
+    home();
+};
+
+DBManager.prototype.header = function () {
+    return (null);
+};
+
+// Default is no sorting.
+DBManager.prototype.sort = null;
