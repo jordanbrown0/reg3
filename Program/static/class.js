@@ -25,11 +25,11 @@ function ClassManager()
         schema: classSchema,
         canAdd: true,
         canDelete: true,
-        keyField: 'code'
-    });
-    ClassManager.prototype.Edit = ClassEdit;
-    ClassManager.prototype.Add = ClassAdd;
+        keyField: 'code',
+        titleEdit: 'Edit class...',
+        titleAdd: 'New class...'
 
+    });
 }
 extend(DBManager, ClassManager);
 
@@ -60,29 +60,6 @@ ClassManager.prototype.header = function () {
         th('Start'),
         th('End')
     ));
-};
-
-function ClassEdit(/*args*/)
-{
-    ClassEdit.sup.constructor.apply(this, arguments);
-}
-
-extend(DBEdit, ClassEdit);
-
-ClassEdit.prototype.title = function () {
-    // NEEDSWORK this should probably include the class code and description.
-    return ('Edit class...');
-};
-
-function ClassAdd(/*args*/)
-{
-    ClassAdd.sup.constructor.apply(this, arguments);
-}
-
-extend(DBAdd, ClassAdd);
-
-ClassAdd.prototype.title = function () {
-    return ('New class...');
 };
 
 // NEEDSWORK ClassManager and ClassPicker should perhaps be the same,
