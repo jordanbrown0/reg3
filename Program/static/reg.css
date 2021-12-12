@@ -196,7 +196,7 @@ html, body {
  * For some reason, input and button don't seem to inherit font-size from
  * their parent.  Everything else does...
  */
-input, button {
+input, button, select {
     font-size: inherit;
 }
 
