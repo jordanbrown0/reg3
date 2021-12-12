@@ -226,19 +226,32 @@ Editor.getSchema = function (name, orig) {
     return schemaCopy;
 };
 
+Editor.fieldNames = function (schema) {
+    var ret = [];
+    schema.forEach(function (page) {
+        page.forEach(function (ent) {
+            if (ent.field) {
+                ret.push(ent.field);
+            }
+        });
+    });
+    return (ret);
+};
+
 function EditorPage(schema, params) {
     var o = this;
     EditorPage.sup.constructor.call(o, 'table');
     o.entries = [];
     schema.forEach(function (schemaEntry) {
-        var e;
-        if (schemaEntry.field) {
-            e = new EditorEntry(schemaEntry, params);
+        if (schemaEntry.hidden) {
+            // ignore it
+        } else if (schemaEntry.field) {
+            var e = new EditorEntry(schemaEntry, params);
             o.entries.push(e);
+            o.appendChild(e);
         } else if (schemaEntry.title) {
-            e = new EditorTitle(schemaEntry);
+            o.appendChild(new EditorTitle(schemaEntry));
         }
-        o.appendChild(e);
     });
 }
 extend(DElement, EditorPage);

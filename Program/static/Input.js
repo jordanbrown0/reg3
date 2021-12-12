@@ -387,7 +387,6 @@ function InputSelect(params)
 {
     var o = this;
     var content = new DElement('select', {
-        id: params.id,
         oninput: function () {
             if (o.params.oninput) {
                 o.params.oninput();
@@ -397,6 +396,10 @@ function InputSelect(params)
             o.value = o.n.value;
         }
     });
+    if (params.id) {
+        content.setProperties({id: params.id});
+    }
+
     InputSelect.sup.constructor.call(o, content, params);
     if (params.options) {
         o.setOptions(params.options);
@@ -498,6 +501,27 @@ extend(InputSelect, InputDBPicker);
 InputDBPicker.toDOM = function (value, params) {
     return (InputDBLookup.toDOM(value, params));
 };
+
+// Params:
+// table:  Either a DBTable object, or the name of a table.
+function InputFieldPicker(params)
+{
+    var o = this;
+    InputFieldPicker.sup.constructor.call(o, params);
+
+    var t = params.table;
+    if (!(t instanceof DBTable)) {
+        t = table[t];
+    }
+    var opts = [];
+    t.fieldNames().forEach(function (f) {
+        var opt = {};
+        opt[f] = f;
+        opts.push(opt);
+    });
+    o.setOptions(opts);
+}
+extend(InputSelect, InputFieldPicker);
 
 function InputClass(params)
 {

@@ -127,8 +127,9 @@ DBEdit.prototype.title = function () {
 };
 
 // Perhaps this should be a subclass of DBEdit.
-function DBAdd(params) {
+function DBAdd(r, params) {
     var o = this;
+    o.r = r;
     DBAdd.sup.constructor.call(o,'div');
     o.params = params;
     if (o.params.help) {
@@ -139,16 +140,14 @@ extend(DElement, DBAdd);
 
 DBAdd.prototype.activate = function () {
     var o = this;
-
-    o.r = {};
     o.params.table.applyDefaults(o.r);
     if (o.params.keyField) {
         Editor.setReadOnly(o.params.schema, o.params.keyField, false);
     }
     var editor = new Editor(o.r, {
         schema: o.params.schema,
-        doneButton: 'Add',
-        done: function () {
+        doneButton: o.params.doneButton || 'Add',
+        done: o.params.done || function () {
             if (working(true)) {
                 return;
             }
@@ -260,7 +259,7 @@ DBManager.prototype.add = function () {
     var params = Object.assign({}, o.params, {
         help: o.params.helpAdd || o.params.helpEdit
     });
-    base.switchTo(new o.Add(params));
+    base.switchTo(new o.Add({}, params));
 };
 
 DBManager.prototype.cancel = function () {

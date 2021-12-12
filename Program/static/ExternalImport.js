@@ -1,3 +1,26 @@
+var externalImportAddSchema = [
+    [
+        { field: 'description', label: 'Description', default: '', required: true },
+        { field: 'table',
+            label: 'Destination table',
+            input: InputTablePicker,
+            // Default from the primary schema is used.
+            required: true
+        }
+    ]
+];
+
+// This is the entry for the field picker, extracted out so that it can
+// be patched to specify which table we're importing into.
+// NEEDSWORK:  It is bothersome (but not harmful) that we patch a global
+// rather than somehow carrying the information on a per-instance basis.
+var externalImportToSchemaEntry = {
+    field: 'to',
+    input: InputFieldPicker,
+    required: true,
+    // table will be patched in at load time.
+};
+
 var externalImportSchema = [
     [
         { field: 'description', label: 'Description', default: '', required: true },
@@ -5,7 +28,7 @@ var externalImportSchema = [
             label: 'Destination table',
             input: InputTablePicker,
             default: 'members',
-            required: true
+            readOnly: true
         },
         { field: 'type', label: 'File type', required: true,
             input: InputSelect,
@@ -34,7 +57,7 @@ var externalImportSchema = [
                 input: InputObject,
                 schema: [
                     { field: 'from', input: InputText, required: true },
-                    { field: 'to', input: InputText, required: true },
+                    externalImportToSchemaEntry,
                     { field: 'conversion', input: InputSelect,
                         options: {
                             '': '',
@@ -66,9 +89,45 @@ var externalImportSchema = [
     ]
 ];
 
+// ExternalImportAdd is the first step in adding an import map.
+// It collects the description and table, patches the schema so
+// that the field selector uses the right table, and then hands
+// it off to the generic DBAdd.
+function ExternalImportAdd(r, params) {
+    var o = this;
+    o.orig_params = params;
+    params = Object.assign({}, params, {
+        schema: externalImportAddSchema,
+        doneButton: 'Continue',
+        done: function () {
+            externalImportToSchemaEntry.table = o.r.table;
+            base.switchTo(new DBAdd(o.r, o.orig_params));
+        }
+    });
+    ExternalImportAdd.sup.constructor.call(o, r, params);
+}
+extend(DBAdd, ExternalImportAdd);
+
+// Subclass of DBEdit that intercepts retrieving the record and
+// patches the edit schema so that the field selector uses the
+// right table.
+function ExternalImportEdit(k, params) {
+    var o = this;
+    ExternalImportEdit.sup.constructor.call(o, k, params);
+}
+extend(DBEdit, ExternalImportEdit);
+
+ExternalImportEdit.prototype.get = function (cb) {
+    var o = this;
+    ExternalImportEdit.sup.get.call(o, function (r) {
+        externalImportToSchemaEntry.table = r.table;
+        cb(r);
+    });
+};
+
 function ExternalImportManager() {
     var o = this;
-    params = {
+    var params = {
         table: table.externalImport,
         schema: externalImportSchema,
         canAdd: true,
@@ -87,6 +146,9 @@ extend(DBManager, ExternalImportManager);
 ExternalImportManager.prototype.summarize = function (k, r) {
     return (r.description);
 };
+
+ExternalImportManager.prototype.Add = ExternalImportAdd;
+ExternalImportManager.prototype.Edit = ExternalImportEdit;
 
 function ExternalImport()
 {

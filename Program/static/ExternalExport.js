@@ -1,4 +1,30 @@
 // NEEDSWORK InputMulti mechanism to allow reordering fields.
+var externalExportAddSchema = [
+    [
+        { field: 'description',
+            label: 'Description',
+            required: true
+        },
+        { field: 'table',
+            label: 'Source table',
+            input: InputTablePicker,
+            // Default from the primary schema is used.
+            required: true
+        }
+    ]
+];
+
+// This is the entry for the field picker, extracted out so that it can
+// be patched to specify which table we're exporting.
+// NEEDSWORK:  It is bothersome (but not harmful) that we patch a global
+// rather than somehow carrying the information on a per-instance basis.
+var externalExportFromSchemaEntry = {
+    field: 'from',
+    input: InputFieldPicker,
+    required: true,
+    // table will be patched in at load time.
+};
+
 var externalExportSchema = [
     [
         { field: 'description', label: 'Description', default: '', required: true },
@@ -6,7 +32,7 @@ var externalExportSchema = [
             label: 'Source table',
             input: InputTablePicker,
             default: 'members',
-            required: true
+            readOnly: true
         },
         { field: 'type', label: 'File type', required: true,
             input: InputSelect,
@@ -33,7 +59,7 @@ var externalExportSchema = [
             params: {
                 input: InputObject,
                 schema: [
-                    { field: 'from', input: InputText, required: true },
+                    externalExportFromSchemaEntry,
                     { field: 'to', input: InputText, required: true },
                     // { field: 'conversion', input: InputSelect,
                         // options: {
@@ -49,9 +75,45 @@ var externalExportSchema = [
     ]
 ];
 
+// ExternalExportAdd is the first step in adding an export map.
+// It collects the description and table, patches the schema so
+// that the field selector uses the right table, and then hands
+// it off to the generic DBAdd.
+function ExternalExportAdd(r, params) {
+    var o = this;
+    o.orig_params = params;
+    params = Object.assign({}, params, {
+        schema: externalExportAddSchema,
+        doneButton: 'Continue',
+        done: function () {
+            externalExportFromSchemaEntry.table = o.r.table;
+            base.switchTo(new DBAdd(o.r, o.orig_params));
+        }
+    });
+    ExternalExportAdd.sup.constructor.call(o, r, params);
+}
+extend(DBAdd, ExternalExportAdd);
+
+// Subclass of DBEdit that intercepts retrieving the record and
+// patches the edit schema so that the field selector uses the
+// right table.
+function ExternalExportEdit(k, params) {
+    var o = this;
+    ExternalExportEdit.sup.constructor.call(o, k, params);
+}
+extend(DBEdit, ExternalExportEdit);
+
+ExternalExportEdit.prototype.get = function (cb) {
+    var o = this;
+    ExternalExportEdit.sup.get.call(o, function (r) {
+        externalExportFromSchemaEntry.table = r.table;
+        cb(r);
+    });
+};
+
 function ExternalExportManager() {
     var o = this;
-    params = {
+    var params = {
         table: table.externalExport,
         schema: externalExportSchema,
         canAdd: true,
@@ -68,6 +130,9 @@ extend(DBManager, ExternalExportManager);
 ExternalExportManager.prototype.summarize = function (k, r) {
     return (r.description);
 };
+
+ExternalExportManager.prototype.Add = ExternalExportAdd;
+ExternalExportManager.prototype.Edit = ExternalExportEdit;
 
 function ExternalExport()
 {

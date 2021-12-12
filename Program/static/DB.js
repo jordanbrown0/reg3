@@ -170,3 +170,9 @@ DBTable.prototype.zap = function  (cb) {
     var o = this;
     rpc.DBzap(o.dbName, o.tName, cb);
 };
+
+DBTable.prototype.fieldNames = function () {
+    var o = this;
+    var schema = Editor.getSchema(o.tName, o.schema);
+    return (Editor.fieldNames(schema));
+};

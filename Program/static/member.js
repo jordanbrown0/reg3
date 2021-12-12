@@ -41,7 +41,8 @@ Member.schema = [
         },
         { field: 'transferto', label: 'Transferred to', readOnly: true,
             input: InputDBLookup, table: 'members', textField: Member.name
-        }
+        },
+        { field: 'void', hidden: true }
     ],
     [
         { title: 'Categories' },
