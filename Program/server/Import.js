@@ -213,6 +213,8 @@ Import.import = async function (file, t, params) {
                     case 'replace':
                         // Existing record, delete and replace it.
                         t.delete(k, null);
+                        // Remember that we are using a fixed key, so this will
+                        // revive the deleted record.
                         t.add(k, r, null);
                         ret.replaced++;
                         break;

@@ -1,5 +1,8 @@
 // Front end for DBMS
 
+var db = {};
+var table = {};
+
 // Create up a reference to a DB (a collection of tables).
 //
 // Params:
