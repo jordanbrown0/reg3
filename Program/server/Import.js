@@ -213,7 +213,7 @@ Import.import = async function (file, t, params) {
                     case 'replace':
                         // Existing record, delete and replace it.
                         t.delete(k, null);
-                        t.add(k, r, null);
+                        t.add(k, r);
                         ret.replaced++;
                         break;
                     case 'keep':
@@ -225,7 +225,7 @@ Import.import = async function (file, t, params) {
                         // which we checked for above.
                         unreachable();
                     case 'add':
-                        t.add(null, r, null);
+                        t.add(null, r);
                         ret.added++;
                         break;
                     default:
@@ -233,12 +233,12 @@ Import.import = async function (file, t, params) {
                     }
                 } else {
                     // We have a key, but no existing record; add it.
-                    t.add(k, r, null);
+                    t.add(k, r);
                     ret.added++;
                 }
             } else {
                 // No key, just add.
-                t.add(null, r, null);
+                t.add(null, r);
                 ret.added++;
             }
         });

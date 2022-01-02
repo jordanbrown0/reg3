@@ -10,23 +10,7 @@ function Base()
         // onfocus: function () { console.log('Base focus'); },
         // onblur: function () { console.log('Base blur'); }
     });
-    var help = new Button('?', {
-        onclick: function () { Help.pop(); },
-        id: 'headerHelp'
-    });
-    rpc.release(function (Release) {
-        help.setProperties({title: Release.name});
-    });
-    o.clock = new DElement('div');
-    o.numberRemaining = new DElement('div');
-    var rightText = new DElement('div', { id: 'rightText' }, o.clock, o.numberRemaining);
-    var right = new DElement('span', { id: 'headerClock' }, rightText, help);
-
-    o.title = new DElement('span', { id: 'headerTitle'});
-    o.header = new DElement('div', { className: 'Header' },
-        o.title,
-        right
-    );
+    o.header = new Header();
     o.body = new DElement('div', { className: 'Body' });
     o.active = new DElement('div');
     o.navBar = new NavBar();
@@ -38,8 +22,7 @@ extend(DElement, Base);
 
 Base.prototype.activate = function () {
     var o = this;
-    o.tick();
-    setInterval(function () { o.tick(); }, 60*1000);
+    o.header.activate();
 };
 
 Base.prototype.switchTo = function (n) {
@@ -90,7 +73,7 @@ Base.prototype.switchToNoDeactivate = function (n) {
                 }
             ]);
     }
-    o.title.replaceChildren(n.title instanceof Function ? n.title() : n.title);
+    o.header.setTitle(n.title instanceof Function ? n.title() : n.title);
     working(false);
     Help.update();
     // Caution:  n.activate may be asynchronous, and it has no done callback.
@@ -121,24 +104,6 @@ Base.prototype.setNav = function (a) {
 Base.prototype.addCancel = function (f) {
     var o = this;
     o.addNav([{ label: 'Cancel', key: 'Escape', order: 0, func: f }]);
-};
-
-Base.prototype.tick = function () {
-    var o = this;
-    rpc.eval(null, {dateTime: []}, function (d) {
-        o.clock.replaceChildren(LDate.fromJSON(d).toDisplay({seconds: false}));
-        Server.getMembershipNumbers(function (mn) {
-            var s;
-            if (mn.lastNumber == null || mn.nextNumber == null) {
-                s = 'Member numbers not configured';
-            } else if (mn.nextNumber > mn.lastNumber) {
-                s = 'No member numbers left';
-            } else {
-                s = (mn.lastNumber - mn.nextNumber + 1) + ' member numbers left';
-            }
-            o.numberRemaining.replaceChildren(s);
-        });
-    });
 };
 
 // NEEDSWORK perhaps this should move to NavObject.js.
@@ -334,6 +299,6 @@ Help.update = function () {
 var base;
 
 init.push(function baseInit() {
-        base = new Base();
-        document.body.appendChild(base.n);
+    base = new Base();
+    document.body.appendChild(base.n);
 });

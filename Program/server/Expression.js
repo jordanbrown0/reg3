@@ -12,6 +12,7 @@ function Expression(e, params) {
     o.e = e;
     o.params = params || {};
     o.variables = o.params.init || {};
+    o.dirty = false;
 }
 
 Expression.prototype.exec = function (r, e) {
@@ -45,6 +46,16 @@ Expression.prototype.exec = function (r, e) {
 Expression.prototype.getVariables = function () {
     var o = this;
     return (o.variables);
+};
+
+Expression.prototype.setDirty = function(dirty) {
+    var o = this;
+    o.dirty = dirty;
+};
+
+Expression.prototype.getDirty = function () {
+    var o = this;
+    return (o.dirty);
 };
 
 var verbs = {};
@@ -89,7 +100,7 @@ verbs.setf = function (r, args) {
     var val = o.exec(r, args[1]);
 
     r[name] = val;
-    r._dirty = true;
+    o.setDirty(true);
     return (val);
 };
 
@@ -485,13 +496,14 @@ verbs.defaultConventionName = function (r, args) {
 };
 
 verbs.delete = function (r, args) {
+    var o = this;
     var version = r._version;
     for (var f in r) {
         delete r[f];
     }
     r._version = version;
     r._deleted = true;
-    r._dirty = true;
+    o.setDirty(true);
     return (undefined);
 };
 

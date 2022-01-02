@@ -64,51 +64,110 @@ methods.DBload = async function (dbName) {
 };
 
 methods.DBadd = async function (dbName, tName, k, r, expr) {
-    return ((await DBMS.getTable(dbName, tName)).add(k, r, expr));
+    var t = await DBMS.getTable(dbName, tName);
+    if (expr) {
+        function f() {
+            (new Expression(expr)).exec(r);
+            return (r);
+        }
+        return (t.add(k, f));
+    } else {
+        return (t.add(k, r));
+    }
 };
 
 methods.DBlist = async function (dbName, tName, params) {
-    return ((await DBMS.getTable(dbName, tName)).list(params));
+    var t = await DBMS.getTable(dbName, tName);
+    if (params.filter) {
+        var filter = new Expression(params.filter);
+        function f(r) {
+            return (filter.exec(r));
+        }
+        return (t.list(params, f));
+    } else {
+        return (t.list(params, null));
+    }
 }
 
 methods.DBreduce = async function (dbName, tName, params) {
-    return ((await DBMS.getTable(dbName, tName)).reduce(params));
+    var t = await DBMS.getTable(dbName, tName);
+    var expr = new Expression(params.expr, {init: params.init});
+    function f(r) {
+        expr.setDirty(false);
+        expr.exec(r);
+        return (expr.getDirty());
+    }
+    t.reduce(params, f);
+    return (expr.getVariables());
 }
 
 methods.DBget = async function(dbName, tName, k) {
-    return ((await DBMS.getTable(dbName, tName)).get(k));
+    var t = await DBMS.getTable(dbName, tName);
+    return (t.get(k));
 };
 
 methods.DBgetOrAdd = async function(dbName, tName, k, rDef, expr) {
-    return ((await DBMS.getTable(dbName, tName)).getOrAdd(k, rDef, expr));
+    var t = await DBMS.getTable(dbName, tName);
+    if (expr) {
+        function f() {
+            (new Expression(expr)).exec(rDef);
+            return (rDef);
+        }
+        return (t.getOrAdd(k, f));
+    } else {
+        return (t.getOrAdd(k, rDef));
+    }
 };
 
 methods.DBgetOrNull = async function(dbName, tName, k) {
-    return ((await DBMS.getTable(dbName, tName)).getOrNull(k));
+    var t = await DBMS.getTable(dbName, tName);
+    return (t.getOrNull(k));
 };
 
+// Execute expr, if provided, on the record before storing it.
+// Note that the expression is evaluated *before* checking for a conflict,
+// so the conflict record reflects any changes made by the expression.
+// This allows the conflict resolver to be table-independent, but also
+// means that the expression must not have effects outside this table.
 methods.DBput = async function (dbName, tName, k, r, expr) {
-    return ((await DBMS.getTable(dbName, tName)).put(k, r, expr));
+    var t = await DBMS.getTable(dbName, tName);
+    if (expr) {
+        (new Expression(expr)).exec(r);
+    }
+
+    return (t.put(k, r));
 };
 
 methods.DBupdate = async function (dbName, tName, k, r, expr) {
-    return ((await DBMS.getTable(dbName, tName)).update(k, r, expr));
+    var t = await DBMS.getTable(dbName, tName);
+    if (expr) {
+        function f(r) {
+            (new Expression(expr)).exec(r);
+        }
+        return (t.update(k, r, f));
+    } else {
+        return (t.update(k, r, null));
+    }
 };
 
 methods.DBdelete = async function (dbName, tName, k, r) {
-    return ((await DBMS.getTable(dbName, tName)).delete(k, r));
+    var t = await DBMS.getTable(dbName, tName);
+    return (t.delete(k, r));
 };
 
 methods.DBzap = async function (dbName, tName) {
-    return ((await DBMS.getTable(dbName, tName)).zap());
+    var t = await DBMS.getTable(dbName, tName);
+    return (t.zap());
 };
 
 methods.DBinc = async function (dbName, tName, k, field, limitField) {
-    return ((await DBMS.getTable(dbName, tName)).inc(k, field, limitField));
+    var t = await DBMS.getTable(dbName, tName);
+    return (t.inc(k, field, limitField));
 };
 
 methods.DBlistTables = async function (dbName) {
-    return ((await DBMS.getDB(dbName)).listTables());
+    var db = await DBMS.getDB(dbName);
+    return (db.listTables());
 };
 
 methods.import = async function (file, dbName, tName, params) {
