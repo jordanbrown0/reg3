@@ -425,11 +425,11 @@ verbs.empty = function (r, args) {
 // True if there is at least one element that is common to both arguments
 verbs.overlaps = function (r, args) {
     let o = this;
-    assert(args.length == 2);
+    assert(args.length == 2, 'overlaps: wrong number of arguments');
     let a = o.exec(r, args[0]);
-    assert(a instanceof Array);
+    assert(a instanceof Array, 'overlaps: first arg is not array');
     let b = o.exec(r, args[1]);
-    assert(b instanceof Array);
+    assert(b instanceof Array, 'overlaps: second arg is not array');
     for (let i = 0; i < a.length; i++) {
         if (b.includes(a[i])) {
             return (true);
