@@ -4,7 +4,7 @@ function ReportMenu()
     ReportMenu.sup.constructor.call(o, {
         items: [
             { label: '&Tallies of members', page: ReportTallies },
-            { label: '&List', page: ReportList },
+            { label: '&List', page: ReportListSetup },
             { label: '&Duplicates', page: ReportDupsSetup },
             { label: '&Classes', page: ReportClasses },
             { label: '&Upgrades', page: ReportUpgrades },
