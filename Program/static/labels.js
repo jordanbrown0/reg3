@@ -66,7 +66,9 @@ function label_badge(r, done, err) {
             todo.push(doBottom);
         }
 
-        var doBadgeNameLabel = (r.badge1 || r.badge2);
+        var bname = joinTruthy([r.badge1, r.badge2], ' ');
+        var rname = joinTruthy([r.fname, r.lname], ' ');
+        var doBadgeNameLabel = (r.badge1 || r.badge2) && (rname != bname);
         var doRealNameLabel = cfg.realNameLabel || !doBadgeNameLabel;
 
         todo.push(calcNameLimits);
