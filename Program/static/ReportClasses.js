@@ -12,7 +12,7 @@ ReportClasses.prototype.header = function () {
             th('Description'),
             th('Amount'),
             th('Badge?'),
-            th('Metaclass'),
+            th('Metaclasses'),
             th('On Badge'),
             th('Phone Label'),
             th('Order'),
@@ -21,7 +21,7 @@ ReportClasses.prototype.header = function () {
         )
     );
 };
-ReportClasses.prototype.footer = ReportClasses.prototype.footer
+ReportClasses.prototype.footer = ReportClasses.prototype.header;
 
 ReportClasses.prototype.body = function (cb) {
     var o = this;
@@ -35,7 +35,7 @@ ReportClasses.prototype.body = function (cb) {
                     td(r.description || ''),
                     td(r.amount, {id: 'amount'}),
                     td(r.badgeOK ? 'Yes' : 'No', {id: 'badgeOK'}),
-                    td(r.metaclass || '', {id: 'metaclass'}),
+                    td((r.metaclasses || []).join(', '), {id: 'metaclasses'}),
                     td(r.onBadge || '', {id: 'onBadge'}),
                     td(r.phoneLabel ? 'Yes' : 'No', {id: 'phoneLabel'}),
                     td(r.order || '', {id: 'order'}),
