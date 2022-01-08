@@ -511,6 +511,7 @@ Table.prototype.put = function(k, r, expr) {
 
     if (expr) {
         (new Expression(expr)).exec(r);
+        delete r._dirty;
     }
 
     var rExist = o.records[k];
