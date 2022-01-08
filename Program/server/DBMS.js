@@ -414,6 +414,7 @@ Table.prototype.reduce = function (params) {
         if (r._deleted) {
             return (true);
         }
+        delete r._dirty;
         expr.exec(r);
         if (r._dirty) {
             delete r._dirty;
