@@ -69,11 +69,11 @@ ReportSummary.prototype.body = function (cb) {
                 { v: ret.noShow,        t: 'No show' },
                 { v: ret.prereg,        t: 'Preregistered' },
                 { v: ret.atTheDoor,     t: 'At the door' },
-                { v: ret.grand,         t: 'Grand total' },
                 { v: ret.paid,          t: 'Paid' },
                 { v: ret.free,          t: 'Free' },
                 { v: ret.transferred,   t: 'Transferred' },
-                { v: ret.void,          t: 'Void' }
+                { v: ret.void,          t: 'Void' },
+                { v: ret.grand,         t: 'Grand total' }
             ];
             o.lines.forEach(function (r) {
                 body.push(tr(td(r.v||0, {className: 'Count'}), td(r.t)));
@@ -98,23 +98,28 @@ ReportSummary.prototype.label = function () {
         var toppx = p.limits.y - p.limits.v + 1;
         var bottompx = p.limits.y;
         var leftpx = p.limits.x;
-        var rightpx = p.limits.x + p.limits.v - 1;
+        var rightpx = p.limits.x + p.limits.h - 1;
 
         var size = 10;    // Points
-        var column = 72;  // Points
+        var column = 80;  // Points
         var gutter = 4;   // Points
-        var col1 = 2;     // inset of column break as multiple of size
+        var col1 = 25;     // inset of column break in points
 
         var columnpx = p.points(column);
         var gutterpx = p.points(gutter);
         var sizepx = p.points(size);
-        var col1px = col1 * sizepx;
+        var col1px = p.points(col1);
 
         var xpx = leftpx;
         var ypx = toppx;
         var items = [];
 
         items.push({font: cfg.font, size:sizepx});
+
+        items.push({ x: rightpx, y: bottompx - sizepx, halign: 'right',
+            text: o.time.toDisplayDate() });
+        items.push({ x: rightpx, y: bottompx, halign: 'right',
+            text: o.time.toDisplayTime({seconds: false}) });
 
         o.lines.forEach(function (r) {
             ypx += sizepx;
