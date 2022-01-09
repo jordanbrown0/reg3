@@ -91,6 +91,10 @@ methods.DBput = async function (dbName, tName, k, r, expr) {
     return ((await DBMS.getTable(dbName, tName)).put(k, r, expr));
 };
 
+methods.DBupdate = async function (dbName, tName, k, r, expr) {
+    return ((await DBMS.getTable(dbName, tName)).update(k, r, expr));
+};
+
 methods.DBdelete = async function (dbName, tName, k, r) {
     return ((await DBMS.getTable(dbName, tName)).delete(k, r));
 };

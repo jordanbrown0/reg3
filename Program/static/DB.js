@@ -114,6 +114,11 @@ DBTable.prototype.put = function (k, r, expr, cb) {
     rpc.DBput(o.dbName, o.tName, k, r, expr, cb);
 };
 
+DBTable.prototype.update = function (k, r, expr, cb) {
+    var o = this;
+    rpc.DBupdate(o.dbName, o.tName, k, r, expr, cb);
+};
+
 DBTable.prototype.add = function (k, r, expr, cb) {
     var o = this;
     rpc.DBadd(o.dbName, o.tName, k, r, expr, cb);
