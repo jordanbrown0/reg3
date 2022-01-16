@@ -8,6 +8,8 @@ var serverSchema = [
             input: InputInt, default: null, minimum: 1, required: true },
         { field: 'lastNumber', label: 'Last membership number to assign',
             input: InputInt, default: null, minimum: 1, required: true },
+        { field: 'lastExport', label: 'Last sync from this server',
+            input: InputDateTime, readOnly: true },
     ],
 ];
 
@@ -50,7 +52,11 @@ ServerManager.prototype.summarize = function (k, r) {
     return (tr(
         td(r.serverName, { id: 'name' }),
         tdNext,
-        tdLast
+        tdLast,
+        td(r.lastExport
+            ? LDate.fromJSON(r.lastExport).toDisplay({seconds:true})
+            : ''
+        )
     ));
 };
 
@@ -58,7 +64,8 @@ ServerManager.prototype.header = function () {
     return (tr(
         th('Name'),
         th('Next'),
-        th('Last')
+        th('Last'),
+        th('Last synced')
     ));
 };
 

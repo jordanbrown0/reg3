@@ -414,6 +414,7 @@ Table.prototype.reduce = function (params) {
         if (r._deleted) {
             return (true);
         }
+        delete r._dirty;
         expr.exec(r);
         if (r._dirty) {
             delete r._dirty;
@@ -511,6 +512,7 @@ Table.prototype.put = function(k, r, expr) {
 
     if (expr) {
         (new Expression(expr)).exec(r);
+        delete r._dirty;
     }
 
     var rExist = o.records[k];
@@ -535,6 +537,30 @@ Table.prototype.put = function(k, r, expr) {
         return o.conflict(k, rExist, r);
     }
     unreachable();
+};
+
+Table.prototype.update = function (k, r, expr) {
+    var o = this;
+
+    o.checkExists(k);
+    var rExist = o.records[k];
+
+    for (f in r) {
+        if (r[f] === null || r[f] === undefined) {
+            delete rExist[f];
+        } else {
+            rExist[f] = r[f];
+        }
+    }
+
+    // During DBMS-expression overhaul this turns into a callback
+    if (expr) {
+        (new Expression(expr)).exec(rExist);
+        delete rExist._dirty;
+    }
+
+    o.bump(rExist);
+    o.writeRec(k);
 };
 
 Table.prototype.conflict = function (k, rExist, rImport) {

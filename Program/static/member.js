@@ -137,6 +137,7 @@ function MemberManager() {
 
     o.list = new List({
         table: table.members,
+        limit: 15,
         summarize: function (k, r) {
             var status;
             if (r.transferto) {

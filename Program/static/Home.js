@@ -33,11 +33,30 @@ Home.prototype.activate = function () {
         { key: '?', page: DebugControl },
         { label: 'Quit', key: 'Escape', order: 0,
             func: function () {
-                window.close();
-                // FF won't let you close a window that the user opened,
-                // only ones opened via a script.  (Which includes ones
-                // opened via the FF command line.)
-                modal('You will have to close this window manually.');
+                modal('Really quit?', {
+                    cancel: function () {
+                        // On cancel (don't quit), just dismiss the modal.
+                    },
+                    ok: function () {
+                        // Don't try to stop closing the window.
+                        unloadOK = true;
+                        window.close();
+                        // FF won't let you close a window that the user opened,
+                        // only ones opened via a script.  (Which includes ones
+                        // opened via the FF command line.)  If we survived the
+                        // close attempt, tell the user.  While that modal is
+                        // up, it's still OK to close the window.  But if the
+                        // user dismisses the modal, return to normal operation.
+                        // Note:  the rule is actually more complex than that;
+                        // manually opened windows seem to be closable if you
+                        // haven't done much with them.
+                        modal('You will have to close this window manually.', {
+                            ok: function () {
+                                unloadOK = false;
+                            }
+                        });
+                    },
+                });
             }
         }
     ]);

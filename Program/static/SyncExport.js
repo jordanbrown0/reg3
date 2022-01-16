@@ -15,8 +15,15 @@ SyncExport.prototype.activate = function () {
         base.addCancel(home);
         base.addNav([
             { label: '&All', func: function () {
-                db.reg.exportResync();
-                home();
+                Server.id(function (id) {
+                    table.servers.update(id, {},
+                        {setf: [ 'lastExport', {dateTime: []} ]},
+                        function () {
+                            db.reg.exportResync();
+                            home();
+                        }
+                    );
+                });
             } },
             { label: '&Selected', func: function () {
                 db.reg.exportResync(o.bools.get());

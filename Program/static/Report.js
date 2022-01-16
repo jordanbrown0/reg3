@@ -16,21 +16,25 @@ Report.prototype.activate = function () {
 
     o.focus();
 
-    var tbody = new DElement('tbody');
-    tbody.appendChild('Working...');
+    rpc.eval(null, {dateTime: []}, function (d) {
+        o.time = LDate.fromJSON(d);
 
-    var t = o.appendChild(new DElement('table'));
-    t.addClass(getClassName(o));
-    t.addClass('Report');
-    if (o.header) {
-        t.appendChild(new DElement('thead', o.header()));
-    }
-    t.appendChild(tbody);
-    if (o.footer) {
-        t.appendChild(new DElement('tfoot', o.footer()));
-    }
-    o.body(function (body) {
-        tbody.replaceChildren(body);
+        var tbody = new DElement('tbody');
+        tbody.appendChild('Working...');
+
+        var t = o.appendChild(new DElement('table'));
+        t.addClass(getClassName(o));
+        t.addClass('Report');
+        if (o.header) {
+            t.appendChild(new DElement('thead', o.header()));
+        }
+        t.appendChild(tbody);
+        if (o.footer) {
+            t.appendChild(new DElement('tfoot', o.footer()));
+        }
+        o.body(function (body) {
+            tbody.replaceChildren(body);
+        });
     });
 };
 
