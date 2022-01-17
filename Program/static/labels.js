@@ -75,17 +75,23 @@ function label_badge(r, done, err) {
 
         if (doBadgeNameLabel) {
             todo.push([ drawName,
-                badgeNameItems, nameLimits, r.badge1, r.badge2 ]);
+                badgeNameItems, nameLimits, r.badge1, r.badge2, false ]);
             printSeq.push([ print, smallItems, badgeNameItems ]);
         }
         if (doRealNameLabel) {
-            todo.push([ drawName,
-                realNameItems, nameLimits, r.fname, r.lname ]);
+            if (r.organization) {
+                todo.push([ drawName,
+                    realNameItems, nameLimits, rname, r.organization, true ]);
+            } else {
+                todo.push([ drawName,
+                    realNameItems, nameLimits, r.fname, r.lname, false ]);
+            }
             printSeq.push([ print, smallItems, realNameItems ]);
         }
 
         if (cl.phoneLabel && r.phone) {
-            todo.push([ drawName, phoneItems, phoneLimits, r.phone, undefined]);
+            todo.push([ drawName,
+                phoneItems, phoneLimits, r.phone, undefined, false]);
             printSeq.push([ print, phoneItems ]);
         }
 
@@ -155,7 +161,7 @@ function label_badge(r, done, err) {
         nameLimits.v = p.limits.v - bottom.v;
     }
 
-    function drawName(cb, items, limits, name1, name2) {
+    function drawName(cb, items, limits, name1, name2, force2) {
         if (name1 && name2) {
             drawTwoNames(name1, name2);
             return true;
@@ -167,14 +173,15 @@ function label_badge(r, done, err) {
         return undefined;
 
         function drawTwoNames() {
-            var s = [name1, name2].join(' ');
-            drawMaybe(items, nameLimits, {
-                halign: 'center',
-                valign: 'center',
-                size: cfg.nameSizes[0],
-                text: s
-            }, cb, drawTwoNamesLine1);
-            return;
+            function drawTwoNamesOneLine() {
+                var s = [name1, name2].join(' ');
+                drawMaybe(items, nameLimits, {
+                    halign: 'center',
+                    valign: 'center',
+                    size: cfg.nameSizes[0],
+                    text: s
+                }, cb, drawTwoNamesLine1);
+            }
 
             function drawTwoNamesLine1() {
                 var limits1 = Object.assign({}, limits);
@@ -194,6 +201,11 @@ function label_badge(r, done, err) {
                     valign: 'top',
                     text: name2
                 }, function (sizes) { cb(); })
+            }
+            if (force2) {
+                drawTwoNamesLine1();
+            } else {
+                drawTwoNamesOneLine();
             }
         }
 

@@ -16,6 +16,7 @@ Member.schema = [
         { field: 'lname', label: 'Last name' },
         { field: 'badge1', label: 'Badge name' },
         { field: 'badge2', label: '' },
+        { field: 'organization', label: 'Organization' },
         { field: 'addr1', label: 'Address' },
         { field: 'addr2', label: '' },
         { field: 'city', label: 'City' },
@@ -155,7 +156,8 @@ function MemberManager() {
             if (badge) {
                 name = joinTruthy([name, '(' + badge + ')'], ' ');
             }
-            var s = joinTruthy([ name, r.addr1, r.city ], ' / ');
+            var s = joinTruthy([ name, r.organization, r.addr1, r.city ],
+                ' / ');
 
             return (tr({className: r.void ? 'Void' : 'Active'},
                 td(status, { id: 'status' }),
