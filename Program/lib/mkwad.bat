@@ -43,7 +43,7 @@ set rel=Program\node_modules\myclinic-drawer-printer\build\Release
 %z% a %out% Program\node_modules -x!%rel%\*.pdb -x!%rel%\obj\drawer\*.obj -x!%rel%\*.iobj -x!%rel%\*.map > nul
 
 %z% a %out% *.bat Program\lib Program\*.bat > nul
-%z% a %out% README.txt COPYRIGHT.txt Documentation > nul
+%z% a %out% README.md COPYRIGHT.txt Documentation > nul
 %z% a %out% Program\package.json Program\package-lock.json > nul
 :: Include the data directory, but not the contents.
 %z% a %out% Program\data -x!Program\data\* > nul

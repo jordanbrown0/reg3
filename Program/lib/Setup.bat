@@ -40,7 +40,7 @@ if exist %dest% (
     rmdir /s /q %dest%\Documentation
     erase %dest%\Program\*.bat
     erase %dest%\*.bat
-    erase %dest%\README.txt
+    erase %dest%\README.*
     erase %dest%\COPYRIGHT.txt
     erase %dest%\Program\package.json
     erase %dest%\Program\package-lock.json

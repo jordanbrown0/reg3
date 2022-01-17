@@ -1,0 +1,88 @@
+<html>
+<head>
+    <title>Directory layout</title>
+    <script src="HelpCommon.js"> </script>
+    <!-- INDEX: Directory layout -->
+</head>
+<body>
+    <h2>
+        Directory layout
+    </h2>
+    <li>BASE</li>
+    <ul>
+        A directory containing per-convention directories.  For the moment, it is probably necessary that none of the ancestral or per-convention directories have spaces in their names.  It is not yet clear how this location is defined.  Ideal would be to allow the user to specify a location at installation time, but that requires creating a UI.  For now, it's USER/Documents/Reg3.
+    </ul>
+
+    <li>BASE/node-vXX.YY.z-win-x86</li>
+    <ul>
+        Node.js installation, trimmed to remove npm.  This installation is shared between conventions.
+    </ul>
+
+    <li>BASE/CONVENTION</li>
+    <ul>
+        This directory, the root of the source tree.  One copy per convention.
+        Overhead required to be in the root:  .gitignore, et cetera.
+        Batch files intended for user consumption.
+    </ul>
+
+    <li>BASE/CONVENTION/Documentation</li>
+    <ul>
+        Like it says
+    </ul>
+
+    <li>BASE/CONVENTION/Program</li>
+    <ul>
+        <li>The software itself.</li>
+        <li>Batch files intended for developer use.</li>
+        <li>Development overhead (package*.json).</li>
+    </ul>
+
+    <li>BASE/CONVENTION/Program/Data</li>
+    <ul>
+        <li>The actual convention data.</li>
+        <li>reg.json - global data.  Note that, e.g., per-server configuration is global data, as entries in the server table.</li>
+        <li>serverID.json - the ID for this server.</li>
+    </ul>
+        
+    <li>BASE/CONVENTION/Program/imported</li>
+    <ul>
+        <li>Binaries imported from other places.  Notably, the 7-Zip command line and self-extracting tools.</li>
+    </ul>
+        
+    <li>BASE/CONVENTION/Program/lib</li>
+    <ul>
+        <li>Tools and data files intended for implementation of various components - currently, the installation subsystem.</li>
+        <li>NodeVer.bat contains the version number of Node.js used; this is used in finding and managing BASE/node-vXX.YY.Z-win-x86.</li>
+    </ul>
+        
+    <li>BASE/CONVENTION/Program/node_modules</li>
+    <ul>
+        <li>Node.js modules.  Imported.  No custom files here.  The one file that we have currently customized is myclinic-drawer-printer/drawer.cc, but that's copied from BASE/CONVENTION/Program/src.</li>
+    </ul>
+        
+    <li>BASE/CONVENTION/Program/server</li>
+    <ul>
+        <li>The implementation of the server.</li>
+    </ul>
+        
+    <li>BASE/CONVENTION/Program/src</li>
+    <ul>
+        <li>Miscellaneous source files.  Currently only drawer.cc.</li>
+    </ul>
+        
+    <li>BASE/CONVENTION/Program/static</li>
+    <ul>
+        <li>The implementation of the client, including JavaScript, HTML, and CSS.</li>
+    </ul>
+        
+    <li>BASE/CONVENTION/Program/Temp</li>
+    <ul>
+        <li>Developer sandbox.</li>
+    </ul>
+        
+    <li>BASE/CONVENTION/Program/Unused</li>
+    <ul>
+        <li>Components of historical or future interest.</li>
+    </ul>
+</body>
+</html>
