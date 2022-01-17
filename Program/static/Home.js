@@ -63,7 +63,7 @@ Home.prototype.activate = function () {
     Config.refresh(function () {
         o.menu.activate();
         pageTitle.set(cfg.convention);
-        Home.sup.activate.call();
+        Home.sup.activate.call(o);
     });
 };
 
@@ -91,3 +91,7 @@ function home()
     document.body.style.fontSize = cfg.screenFontSize.toString() + 'pt';
     base.switchTo(new Home());
 }
+
+init.push(function homeInit() {
+    home();
+});

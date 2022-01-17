@@ -89,6 +89,27 @@ function sequence(cb, a) {
     }
 }
 
+// For each value from a to b, inclusive, calls cbEach(cb, i).
+// When done, calls cbDone().
+// cbEach() should either:
+// - Execute synchronously and return undefined.
+// - Return true and call the callback function when done.
+function range(cbEach, cbDone, a, b) {
+    var i = a - 1;
+    range1();
+    return;
+
+    function range1() {
+        do {
+            i++;
+            if (i > b) {
+                cbDone();
+                return;
+            }
+        } while (!cbEach(range1, i));
+    }
+}
+
 function extend(sup, sub) {
 	sub.prototype = Object.create(sup.prototype);
 	sub.prototype.constructor = sub;

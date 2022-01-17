@@ -1,3 +1,4 @@
+var cfg;
 var Config = {};
 
 // NEEDSWORK This should perhaps be a flag on the table, rather
@@ -80,3 +81,8 @@ Config.get = function(cb) {
 
     Config.getVersions(got);
 };
+
+init.push(function configInit(cb) {
+    Config.get(cb);
+    return (true);
+});

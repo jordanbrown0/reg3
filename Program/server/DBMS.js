@@ -3,7 +3,6 @@ import Chain from 'stream-chain';
 import StreamValues from 'stream-json/streamers/StreamValues.js';
 import fs from 'fs';
 import { Version } from './version.js';
-import { Expression } from './Expression.js';
 import { assert, log, unreachable } from './utils.js';
 import Concurrency from './Concurrency.js';
 import { Debug } from './Debug.js';
@@ -250,10 +249,12 @@ Table.prototype.load = function (k, r) {
 
 Table.prototype.sync = function (b) {
     var o = this;
+    var prev = o.syncFlag;
     o.syncFlag = b;
-    if (o.syncFlag) {
+    if (o.syncFlag && o.dirty) {
         o.write();
     }
+    return (prev);
 };
 
 Table.prototype.write = function () {
@@ -262,6 +263,7 @@ Table.prototype.write = function () {
     if (!o.syncFlag) {
         return;
     }
+    o.dirty = false;
     o.db.write();
 };
 
@@ -269,6 +271,7 @@ Table.prototype.writeRec = function (k) {
     var o = this;
     o.version++;
     if (!o.syncFlag) {
+        o.dirty = true;
         return;
     }
     o.db.writeRec(o.name, k, o.records[k]);
@@ -312,12 +315,11 @@ Table.prototype.checkExistsAndNotDeleted = function (k) {
     }
 };
 
-Table.prototype.list = function (params) {
+Table.prototype.list = function (params, filter) {
     var o = this;
     if (!params) {
         params = {};
     }
-    var filter = params.filter && new Expression(params.filter);
     var ret = [];
     var n = 0;
     function doRec(k) {
@@ -325,7 +327,7 @@ Table.prototype.list = function (params) {
         if (r._deleted) {
             return (true);
         }
-        if (filter && !filter.exec(r)) {
+        if (filter && !filter(r)) {
             return (true);
         }
         var tmp = {};
@@ -402,36 +404,31 @@ Table.prototype.list = function (params) {
     return (ret);
 };
 
-Table.prototype.reduce = function (params) {
+Table.prototype.reduce = function (params, f) {
     var o = this;
-    var dirty = false;
     if (!params) {
         params = {};
     }
-    var expr = new Expression(params.expr, {init: params.init});
+
     function doRec(k) {
         var r = o.records[k];
         if (r._deleted) {
-            return (true);
+            return;
         }
-        delete r._dirty;
-        expr.exec(r);
-        if (r._dirty) {
-            delete r._dirty;
-            dirty = true;
+        if (f(r)) {
             o.bump(r);
-        }
-        return (true);
-    }
-    for (var k in o.records) {
-        if (!doRec(k)) {
-            break;
+            o.writeRec(k);
         }
     }
-    if (dirty) {
-        o.write();
+
+    var saveSync = o.sync(false);
+    try {
+        for (var k in o.records) {
+            doRec(k);
+        }
+    } finally {
+        o.sync(saveSync);
     }
-    return (expr.getVariables());
 };
 
 Table.prototype.get = function(k) {
@@ -440,23 +437,20 @@ Table.prototype.get = function(k) {
     return (o.records[k]);
 };
 
-// Get the specified record, or add it as a new empty record.
-//
-// In a sense, this means that nonexistent records appear to be empty when
-// accessed.
+// Get the specified record, or add it as a new record.
 //
 // If the specified record exists and is not deleted, return it.
-// If it does not exist or is deleted, add it as an empty record and return
-// that.
-//
-// If adding a record, execute the expression on the new record.
-Table.prototype.getOrAdd = function(k, rDef, expr) {
+// If it does not exist or is deleted, add it:
+// - If func was supplied, call it on the record supplied.
+// - The record supplied is *not* copied; it *is* the in-memory record.
+//   Caller must not access it after the add.
+Table.prototype.getOrAdd = function(k, rDef, func) {
     var o = this;
     var r = o.records[k];
     if (r && !r._deleted) {
         return (r);
     } else {
-        o.add(k, rDef, expr);
+        o.add(k, rDef, func);
         return (o.records[k]);
     }
 };
@@ -495,24 +489,22 @@ Table.prototype.delete = function(k, r) {
 // Replace the specified record with the specified contents.
 // Note:  the record supplied is *not* copied; it *is* the in-memory record.
 // Caller must not access it after the put.
-// Execute expr, if provided, on the record before storing it.
 // On conflict, return a conflict record for client-side resolution.
-//
-// Note that the expression is evaluated *before* checking for a conflict,
-// so the conflict record reflects any changes made by the expression.
-// This allows the conflict resolver to be table-independent, but also
-// means that the expression must not have effects outside this table.
 //
 // With the appropriate version vector, this function can be used to
 // resurrect a deleted record.  This can happen in a delete-vs-update conflict
 // resolved in favor of the update.
-Table.prototype.put = function(k, r, expr) {
+//
+// Note that the function is called *before* checking for a conflict,
+// so the conflict record reflects any changes it makes.
+// This allows the conflict resolver to be table-independent, but also
+// means that the function must not have effects outside this record.
+Table.prototype.put = function(k, r, f) {
     var o = this;
     o.checkExists(k);
 
-    if (expr) {
-        (new Expression(expr)).exec(r);
-        delete r._dirty;
+    if (f) {
+        f(r);
     }
 
     var rExist = o.records[k];
@@ -539,13 +531,13 @@ Table.prototype.put = function(k, r, expr) {
     unreachable();
 };
 
-Table.prototype.update = function (k, r, expr) {
+Table.prototype.update = function (k, r, func) {
     var o = this;
 
     o.checkExists(k);
     var rExist = o.records[k];
 
-    for (f in r) {
+    for (var f in r) {
         if (r[f] === null || r[f] === undefined) {
             delete rExist[f];
         } else {
@@ -553,10 +545,8 @@ Table.prototype.update = function (k, r, expr) {
         }
     }
 
-    // During DBMS-expression overhaul this turns into a callback
-    if (expr) {
-        (new Expression(expr)).exec(rExist);
-        delete rExist._dirty;
+    if (func) {
+        func(rExist);
     }
 
     o.bump(rExist);
@@ -605,10 +595,15 @@ Table.prototype.inc = function (k, field, limitField) {
 //
 // Note that we are willing to revive a deleted record ID.
 // In that case, we continue to use the same version vector.
-
-Table.prototype.add = function (k, r, expr) {
+// Note:  the record supplied is *not* copied; it *is* the in-memory record.
+// Caller must not access it after the add.
+Table.prototype.add = function (k, r, func) {
     var o = this;
     var rOld;
+    
+    if (func) {
+        func(r);
+    }
 
     r._version = {};
     if (k == null) {
@@ -622,10 +617,7 @@ Table.prototype.add = function (k, r, expr) {
         }
         r._version = rOld._version;
     }
-    if (expr) {
-        (new Expression(expr)).exec(r);
-        delete r._dirty;
-    }
+
     o.bump(r);
     o.records[k] = r;
     o.writeRec(k);
@@ -655,6 +647,9 @@ Table.prototype.bump = function (r) {
 //     result:  blank (but appropriately versioned) record that the caller
 //         should fill in with the results of the merge, then put.
 //
+// NEEDSWORK:  Does not write records, assumes that caller (DB.importResync)
+// will write the whole table.  Should perhaps layer on top of the
+// Table.sync(false) mechanism for better commonality.
 Table.prototype.importResync = function (k, rImport) {
     var o = this;
     var rExist = o.records[k];
@@ -738,24 +733,16 @@ DBMS.init = async function () {
     var rkey = 'serverID';
     var db = await DBMS.getDB(dbname);
     var t = db.getTable(tname);
-    // OCD:  We don't use getOrAdd here, because the Add part would happen
-    // before we've established a server ID, and so we would end up with a VV
-    // with an "undefined:xxx" entry in it.  We also bump and write it twice
-    // (once for the add and once for the put).
-    // OCD:  If the record exists, it should have an id.  But just in case,
-    // if it doesn't then we'll just add it.
-    var r = t.getOrNull(rkey);
-    if (r && r.id) {
-        serverID = r.id;
-    } else {
-        serverID = Date.now().toString();
-        if (r) {
+
+    var r = t.getOrAdd(rkey, {},
+        function (r) {
+            // Set server ID here so it will be used in the version vector.
+            serverID = Date.now().toString();
             r.id = serverID;
-            t.put(rkey, r, null);
-        } else {
-            t.add(rkey, { id: serverID }, null);
         }
-    }
+    );
+    assert(r.id, 'missing Server ID');
+    serverID = r.id;
     log('Server ID', serverID);
 };
 
