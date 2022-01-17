@@ -90,6 +90,10 @@ input.Disabled {
     text-align: center;
 }
 
+.MemberManager .List #class {
+    width: 5em;
+}
+
 .MemberManager .List #number {
     width: 5ch;
     text-align: right;

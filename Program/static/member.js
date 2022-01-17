@@ -159,6 +159,7 @@ function MemberManager() {
 
             return (tr({className: r.void ? 'Void' : 'Active'},
                 td(status, { id: 'status' }),
+                td(r.class, { id: 'class' }),
                 td(r.number||'', { id: 'number' }),
                 td(s, { id: 'summary' })
             ));
