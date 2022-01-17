@@ -11,9 +11,13 @@ ReportTallyByClass.prototype.body = function (cb) {
     table.members.reduce(
         { expr:
             { if: [
-                { f: 'void' },
-                { addto: [ '', 1 ] },
-                { addto: [ {f: 'class'}, 1 ] }
+                { f: 'transferto' },
+                { addto: [ '_transferred', 1 ] },
+                { if: [
+                    { f: 'void' },
+                    { addto: [ '_void', 1 ] },
+                    { addto: [ {f: 'class'}, 1 ] }
+                ]}
             ]}
         },
         gotTotals
@@ -25,8 +29,10 @@ ReportTallyByClass.prototype.body = function (cb) {
     }
 
     function gotClasses(classes) {
-        var voidTotal = o.totals[''] || 0;
-        delete o.totals[''];
+        var voidTotal = o.totals['_void'] || 0;
+        delete o.totals['_void'];
+        var xferTotal = o.totals['_transferred'] || 0;
+        delete o.totals['_transferred'];
         var body = [];
 
         var grand = 0;
@@ -72,10 +78,11 @@ ReportTallyByClass.prototype.body = function (cb) {
 
         body.push(tr());
 
-        total('Paid', paid);
-        total('Free', free);
+        total('Paid class', paid);
+        total('Free class', free);
         total('Bad class', bad);
         total('Grand total', grand);
+        total('Transferred', xferTotal);
         total('Void', voidTotal);
 
         cb(body);
