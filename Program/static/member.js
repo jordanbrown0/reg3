@@ -510,7 +510,7 @@ NewMemberEditor.prototype.add = function (cb) {
 
 NewMemberEditor.prototype.title = function () {
     var o = this;
-    return (new DElement('span', 'New member -', o.classInfo));
+    return (new DElement('span', 'New member - ', o.classInfo));
 };
 
 function MemberTransfer(k, r) {
