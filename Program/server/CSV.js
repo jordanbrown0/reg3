@@ -115,7 +115,7 @@ CSV.import = async function(path, params, cb) {
             start = i+1;
         }
         function emitField() {
-            r.push(curField);
+            r.push(curField.trim());
             curField = '';
         }
         function emitRecord() {
