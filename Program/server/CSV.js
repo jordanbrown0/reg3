@@ -8,15 +8,17 @@ CSV.import = async function(path, params, cb) {
     var o = this;
     const stream = fs.createReadStream(path, {encoding: params.encoding});
 
-    const NORMAL = 0;
-    const INQUOTE = 1;
-    const QUOTEQUOTEMAYBE = 2;
-    const CRLFMAYBE = 3;
-    const QUOTEQUOTE = 4;
-    const QUOTECRLFMAYBE = 5;
+    const BOR = 0;              // At beginning of record
+    const NORMAL = 1;           // Processing normal characters
+    const INQUOTE = 2;          // Inside quotes
+    const QUOTEQUOTEMAYBE = 3;  // We saw one quote, looking for either
+                                // normal text or another quote
+    const CRLFMAYBE = 4;        // Saw a \r, ignore \n
+    const QUOTEQUOTE = 5;       // Saw two quotes
+    const QUOTECRLFMAYBE = 6;   // Saw a \r inside quotes, ignore \n
 
     var fieldNames = null;
-    var state = NORMAL;
+    var state = BOR;
     var curField = '';
     var r = [];
     function dataHandler(s) {
@@ -42,11 +44,34 @@ CSV.import = async function(path, params, cb) {
                     break;
                 }
                 break;
-            case CRLFMAYBE:
-                state = NORMAL;
-                if (c == '\n') {
-                    emitSubstring();    // Skip over the \n.
+            case BOR:
+                switch (c) {
+                case '\n':          // ignore blank lines
+                    emitSubstring();
+                    state = BOR;
                     continue;
+                case '\r':          // ignore blank lines
+                    emitSubstring();
+                    state = CRLFMAYBE;
+                    continue;
+                default:
+                    state = NORMAL;
+                    break;
+                }
+                break;
+            case CRLFMAYBE:
+                switch (c) {
+                case '\n':              // ignore \n after \r
+                    emitSubstring();    // Skip over the \n.
+                    state = BOR;
+                    continue;
+                case '\r':              // ignore blank lines
+                    emitSubstring();
+                    state = CRLFMAYBE;
+                    continue;
+                default:
+                    state = NORMAL;
+                    break;
                 }
                 break;
             case QUOTECRLFMAYBE:
@@ -64,6 +89,7 @@ CSV.import = async function(path, params, cb) {
                 case ',':
                     emitSubstring();
                     emitField();
+                    // Stay in NORMAL
                     break;
                 case '"':
                     emitSubstring();
@@ -79,6 +105,7 @@ CSV.import = async function(path, params, cb) {
                     emitSubstring();
                     emitField();
                     emitRecord();
+                    state = BOR;
                     break;
                 }
                 break;
@@ -210,7 +237,7 @@ CSV.export = async function (res, t, params) {
         await streamWritePromise(res,
             Buffer.from(toCSV(header, params), params.encoding));
     }
-    
+
     let n = 0;
     await t.forEachAsync(async function (k, r) {
         await streamWritePromise(res,
