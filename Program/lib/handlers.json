@@ -22,6 +22,10 @@
         "image/avif":{
             "action":3,
             "extensions":["avif"]
+        },
+        "application/json":{
+            "action":0,
+            "extensions":["json"]
         }
     },
     "schemes":{
