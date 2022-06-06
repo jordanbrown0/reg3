@@ -4,6 +4,7 @@
     <script src="HelpCommon.js"> </script>
     <script>helpCommon('FormCommon', 'PageFlipCommon', 'NavCommon');</script>
     <!-- INDEX: Import from DBF, CSV -->
+    <!-- INDEX: Dates -->
 </head>
 <body>
     <h2>
@@ -17,5 +18,116 @@
     <p>
     Import mapping requires knowing the names and semantics of the fields in
     the various tables.  See <a href="Schema.html">the schema documentation</a>.
+    <h3>
+        Converters
+    </h3>
+    <table border=1>
+        <tr>
+            <th>Converter</th>
+            <th>Data type</th>
+            <th>Notes</th>
+        </tr>
+        <tr>
+            <td>Number</td>
+            <td>number</td>
+            <td>
+                Discards junk, e.g. $.
+                <br>
+                Needed when converting from CSV.
+            </td>
+        </tr>
+        <tr>
+            <td>Reg v2 date</td>
+            <td>date</td>
+            <td>
+                mm/dd/yyyy hh:mm:ss
+                <br>
+                No extraneous spaces.
+                <br>
+                Month, day, hour, minute, second are 1 or 2 digits.
+                <br>
+                Year four digits, or two digits for 20xx.
+                <br>
+                Time is optional.
+                <br>
+                Should maybe combine with mmddyyyy below.
+            </td>
+        </tr>
+        <tr>
+            <td>mm/dd/yyyy or mm/dd/yy date</td>
+            <td>date</td>
+            <td>
+                mm/dd/yyyy
+                <br>
+                Optional spaces around numbers.
+                <br>
+                Anything after year discarded.
+                <br>
+                Month and day are 1 or 2 digits.
+                <br>
+                Year four digits, or two digits for 20xx.
+                <br>
+                No time.
+            </td>
+        </tr>
+        <tr>
+            <td>dd/mm/yyyy or dd/mm/yy date</td>
+            <td>date</td>
+            <td>
+                dd/mm/yyyy
+                <br>
+                Optional spaces around numbers.
+                <br>
+                Anything after year discarded.
+                <br>
+                Month and day are 1 or 2 digits.
+                <br>
+                Year four digits, or two digits for 20xx.
+                <br>
+                No time.
+            </td>
+        </tr>
+        <tr>
+            <td>yyyy/mm/dd hh:mm:ss date</td>
+            <td>date</td>
+            <td>
+                yyyy/mm/dd hh:mm:ss UTC
+                <br>
+                Slashes or dashes.
+                <br>
+                Time is optional.
+                <br>
+                "UTC" is optional.  (Else local time.)
+                <br>
+                Optional spaces around numbers.
+                <br>
+                Month and day are 1 or 2 digits.
+                <br>
+                Year four digits, or two digits for 20xx.
+            </td>
+        </tr>
+        <tr>
+            <td>Member Solutions date</td>
+            <td>date</td>
+            <td>
+                Member Solutions date format.
+                <br>
+                mm/dd/yyyy hh:mm am/pm
+                <br>
+                Month and day are 1 or 2 digits.
+                <br>
+                Year four digits.
+                <br>
+                AM/PM in upper or lower case.
+            </td>
+        </tr>
+        <tr>
+            <td>Telephone number</td>
+            <td>string</td>
+            <td>
+                If it looks like a US phone number, clean it up.
+            </td>
+        </tr>
+    </table>
 </body>
 </html>
