@@ -82,6 +82,46 @@ Import.converters.ddmmyyyy = function (v) {
     return (mkdate(year, month, day));
 };
 
+// Convert a yyyy-mm-dd hh:mm:ss date with optional "UTC" qualifier
+// Sample from Chicon 2022:  2020-07-30 21:44:02 UTC
+// Note that the *only* time zone supported is UTC.
+Import.converters.yyyymmdd = function (v) {
+    if (!v) {
+        return (undefined);
+    }
+    var result = v.match(
+        '^ *([0-9]+) *[-/] *([0-9]+) *[-/] *([0-9]+)'
+        + '(  *([0-9]+) *: *([0-9]+) *: *([0-9]+))? *(UTC)? *$'
+    );
+    if (!result) {
+        return (undefined);
+    }
+
+    var [ , year, month, day, junk, hour, minute, second, utc ] = result;
+
+    year = parseInt(year);
+    if (year < 100) {
+        year += 2000;
+    }
+    month = parseInt(month);
+    day = parseInt(day);
+    hour = hour ? parseInt(hour) : 0;
+    minute = minute ? parseInt(minute) : 0;
+    second = second ? parseInt(second) : 0;
+
+    if (utc) {
+        // Convert from UTC to local time.
+        var d = new Date(Date.UTC(year, month-1, day, hour, minute, second));
+        year = d.getFullYear();
+        month = d.getMonth()+1;
+        day = d.getDate();
+        hour = d.getHours();
+        minute = d.getMinutes();
+        second = d.getSeconds();
+    }
+    return (mkdate(year, month, day, hour, minute, second));
+};
+
 // Convert a Member Solutions m/d/y h:m{am|pm}
 // date-time string to v3 (ISO 8601) format.
 Import.converters.dateMS = function (v) {
