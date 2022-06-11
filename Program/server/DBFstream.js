@@ -33,6 +33,9 @@ DBFConverters.def = function (v) {
 
 DBFConverters.N = function (v) {
     // NEEDSWORK duplicated in Import.js
+    if (!v) {
+        return (undefined);
+    }
     v = parseFloat(v.replace(/[^-0-9.]/g,''));
     if (isNaN(v)) {
         return (undefined);

@@ -18,6 +18,9 @@ Import.converters[''] = Import.converters.null;
 
 // NEEDSWORK duplicated in DBFstream.js
 Import.converters.number = function (v) {
+    if (!v) {
+        return (undefined);
+    }
     v = parseFloat(v.replace(/[^-0-9.]/g,''));
     if (isNaN(v)) {
         v = undefined;
