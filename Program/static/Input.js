@@ -942,3 +942,13 @@ InputObject.toDOM = function (value, params) {
     });
     return (ret);
 };
+
+function InputFontWeight(params) {
+    var o = this;
+    InputFontWeight.sup.constructor.call(o, params);
+    rpc.listFontWeights(function (weights) {
+        o.setOptions(weights);
+    });
+}
+
+extend(InputSelect, InputFontWeight);

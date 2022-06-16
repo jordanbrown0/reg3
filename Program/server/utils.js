@@ -80,8 +80,28 @@ function streamWrapper(f) {
     });
 }
 
+// Return a cached value, or create it and cache it.
+// c is a cache, initialized to {}.
+// f is a function that will create the desired object.
+// The additional arguments are keys that identify the particular object.
+function cache(c, f /* ... */) {
+    for (var i = 2; i < arguments.length; i++) {
+        var arg = arguments[i];
+        if (!(arg in c)) {
+            if (i < arguments.length - 1) {
+                c[arg] = {};
+            } else {
+                c[arg] = f();
+            }
+        }
+        c = c[arg];
+    }
+    return (c);
+}
+
 export {
     assert,
+    cache,
     mkdate,
     log,
     status,

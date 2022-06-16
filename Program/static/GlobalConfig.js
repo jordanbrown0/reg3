@@ -16,6 +16,12 @@ var globalSchema = [
             default: 'Times New Roman',
             required: true
         },
+        { field: 'weight',
+            label: 'Font weight',
+            input: InputFontWeight,
+            default: 'default',
+            required: true
+        },
         { field: 'badgeCopies',
             label: 'Number of copies',
             input: InputInt,

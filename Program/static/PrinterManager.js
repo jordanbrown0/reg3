@@ -277,7 +277,7 @@ Printers.identify = function (k, cb) {
             return;
         }
         testSize = p.dpiy / 2;
-        p.measure(cfg.font, testSize, s, gotDims);
+        p.measure(cfg.font, testSize, cfg.weight, s, gotDims);
     }
     function gotDims(testDims) {
         var x = p.limits.x + p.limits.h/2;
@@ -287,9 +287,10 @@ Printers.identify = function (k, cb) {
         var items = [
             { font: cfg.font, halign: 'center' },
 
-            { x: x, y: y, size: testSize, valign: 'bottom', text: s },
+            { x: x, y: y, size: testSize, weight: cfg.weight, valign: 'bottom',
+                text: s },
 
-            { size: p.dpiy/5 },
+            { size: p.dpiy/5, weight: 'default' },
             { x: x, y: topy, valign: 'top', text: p.pname },
             { x: x, y: p.limits.y, valign: 'bottom', text: p.winName },
 
@@ -372,9 +373,9 @@ Printer.prototype.print = function (items, cb) {
     rpc.label_print(o.winName, items, cb);
 }
 
-Printer.prototype.measure = function (font, size, text, cb) {
+Printer.prototype.measure = function (font, size, weight, text, cb) {
     var o = this;
-    rpc.label_measureText(o.winName, font, size, text, cb);
+    rpc.label_measureText(o.winName, font, size, weight, text, cb);
 };
 
 Printer.prototype.points = function (points) {

@@ -6,6 +6,7 @@ function label_badge(r, done, err) {
     var bottom;             // measures dims of bottom bar
     var smallItems = [];    // right and bottom items
     var nameLimits = {};
+    var DEFAULT_WEIGHT = 'default';
 
     Class.get(r.class, gotClass);
     function gotClass(c) {
@@ -105,12 +106,14 @@ function label_badge(r, done, err) {
     }
 
     function addRight(cb, text) {
-        p.measure(cfg.font, cfg.badgeNumber.size, text,
+        var weight = DEFAULT_WEIGHT;
+        p.measure(cfg.font, cfg.badgeNumber.size, weight, text,
             function (dims) {
                 var item = {
                     x: right.x,
                     y: right.y,
                     size: cfg.badgeNumber.size,
+                    weight: weight,
                     halign: 'right',
                     valign: 'bottom',
                     text: text
@@ -125,6 +128,7 @@ function label_badge(r, done, err) {
     }
 
     function doBottom(cb, items) {
+        var weight = DEFAULT_WEIGHT;
         var components = [];
         if (r.city) {
             components.push(r.city);
@@ -135,7 +139,7 @@ function label_badge(r, done, err) {
             components.push(r.state);
         }
         var text = components.join(', ');
-        p.measure(cfg.font, cfg.badgeCity.size, text,
+        p.measure(cfg.font, cfg.badgeCity.size, weight, text,
             function (dims) {
                 var item = {
                     halign: 'left',
@@ -143,6 +147,7 @@ function label_badge(r, done, err) {
                     x: bottom.x,
                     y: bottom.y,
                     size: cfg.badgeCity.size,
+                    weight: weight,
                     text: text
                 };
                 smallItems.push(item);
@@ -179,6 +184,7 @@ function label_badge(r, done, err) {
                     halign: 'center',
                     valign: 'center',
                     size: cfg.nameSizes[0],
+                    weight: cfg.weight,
                     text: s
                 }, cb, drawTwoNamesLine1);
             }
@@ -190,8 +196,9 @@ function label_badge(r, done, err) {
                 shrink(items, limits1, cfg.nameSizes, {
                     halign: 'center',
                     valign: 'bottom',
+                    weight: cfg.weight,
                     text: name1
-                }, drawTwoNamesLine2)
+                }, drawTwoNamesLine2);
             }
             function drawTwoNamesLine2(sizes) {
                 var limits2 = Object.assign({}, limits);
@@ -199,6 +206,7 @@ function label_badge(r, done, err) {
                 shrink(items, limits2, sizes, {
                     halign: 'center',
                     valign: 'top',
+                    weight: cfg.weight,
                     text: name2
                 }, function (sizes) { cb(); })
             }
@@ -213,6 +221,7 @@ function label_badge(r, done, err) {
             shrink(items, limits, cfg.nameSizes, {
                 halign: 'center',
                 valign: 'center',
+                weight: cfg.weight,
                 text: n
             }, function (sizes) { cb(); })
         }
@@ -231,7 +240,8 @@ function label_badge(r, done, err) {
     }
 
     function drawMaybe(items, limits, item, yes, no) {
-        p.measure(cfg.font, item.size, item.text, drawMaybeGotDims);
+        p.measure(cfg.font, item.size, item.weight, item.text,
+            drawMaybeGotDims);
         function drawMaybeGotDims(dims) {
             if (dims.cx > limits.h || dims.cy > limits.v) {
                 no();
@@ -249,6 +259,7 @@ function label_badge(r, done, err) {
             halign: 'left',
             valign: 'bottom',
             size: item.size,
+            weight: item.weight,
             text: item.text,
         };
         switch (item.halign) {
@@ -298,4 +309,3 @@ function label_badge(r, done, err) {
         log('Time to layout and print ', Date.now()-t0, 'ms');
     }
 }
-

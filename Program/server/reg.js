@@ -1,4 +1,4 @@
-import { assert, log, status, UserError }  from './utils.js';
+import { assert, log, status, UserError, cache }  from './utils.js';
 
 // Catch unhandled errors really early, to cover all cases.
 
@@ -156,9 +156,9 @@ methods.label_getDeviceCaps = function (p) {
     return (dpi);
 };
 
-methods.label_measureText = function (p, fontname, fontsize, s) {
+methods.label_measureText = function (p, fontname, fontsize, weight, s) {
     var hdc = label.createDc2(p);
-    label.selectObject(hdc, getFont(fontname, fontsize));
+    label.selectObject(hdc, getFont(fontname, fontsize, weight));
     var ret = label.measureText(hdc, s);
     label.deleteDc(hdc);
     return (ret);
@@ -169,15 +169,28 @@ methods.release = function () {
 };
 
 var fonts = {};
-function getFont(fontname, fontsize) {
-    if (!fonts[fontname]) {
-        fonts[fontname] = {}
+function getFont(fontname, fontsize, weight) {
+    function create() {
+        if (!(weight in fontWeights)) {
+            throw new Error('Unknown font weight '+weight);
+        }
+        return (label.createFont(fontname, fontsize, fontWeights[weight]));
     }
-    if (!fonts[fontname][fontsize]) {
-        fonts[fontname][fontsize] = label.createFont(fontname, fontsize);
-    }
-    return (fonts[fontname][fontsize]);
+    return (cache(fonts, create, fontname, fontsize, weight));
 }
+
+var fontWeights = {
+        'default': 0,
+        'thin': 100,
+        'extra light': 200,
+        'light': 300,
+        'normal': 400,
+        'medium': 500,
+        'semibold': 600,
+        'bold': 700,
+        'extra bold': 800,
+        'heavy': 900
+};
 
 methods.label_print = function (p, a) {
     var hdc = label.createDc2(p, { dmOrientation: label.DMORIENT_LANDSCAPE });
@@ -188,6 +201,7 @@ methods.label_print = function (p, a) {
     var size = 45;
     var halign = null;
     var valign = null;
+    var weight = 'default';
 
     a.forEach(function (e) {
         if (e.font) {
@@ -195,6 +209,9 @@ methods.label_print = function (p, a) {
         }
         if (e.size) {
             size = Math.round(e.size);
+        }
+        if (e.weight) {
+            weight = e.weight;
         }
         if (e.halign) {
             halign = e.halign;
@@ -234,7 +251,7 @@ methods.label_print = function (p, a) {
             }
 
             label.setTextAlign(hdc, align);
-            label.selectObject(hdc, getFont(font, size));
+            label.selectObject(hdc, getFont(font, size, weight));
             label.textOut(hdc, Math.round(e.x), Math.round(e.y),
                 e.text.toString());
         }
@@ -263,6 +280,12 @@ methods.importResync = async function (file, dbName) {
     return (await db.importResync(fs.createReadStream(file.path)));
 };
 methods.importResync.file = true;
+
+methods.listFontWeights = function () {
+    return (Object.keys(fontWeights).sort(function (a, b) {
+        return (fontWeights[a] - fontWeights[b]);
+    }));
+};
 
 async function methodCallMiddleware(req, res, next)
 {
