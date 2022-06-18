@@ -13,6 +13,7 @@ var globalSchema = [
         { title: 'Badges' },
         { field: 'font',
             label: 'Badge font',
+            input: InputFont,
             default: 'Times New Roman',
             required: true
         },

@@ -168,6 +168,10 @@ methods.release = function () {
     return Release;
 };
 
+methods.enumFonts = function () {
+    return (label.enumFonts());
+}
+
 var fonts = {};
 function getFont(fontname, fontsize, weight) {
     function create() {

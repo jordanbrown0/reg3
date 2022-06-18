@@ -952,3 +952,15 @@ function InputFontWeight(params) {
 }
 
 extend(InputSelect, InputFontWeight);
+
+function InputFont(params) {
+    var o = this;
+    InputFont.sup.constructor.call(o, params);
+    rpc.enumFonts(function (fontlist) {
+        var opts = [];
+        fontlist.forEach(function (f) { opts.push(f.name); });
+        o.setOptions(opts.sort());
+    });
+}
+
+extend(InputSelect, InputFont);

@@ -181,6 +181,56 @@ Napi::Value createFont(const Napi::CallbackInfo& info) {
 	return Napi::Number::New(env, (uint32_t)font);
 }
 
+class EnumFontsArgs {
+    public:
+    Napi::Array ret;
+    Napi::Env env;
+    EnumFontsArgs(Napi::Env envarg) : env(envarg) {
+        ret = Napi::Array::New(env);
+    }
+};
+
+int CALLBACK enumFontsProc(
+    const LOGFONTW    *lpelfe,
+    const TEXTMETRICW *lpntme,
+    DWORD      FontType,
+    LPARAM     lParam
+) {
+    EnumFontsArgs *args = (EnumFontsArgs *)lParam;
+    if (lpelfe->lfFaceName[0] != L'@') {
+        Napi::Object obj = Napi::Object::New(args->env);
+        obj.Set("name", (const char16_t *)lpelfe->lfFaceName);
+        // obj.Set("charset", lpelfe->lfCharSet);
+        // obj.Set("italic", lpelfe->lfItalic);
+        // obj.Set("weight", lpelfe->lfWeight);
+        obj.Set("pitchAndFamily", lpelfe->lfPitchAndFamily);
+        obj.Set("pitch", lpelfe->lfPitchAndFamily & 3);
+        obj.Set("family", lpelfe->lfPitchAndFamily >> 4);
+        args->ret.Set(args->ret.Length(), obj);
+    }
+    return 1;
+}
+
+Napi::Value enumFonts(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+	if( info.Length() != 0 ){
+		throw Napi::Error::New(env, "wrong number of arguments, usage: enumFonts()");
+	}
+	HDC hdc = CreateDCA("DISPLAY", NULL, NULL, NULL);
+    LOGFONTW logfont;
+    logfont.lfCharSet = ANSI_CHARSET;
+	if( wcscpy_s(logfont.lfFaceName, LF_FACESIZE, L"") != 0 ){
+		throw Napi::Error::New(env,
+            "empty-string font name too long?!?");
+	}
+    logfont.lfPitchAndFamily = 0;
+    EnumFontsArgs args(env);
+    (void) EnumFontFamiliesExW(hdc, &logfont, enumFontsProc, (LPARAM) &args, 0);
+    (void) DeleteDC(hdc);
+
+    return args.ret;
+}
+
 Napi::Value deleteObject(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
 	// deleteObject(obj)
@@ -831,7 +881,7 @@ Napi::Value enumPrinters(const Napi::CallbackInfo& info){
 	}
 	int flags = UINT32ARG(info[0]);
 
-	// NEEDSWORK:  This convers null into a string, which we then
+	// NEEDSWORK:  This converts null into a string, which we then
 	// ignore.  It would be better to never create the String::Value
 	// if the argument is null, but I don't see how to do that and
 	// keep the String::Value (if initialized) in scope.
@@ -969,6 +1019,7 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
 	F(setTextAlign);
 	F(getTextAlign);
 	F(enumPrinters);
+	F(enumFonts);
 #undef F
 #define C(n)    exports.Set(#n, n)
 #define C2(n, v)    exports.Set(#n, v)
