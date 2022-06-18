@@ -809,20 +809,18 @@ Napi::Value getTextAlign(const Napi::CallbackInfo& info){
     return INTVAL(align);
 }
 
-#define SET(obj, name, val) (obj).Set((name), (val))
-#define SET2(obj, name, val) (obj).Set((name), (val))
-#define SETSTRMAYBE(obj, name, val) do {    \
-        if (val != NULL) {                  \
-            (obj).Set(name, (const char16_t *)val);         \
-        }                                   \
+#define SETSTRMAYBE(obj, name, val) do {            \
+        if (val != NULL) {                          \
+            (obj).Set(name, (const char16_t *)val); \
+        }                                           \
     } while(0)
 
 Napi::Object enumPrinterAttributes(Napi::Env env, DWORD attrs) {
     Napi::Object obj = Napi::Object::New(env);;
-#define A(sym)  do {                                                            \
-        if (attrs & PRINTER_ATTRIBUTE_##sym) {                                  \
-            SET2(obj, #sym, true);                                              \
-        }                                                                       \
+#define A(sym)  do {                            \
+        if (attrs & PRINTER_ATTRIBUTE_##sym) {  \
+            obj.Set(#sym, true);                \
+        }                                       \
     } while (0)
     A(DEFAULT);
     A(DIRECT);
@@ -850,10 +848,10 @@ Napi::Object enumPrinterAttributes(Napi::Env env, DWORD attrs) {
 
 Napi::Object enumPrinterFlags(Napi::Env env, DWORD attrs) {
     Napi::Object obj = Napi::Object::New(env);;
-#define F(sym)  do {                                                            \
-        if (attrs & PRINTER_ENUM_##sym) {                                   \
-            SET2(obj, #sym, true);                                              \
-        }                                                                       \
+#define F(sym)  do {                        \
+        if (attrs & PRINTER_ENUM_##sym) {   \
+            obj.Set(#sym, true);            \
+        }                                   \
     } while (0)
     F(EXPAND);
     F(CONTAINER);
@@ -948,13 +946,13 @@ Napi::Value enumPrinters(const Napi::CallbackInfo& info){
                 SETSTRMAYBE(obj, "datatype", pi2->pDatatype);
                 SETSTRMAYBE(obj, "parameters", pi2->pParameters);
                 obj.Set("attributes", enumPrinterFlags(env, pi2->Attributes));
-                SET2(obj, "priority", (uint32_t)pi2->Priority);
-                SET2(obj, "defaultPriority", (uint32_t)pi2->DefaultPriority);
-                SET2(obj, "startTime", (uint32_t)pi2->StartTime);
-                SET2(obj, "untilTime", (uint32_t)pi2->UntilTime);
-                SET2(obj, "status", (uint32_t)pi2->Status);
-                SET2(obj, "cJobs", (uint32_t)pi2->cJobs);
-                SET2(obj, "averagePPM", (uint32_t)pi2->AveragePPM);
+                obj.Set("priority", (uint32_t)pi2->Priority);
+                obj.Set("defaultPriority", (uint32_t)pi2->DefaultPriority);
+                obj.Set("startTime", (uint32_t)pi2->StartTime);
+                obj.Set("untilTime", (uint32_t)pi2->UntilTime);
+                obj.Set("status", (uint32_t)pi2->Status);
+                obj.Set("cJobs", (uint32_t)pi2->cJobs);
+                obj.Set("averagePPM", (uint32_t)pi2->AveragePPM);
                 break;
             }
         case 5:
