@@ -45,3 +45,5 @@ git add %rij%
 git commit -m "Release %release%" > nul
 git tag -a -m "%release%" %token%
 call InstallWad
+git push
+git push --tags
