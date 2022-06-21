@@ -183,6 +183,7 @@ Import.import = async function (file, t, params) {
     let ret = {
         kept: 0,
         replaced: 0,
+        updated: 0,
         added: 0,
     };
     let map = [];
@@ -208,6 +209,7 @@ Import.import = async function (file, t, params) {
         switch (params.existing) {
         case 'keep':
         case 'replace':
+        case 'update':
             if (!keyField) {
                 throw new UserError('"Keep" and "Replace" modes require a key'
                     + ' field in the import map.');
@@ -253,6 +255,10 @@ Import.import = async function (file, t, params) {
                 var rOld = t.getOrNull(k);
                 if (rOld) {
                     switch (params.existing) {
+                    case 'update':
+                        t.update(k, importRecord, null);
+                        ret.updated++;
+                        break;
                     case 'replace':
                         // Existing record, delete and replace it.
                         t.delete(k, null);
@@ -277,6 +283,10 @@ Import.import = async function (file, t, params) {
                         unreachable();
                     }
                 } else {
+                    switch (params.existing) {
+                    case 'update':
+                        throw new UserError('Unknown key "'+k+'" in imported data');
+                    }
                     // We have a key, but no existing record; add it.
                     t.add(k, r, null);
                     ret.added++;
@@ -290,8 +300,8 @@ Import.import = async function (file, t, params) {
     } finally {
         t.sync(true);
     }
-    log('imported',ret.added+ret.replaced,'records from', file.originalname,
-        'took', Date.now()-t0, 'ms');
+    log('imported',ret.added+ret.replaced+ret.updated,'records from',
+        file.originalname, 'took', Date.now()-t0, 'ms');
     return (ret);
 };
 

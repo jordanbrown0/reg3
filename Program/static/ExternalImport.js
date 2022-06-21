@@ -182,6 +182,7 @@ ExternalImport.prototype.activate = function () {
             options: {
                 keep: 'Keep existing record',
                 replace: 'Replace existing record',
+                update: 'Update existing record',
                 zap: 'Zap all existing records',
                 add: 'Add duplicate'
             }
@@ -229,6 +230,10 @@ ExternalImport.prototype.import = function (options) {
             if (ret.replaced) {
                 content.appendChild(div(
                     'Replaced ' + ret.replaced + ' existing records.'));
+            }
+            if (ret.updated) {
+                content.appendChild(div(
+                    'Updated ' + ret.updated + ' existing records.'));
             }
             if (ret.kept) {
                 content.appendChild(div(
