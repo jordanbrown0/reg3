@@ -256,7 +256,7 @@ Import.import = async function (file, t, params) {
                 if (rOld) {
                     switch (params.existing) {
                     case 'update':
-                        t.update(k, importRecord, null);
+                        t.update(k, r, null);
                         ret.updated++;
                         break;
                     case 'replace':
@@ -292,6 +292,10 @@ Import.import = async function (file, t, params) {
                     ret.added++;
                 }
             } else {
+                switch (params.existing) {
+                case 'update':
+                    throw new UserError('No key in imported data');
+                }
                 // No key, just add.
                 t.add(null, r, null);
                 ret.added++;
