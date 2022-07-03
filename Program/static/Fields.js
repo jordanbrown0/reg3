@@ -32,7 +32,7 @@ var fieldsSchema = [
     ],
 ];
 
-function FieldsManager() {
+function FieldManager() {
     var o = this;
     params = {
         table: table.fields,
@@ -42,17 +42,18 @@ function FieldsManager() {
         titleManager: 'Fields',
         titleEdit: 'Edit fields',
         titleAdd: 'New fields',
+        helpEdit: 'FieldEdit',
         reconfig: true
     };
-    FieldsManager.sup.constructor.call(o, params);
+    FieldManager.sup.constructor.call(o, params);
 }
-extend(DBManager, FieldsManager);
+extend(DBManager, FieldManager);
 
-FieldsManager.prototype.summarize = function (k, r) {
+FieldManager.prototype.summarize = function (k, r) {
     return (tr(td(r.page), td(r.title)));
 };
 
-FieldsManager.inputs = {
+FieldManager.inputs = {
     text: InputText,
     number: InputInt,
     boolean: InputBool,
@@ -62,7 +63,7 @@ FieldsManager.inputs = {
     datetime: InputDateTime
 };
 
-FieldsManager.get = function (cb) {
+FieldManager.get = function (cb) {
     var ret = [];
 
     table.fields.list({}, got);
@@ -85,7 +86,7 @@ FieldsManager.get = function (cb) {
                     if (ent.type == undefined) {
                         ent.type = 'text';
                     }
-                    ent.input = FieldsManager.inputs[ent.type];
+                    ent.input = FieldManager.inputs[ent.type];
                 });
             }
             ret.push(r);

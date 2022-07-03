@@ -24,7 +24,7 @@ var correctionsSchema = [
     ],
 ];
 
-function CorrectionsManager() {
+function CorrectionManager() {
     var o = this;
     params = {
         table: table.corrections,
@@ -34,17 +34,18 @@ function CorrectionsManager() {
         titleManager: 'Corrections',
         titleEdit: 'Edit corrections',
         titleAdd: 'New corrections',
+        helpEdit: 'CorrectionEdit',
         reconfig: true
     };
-    CorrectionsManager.sup.constructor.call(o, params);
+    CorrectionManager.sup.constructor.call(o, params);
 }
-extend(DBManager, CorrectionsManager);
+extend(DBManager, CorrectionManager);
 
-CorrectionsManager.prototype.summarize = function (k, r) {
+CorrectionManager.prototype.summarize = function (k, r) {
     return (tr(td(r.table), td(r.field)));
 };
 
-CorrectionsManager.get = function(cb) {
+CorrectionManager.get = function(cb) {
     var corrections = {};
 
     table.corrections.list({}, got);

@@ -1,0 +1,33 @@
+<html>
+<head>
+    <title>Assign or reassign membership numbers</title>
+    <script src="HelpCommon.js"> </script>
+    <script>
+        helpCommon(
+            'FormCommon',
+            'NavCommon'
+        );
+    </script>
+    <!-- INDEX: Member -->
+</head>
+<body>
+    <h2>
+        Assign or reassign membership numbers
+    </h2>
+    Add numbers to members without them, or renumber all members.
+    <p>
+    <li>
+        <label>Start at number</label> number to start assigning numbers at.
+    </li>
+    <li>
+        <label>Renumber all members?</label> if checked, renumbers all
+        members; if not, renumbers only those without numbers.
+    </li>
+    <p>
+    If "Start at number" is not specified, starts numbering
+    after the largest number used.  This is not the right answer if
+    "Renumber all members?" is checked.
+    <p>
+    <button>Renumber (<u>Enter</u>)</button> to do the operation.
+</body>
+</html>

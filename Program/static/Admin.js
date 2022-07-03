@@ -73,11 +73,11 @@ function AdminMember()
     AdminMember.sup.constructor.call(o, {
         items: [
             { label: '&Classes', page: ClassManager },
-            { label: '&Metaclasses', page: MetaclassesManager },
-            { label: '&Upgrades', page: UpgradesManager },
-            { label: 'Categories', page: CategoriesManager },
-            { label: 'Corrections', page: CorrectionsManager },
-            { label: '&Fields', page: FieldsManager },
+            { label: '&Metaclasses', page: MetaclassManager },
+            { label: '&Upgrades', page: UpgradeManager },
+            { label: 'Categories', page: CategoryManager },
+            { label: 'Corrections', page: CorrectionManager },
+            { label: '&Fields', page: FieldManager },
             { label: 'E&xternal import/export', page: External },
             // Note:  Renumber does not have a one-key shortcut, for safety.
             { label: 'Renumber', page: Renumber },

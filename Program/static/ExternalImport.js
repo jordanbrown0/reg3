@@ -83,8 +83,10 @@ var externalImportSchema = [
             params: {
                 input: InputObject,
                 schema: [
-                    { field: 'from', input: InputText, required: true },
-                    { field: 'to', input: InputClass, required: true }
+                    { field: 'from', hint: 'External name',
+                        input: InputText, required: true },
+                    { field: 'to', hint: 'Class name',
+                        input: InputClass, required: true }
                 ]
             }
         }

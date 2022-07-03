@@ -5,19 +5,95 @@
     <script>helpCommon('FormCommon', 'PageFlipCommon', 'NavCommon');</script>
     <!-- INDEX: Import from DBF, CSV -->
     <!-- INDEX: Dates -->
+    <!-- INDEX: Schema -->
 </head>
 <body>
     <h2>
         Add/Edit External Import Mapping
     </h2>
-    Add or edit an external import mapping.  Blah blah blah.  This is quite a
-    complex topic; all I want right now is to document the behavior of DBF
-    deleted records so that I can close #179.
+    Add or edit an external import mapping.
     <p>
-    DBF note:  deleted records are not imported.  Ref issue <a href="https://github.com/jordanbrown0/reg3/issues/179">#179</a/>.
+    The idea is that you define an import mapping that describes how to import
+    a particular external format, and then you can use that import mapping
+    numerous times to import data from those files.
+    <p>
+    DBF note:  deleted records are not imported.  Ref issue
+    <a href="https://github.com/jordanbrown0/reg3/issues/179">#179</a/>.
     <p>
     Import mapping requires knowing the names and semantics of the fields in
-    the various tables.  See <a href="Schema.html">the schema documentation</a>.
+    the various tables.  See <a href="Schema.html">the schema documentation</a>
+    and, for "members", <a href="ReportSchema.html">the schema report</a>.
+    <p>
+    There are three pages:
+    <li>General information about the import.</li>
+    <li>How to map fields.</li>
+    <li>How to map classes.</li>
+    <p>
+    When adding a new import mapping, you are initially asked only for the
+    description and the destination table.  After that, the destination table
+    cannot be changed.
+    <p>
+    <h3>Page 1: General information</h3>
+    <li>
+        <label>Description</label> description of the import mapping.
+    </li>
+    <li>
+        <label>Destination table</label> what table to import to.  This entry
+        cannot be changed after the import mapping is initially created.
+    </li>
+    <li>
+        <label>File type</label> what general data format to import from.
+        The types are DBF (dBASE), CSV with headers, and CSV without headers.
+    </li>
+    <li>
+        <label>Encoding</label> character encoding for the external data.
+    </li>
+    <li>
+        <label>Unique identifier field</label> name of an external-record
+        field that contains a unique identifier managed by the external system.
+        If specified, this mechanism allows for re-importing data from the
+        external source, replacing or updating previously imported records.
+    </li>
+    <h3>Page 2: Field mappings</h3>
+    This page has a list that says how external fields are copied to fields
+    in this system's tables.  It is not necessary that every external field
+    be imported; external fields that are not mentioned in the import map are
+    ignored.  It is not necessary that every field in the import map be present
+    in the external data; missing fields are ignored.
+    <p>
+    Use the <button>+</button> and <button>-</button> buttons to add or remove
+    entries.
+    <p>
+    For each entry:
+    <li>
+        <label>External name</label> the name used in the external data.
+        Note: for CSV without headers, this is the column number, starting
+        with 1.
+    </li>
+    <li><label>Field name</label> the name of the field to import into.</li>
+    <li>
+        <label>Converter</label> the name of a conversion function that should
+        process the data for the field; see table below.
+    </li>
+    <h3>Page 3: Class mappings</h3>
+    This page has a list that says how membership classes should be mapped
+    during the import.  It is not necessary that every external class name
+    be represented; class names that are not mentioned here are imported
+    unchanged.  It is not necessary that every class listed here be represented
+    in the external data; unused entries are ... unused.
+    <p>
+    Use the <button>+</button> and <button>-</button> buttons to add or remove
+    entries.
+    <p>
+    For each entry:
+    <li>
+        <label>External name</label> name of the class as known in the external
+        data.
+    </li>
+    <li>
+        <label>Class name</label> name of the class as defined in the
+        <a href="ClassManager.html">class list</a>.
+    </li>
     <h3>
         Converters
     </h3>
@@ -50,7 +126,7 @@
                 <br>
                 Time is optional.
                 <br>
-                Should maybe combine with mmddyyyy below.
+                Should maybe combine with mm/dd/yyyy below.
             </td>
         </tr>
         <tr>
@@ -119,6 +195,8 @@
                 Year four digits.
                 <br>
                 AM/PM in upper or lower case.
+                <br>
+                Should maybe combine with mm/dd/yyyy above.
             </td>
         </tr>
         <tr>

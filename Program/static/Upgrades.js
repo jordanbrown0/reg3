@@ -3,35 +3,36 @@ var upgradesSchema = [
         { field: 'from', label: 'From class', required: true,
             input: InputClass },
         { field: 'to', label: 'To class', required: true, input: InputClass },
+        { field: 'description', label: 'Description' },
         { field: 'amount', label: 'Amount', required: true,
             input: InputCurrency },
         { field: 'metaclasses', label: 'Metaclasses', input: InputSelectMultiDB,
             table: 'metaclasses', keyField: 'name', textField: 'description'},
-        { field: 'description', label: 'Description' },
         { field: 'start', label: 'Start date', input: InputDate },
         { field: 'end', label: 'End date', input: InputDate },
     ],
 ];
 
-function UpgradesManager() {
+function UpgradeManager() {
     var o = this;
     params = {
         titleManager: 'Upgrade administration',
         titleEdit: 'Edit upgrade',
         titleAdd: 'New upgrade',
+        helpEdit: 'UpgradeEdit',
         table: table.upgrades,
         schema: upgradesSchema,
         canAdd: true,
         canDelete: true
     };
 
-    UpgradesManager.sup.constructor.call(o, params);
+    UpgradeManager.sup.constructor.call(o, params);
 }
-extend(DBManager, UpgradesManager);
+extend(DBManager, UpgradeManager);
 
-UpgradesManager.title = 'Upgrade administration...';
+UpgradeManager.title = 'Upgrade administration...';
 
-UpgradesManager.prototype.summarize = function (k, r) {
+UpgradeManager.prototype.summarize = function (k, r) {
     var tdFrom = td({ id: 'from' });
     var tdTo = td({ id: 'to' });
     Class.getDescription(r.from, function (d) {

@@ -5,7 +5,7 @@ var categoriesSchema = [
     ],
 ];
 
-function CategoriesManager() {
+function CategoryManager() {
     var o = this;
     params = {
         table: table.categories,
@@ -14,13 +14,14 @@ function CategoriesManager() {
         canDelete: true,
         titleManager: 'Categories',
         titleEdit: 'Edit category',
-        titleAdd: 'New category'
+        titleAdd: 'New category',
+        helpEdit: 'CategoryEdit'
     };
-    CategoriesManager.sup.constructor.call(o, params);
+    CategoryManager.sup.constructor.call(o, params);
 }
-extend(DBManager, CategoriesManager);
+extend(DBManager, CategoryManager);
 
-CategoriesManager.prototype.summarize = function (k, r) {
+CategoryManager.prototype.summarize = function (k, r) {
     return (tr(
         td(r.name, { id: 'name' }),
         td(r.description, { id: 'description' })

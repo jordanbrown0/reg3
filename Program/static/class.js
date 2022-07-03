@@ -27,8 +27,8 @@ function ClassManager()
         canDelete: true,
         keyField: 'code',
         titleEdit: 'Edit class...',
-        titleAdd: 'New class...'
-
+        titleAdd: 'New class...',
+        helpEdit: 'ClassEdit'
     });
 }
 extend(DBManager, ClassManager);

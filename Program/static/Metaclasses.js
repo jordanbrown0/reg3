@@ -7,7 +7,7 @@ var metaclassesSchema = [
     ],
 ];
 
-function MetaclassesManager() {
+function MetaclassManager() {
     var o = this;
     params = {
         table: table.metaclasses,
@@ -16,13 +16,14 @@ function MetaclassesManager() {
         canDelete: true,
         titleManager: 'Metaclasses',
         titleEdit: 'Edit metaclass',
-        titleAdd: 'New metaclass'
+        titleAdd: 'New metaclass',
+        helpEdit: 'MetaclassEdit'
     };
-    MetaclassesManager.sup.constructor.call(o, params);
+    MetaclassManager.sup.constructor.call(o, params);
 }
-extend(DBManager, MetaclassesManager);
+extend(DBManager, MetaclassManager);
 
-MetaclassesManager.prototype.summarize = function (k, r) {
+MetaclassManager.prototype.summarize = function (k, r) {
     return (tr(
         td(r.description, { id: 'description' })
     ));

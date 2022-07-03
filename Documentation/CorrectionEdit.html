@@ -1,0 +1,43 @@
+<html>
+<head>
+    <title>Add/Edit correction definition</title>
+    <script src="HelpCommon.js"> </script>
+    <script>
+        helpCommon(
+            'FormCommon',
+            'DeleteCommon',
+            'AddCommon',
+            'SaveCommon',
+            'NavCommon'
+        );
+    </script>
+    <!-- INDEX: Corrections -->
+    <!-- INDEX: Member -->
+</head>
+<body>
+    <h2>
+        Add/Edit correction definition
+    </h2>
+    Add the definition of a new set of corrections, or edit an existing
+    definition.
+    <p>
+    <li>
+        <label>Table</label> table that the correction applies to.
+        At this time, this should always be "members".
+    </li>
+    <li>
+        <label>Field name</label> name of the field that the correction applies
+        to.  (Should really be a picker, ref
+        <a href="https://github.com/jordanbrown0/reg3/issues/416">issue #416</a>.)
+    </li>
+    <li>
+        <label>Corrections</label> a list of from/to corrections.  Use the
+        <button>+</button> and <button>-</button> buttons to add or remove
+        entries.
+    </li>
+    When editing the specified field, matching values are automatically
+    replaced when you leave the field.  "From" values are matched
+    case-insensitively.  (Note that this makes a "US"->"US" entry correct
+    "us" to "US".)
+</body>
+</html>

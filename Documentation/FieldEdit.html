@@ -1,0 +1,47 @@
+<html>
+<head>
+    <title>Add/Edit custom field definition</title>
+    <script src="HelpCommon.js"> </script>
+    <script>
+        helpCommon(
+            'FormCommon',
+            'DeleteCommon',
+            'AddCommon',
+            'SaveCommon',
+            'NavCommon'
+        );
+    </script>
+    <!-- INDEX: Schema -->
+    <!-- INDEX: Member -->
+</head>
+<body>
+    <h2>
+        Add/Edit custom field definition
+    </h2>
+    Add the definition of a new set of fields, or edit an existing
+    definition.
+    <p>
+    <li>
+        <label>Page number</label> number of the member data page to add these
+        fields to.  Can be one of the built-in pages, or a larger number to add
+        a new page.
+    </li>
+    <li>
+        <label>Page title (if new)</label> if defining a new page, this gives
+        the page title.  If adding to an existing page, this value is not used
+        but can help to remind you which page you are adding to.
+    </li>
+    <li>
+        <label>Fields</label> a list of fields to add.  Use the
+        <button>+</button> and <button>-</button> buttons to add or remove
+        entries.
+    </li>
+    <p>
+    For each field:
+    <ul>
+        <li><label>Field name</label> name of new field.</li>
+        <li><label>Label</label> label to show on edit pages.</li>
+        <li><label>Type</label> type of data that goes in this field</li>
+    </ul>
+</body>
+</html>

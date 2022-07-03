@@ -8,8 +8,8 @@ Config.sources = new ArrayObject([
     { global: Global.get },
     { servers: Server.get },
     { stations: Station.get },
-    { corrections: CorrectionsManager.get },
-    { fields: FieldsManager.get }
+    { corrections: CorrectionManager.get },
+    { fields: FieldManager.get }
 ]);
 
 Config.check = function (cb) {
