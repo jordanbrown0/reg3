@@ -155,12 +155,17 @@ DBTable.prototype.inc = function (k, field, limitField, cb) {
 
 DBTable.prototype.applyDefaults = function (r) {
     var o = this;
-    if (o.defaults) {
-        for (var f in o.defaults) {
-            if (r[f] === undefined) {
-                r[f] = o.defaults[f];
+    function apply(o, def) {
+        for (var f in def) {
+            if (o[f] == undefined) {
+                o[f] = def[f];
+            } else if (def[f] instanceof Object) {
+                apply(o[f], def[f]);
             }
         }
+    }
+    if (o.defaults) {
+        apply(r, o.defaults);
     }
 };
 

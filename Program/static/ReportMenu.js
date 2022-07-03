@@ -8,6 +8,7 @@ function ReportMenu()
             { label: '&Duplicates', page: ReportDupsSetup },
             { label: '&Classes', page: ReportClasses },
             { label: '&Upgrades', page: ReportUpgrades },
+            { label: '&Schema', page: ReportSchema },
             { label: 'Configuration', page: ReportConfigMenu }
         ]
     });

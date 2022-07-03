@@ -59,6 +59,16 @@ Input.toDOM = function (value, params) {
     return (ret);
 };
 
+Input.typeString = function (ent) {
+    var o = this;
+    if (o.typeName instanceof Function) {
+        return (o.typeName(ent));
+    }
+    if (o.typeName) {
+        return (o.typeName);
+    }
+    return (o.name);
+};
 
 // Input widgets based on <input> elements.
 function InputInput(type, params) {
@@ -93,6 +103,9 @@ function InputInput(type, params) {
     if (params.disabled) {
         o.content.setAttribute('disabled', '');
     }
+    if (params.hint) {
+        o.content.setAttribute('placeholder', params.hint);
+    }
 }
 
 extend(Input, InputInput);
@@ -122,6 +135,8 @@ function InputText(params) {
     InputText.sup.constructor.call(o, 'text', params);
 }
 extend(InputInput, InputText);
+
+InputText.typeName = 'Text';
 
 InputText.prototype.set = function (value) {
     var o = this;
@@ -164,6 +179,8 @@ function InputPhone(params) {
 
 extend(InputText, InputPhone);
 
+InputPhone.typeName = 'Phone';
+
 InputPhone.prototype.correct = function () {
     var o = this;
     if (o.params.readOnly) {
@@ -194,6 +211,8 @@ function InputInt(params)
     InputInt.sup.constructor.call(o, params);
 }
 extend(InputText, InputInt);
+
+InputInt.typeName = 'Number';
 
 InputInt.prototype.get = function () {
     var o = this;
@@ -243,6 +262,8 @@ function InputCurrency(params) {
 
 extend(InputInt, InputCurrency);
 
+InputCurrency.typeName = 'Currency';
+
 InputCurrency.toDOM = function (value, params) {
     params = Object.assign({}, params, {
         prefix: cfg.currencyPrefix,
@@ -261,6 +282,16 @@ function InputBool(params)
     InputBool.sup.constructor.call(o, 'checkbox', params);
 }
 extend(InputInput, InputBool);
+
+InputBool.typeName = function (ent) {
+    var o = this;
+    var values = ent.values || o.values;
+    return (values[true] + '/' + values[false]);
+};
+InputBool.values = {
+    true: 'Yes',
+    false: 'No'
+};
 
 InputBool.prototype.get = function () {
     var o = this;
@@ -293,6 +324,8 @@ function InputDate(params)
     InputDate.sup.constructor.call(o, params);
 }
 extend(InputText, InputDate);
+
+InputDate.typeName = 'Date';
 
 InputDate.prototype.get = function () {
     var o = this;
@@ -337,6 +370,7 @@ function InputDateTime(params)
     InputDateTime.sup.constructor.call(o, params);
 }
 extend(InputText, InputDateTime);
+InputDateTime.typeName = 'Date+Time';
 
 InputDateTime.prototype.get = function () {
     var o = this;
@@ -410,6 +444,8 @@ function InputSelect(params)
     }
 }
 extend(Input, InputSelect);
+
+InputSelect.typeName = 'Select';
 
 InputSelect.prototype.get = function () {
     var o = this;
@@ -534,6 +570,7 @@ function InputClass(params)
     InputClass.sup.constructor.call(o, params);
 }
 extend(InputDBPicker, InputClass);
+InputClass.typeName = 'Class';
 
 function InputTablePicker(params)
 {
@@ -554,6 +591,10 @@ function InputDBLookup(params)
     }
 }
 extend(InputText, InputDBLookup);
+
+InputDBLookup.typeName = function (ent) {
+    return ('Lookup ('+ent.table+')');
+}
 
 InputDBLookup.prototype.set = function (value) {
     var o = this;
@@ -603,6 +644,7 @@ function InputClassLookup(params)
     InputClassLookup.sup.constructor.call(o, params);
 }
 extend(InputDBLookup, InputClassLookup);
+InputClassLookup.typeName = 'Class';
 
 InputClassLookup.toDOM = function (value, params) {
     params = Object.assign({}, params, {
@@ -751,6 +793,11 @@ function InputSelectMultiDB(params) {
 
 extend(InputSelectMulti, InputSelectMultiDB);
 
+InputSelectMultiDB.typeName = function (ent) {
+    return ('Select Multi ('+ent.table+')');
+};
+
+
 // Value is an array of values
 // params.input = an input constructor
 // params.params = parameters for the input constructor
@@ -888,6 +935,7 @@ function InputObject(params) {
 
     o.first = null;
     o.children = {};
+    o.defaults = {};
     o.params.schema.forEach(function (schemaEnt) {
         var child = new schemaEnt.input(schemaEnt);
         if (!o.first) {
@@ -895,7 +943,9 @@ function InputObject(params) {
         }
         o.children[schemaEnt.field] = child;
         o.content.appendChild(child);
+        o.defaults[schemaEnt.field] = schemaEnt.default;
     });
+    o.set({});
 }
 
 extend(Input, InputObject);
@@ -903,7 +953,11 @@ extend(Input, InputObject);
 InputObject.prototype.set = function (values) {
     var o = this;
     for (k in o.children) {
-        o.children[k].set(values[k]);
+        if (values[k] !== undefined) {
+            o.children[k].set(values[k]);
+        } else {
+            o.children[k].set(o.defaults[k]);
+        }
     }
 };
 

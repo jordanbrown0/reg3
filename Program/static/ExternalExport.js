@@ -60,7 +60,8 @@ var externalExportSchema = [
                 input: InputObject,
                 schema: [
                     externalExportFromSchemaEntry,
-                    { field: 'to', input: InputText, required: true },
+                    { field: 'to', hint: 'External name',
+                        input: InputText, required: true },
                     // { field: 'conversion', input: InputSelect,
                         // options: {
                             // '': '',

@@ -56,7 +56,8 @@ var externalImportSchema = [
             params: {
                 input: InputObject,
                 schema: [
-                    { field: 'from', input: InputText, required: true },
+                    { field: 'from', hint: 'External name',
+                        input: InputText, required: true },
                     externalImportToSchemaEntry,
                     { field: 'conversion', input: InputSelect,
                         options: {

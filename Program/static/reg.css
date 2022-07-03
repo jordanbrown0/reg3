@@ -265,6 +265,23 @@ input, button, select {
     text-align: right;
 }
 
+.ReportSchema th {
+    text-align: left;
+}
+
+.ReportSchema #custom {
+    width: 1em;
+}
+
+.ReportSchema #pageNum {
+    font-weight: bolder;
+    padding-top: 20px;
+}
+
+.ReportSchema #title {
+    font-weight: bolder;
+}
+
 .ConflictResolver .Difference {
     background-color: yellow;
 }

@@ -14,8 +14,10 @@ var correctionsSchema = [
             params: {
                 input: InputObject,
                 schema: [
-                    { field: 'from', input: InputText, required: true },
-                    { field: 'to', input: InputText, required: true }
+                    { field: 'from', hint: 'From',
+                        input: InputText, required: true },
+                    { field: 'to', hint: 'To',
+                        input: InputText, required: true }
                 ]
             }
         }
