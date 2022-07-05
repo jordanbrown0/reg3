@@ -1,10 +1,9 @@
 var reportListSchema = [[
     {
-        title: 'Filter ...'
+        title: 'Filter'
     },
     {
         field: 'filter',
-        label: 'Filter',
         input: InputFilter,
         required: false
     },

@@ -206,15 +206,15 @@ Filter.operations = {
         label: 'Not',
         n: 1
     },
-    eq: {
-        input: InputNaryOperator,
-        label: 'Equal',
-        n: 2
-    },
     if: {
         input: InputNaryOperator,
         label: 'If',
         n: 3
+    },
+    eq: {
+        input: InputNaryOperator,
+        label: 'Equal',
+        n: 2
     },
     match: {
         input: InputText,
