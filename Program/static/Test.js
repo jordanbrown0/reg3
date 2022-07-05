@@ -43,6 +43,10 @@ function Test()
         {
             label: 'Test update()',
             func: function () { o.testUpdate(); }
+        },
+        {
+            label: 'Test InputFilter',
+            func: function () { o.testInputFilter(); }
         }
     ]});
     o.appendChild(o.menu);
@@ -209,6 +213,10 @@ Test.prototype.testUpdate = function () {
     zap();
 };
 
+Test.prototype.testInputFilter = function () {
+    base.switchTo(new TestInputFilter());
+};
+
 Test.prototype.populate = function (cbDone, n) {
     var o = this;
     function addOne(cbNext, i) {
@@ -241,6 +249,30 @@ Header.prototype.setTitle = function (title) {
 
 function testHome() {
     base.switchTo(new Test());
+}
+
+function TestInputFilter() {
+    var o = this;
+    TestInputFilter.sup.constructor.call(o, 'div');
+    o.filter = new InputFilter({});
+    o.appendChild(o.filter);
+}
+extend(DElement, TestInputFilter);
+
+TestInputFilter.prototype.activate = function () {
+    var o = this;
+
+    function dump() {
+        console.log('Validate', o.filter.validate());
+        var f = o.filter.get();
+        console.log('Filter', f);
+        console.log('Expression', Filter.compile(f));
+    }
+    base.addNav([
+        { label: 'Dump', key: 'Enter', order: 1, func: dump },
+    ]);
+
+    base.addCancel(testHome);
 }
 
 init.push(function testInit() {

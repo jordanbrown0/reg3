@@ -216,7 +216,19 @@ verbs.match = function (r, args) {
 // If b is null or undefined, it's considered to be the empty string.
 verbs.includes = function (r, vals) {
     var o = this;
-    return (o.exec(r, vals[0]).includes(o.exec(r, vals[1]) || ''));
+    var a = o.exec(r, vals[0]);
+    if (a instanceof Array) {
+        for (var i = 0; i < a.length; i++) {
+            if (typeof(a[i]) == 'string') {
+                a[i] = a[i].toLowerCase();
+            }
+        }
+    }
+    var b = o.exec(r, vals[1]) || '';
+    if (typeof(b) == 'string') {
+        b = b.toLowerCase();
+    }
+    return (a.includes(b));
 };
 
 // { eq: [ v1, ..., vN ] }
@@ -300,8 +312,14 @@ verbs.le = function (r, vals) {
 Expression.prototype.compare = function (r, vals, op) {
     var o = this;
     var prev = o.exec(r, vals[0]);
+    if (typeof(prev) == 'string') {
+        prev = prev.toLowerCase();
+    }
     for (var i = 1; i < vals.length; i++) {
         var val = o.exec(r, vals[i]);
+        if (typeof(val) == 'string') {
+            val = val.toLowerCase();
+        }
         if (!op(prev, val)) {
             return (false);
         }
@@ -444,13 +462,21 @@ verbs.empty = function (r, args) {
 };
 
 // { overlaps: [ a, b ] }
-// True if there is at least one element that is common to both arguments
+// True if there is at least one element that is common to both arguments.
+// If either argument is undefined, fail, to allow for fields that have not
+// been set and so are implicitly empty arrays.
 verbs.overlaps = function (r, args) {
     let o = this;
     assert(args.length == 2, 'overlaps: wrong number of arguments');
     let a = o.exec(r, args[0]);
+    if (a === undefined) {
+        return (false);
+    }
     assert(a instanceof Array, 'overlaps: first arg is not array');
     let b = o.exec(r, args[1]);
+    if (b === undefined) {
+        return (false);
+    }
     assert(b instanceof Array, 'overlaps: second arg is not array');
     for (let i = 0; i < a.length; i++) {
         if (b.includes(a[i])) {

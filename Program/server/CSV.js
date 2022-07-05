@@ -1,6 +1,7 @@
 // Read and write CSV files
 import fs from 'fs';
 import { assert, log, streamWrapper, streamWritePromise } from './utils.js';
+import { Expression } from './Expression.js';
 
 var CSV = {};
 
@@ -238,8 +239,12 @@ CSV.export = async function (res, t, params) {
             Buffer.from(toCSV(header, params), params.encoding));
     }
 
+    var filter = params.filter ? new Expression(params.filter) : null;
     let n = 0;
     await t.forEachAsync(async function (k, r) {
+        if (filter && !filter.exec(r)) {
+            return;
+        }
         await streamWritePromise(res,
             Buffer.from(toCSV(r, params), params.encoding));
         n++;

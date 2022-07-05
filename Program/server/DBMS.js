@@ -3,7 +3,7 @@ import Chain from 'stream-chain';
 import StreamValues from 'stream-json/streamers/StreamValues.js';
 import fs from 'fs';
 import { Version } from './version.js';
-import { assert, log, unreachable } from './utils.js';
+import { assert, log, unreachable, UserError } from './utils.js';
 import Concurrency from './Concurrency.js';
 import { Debug } from './Debug.js';
 
@@ -612,8 +612,8 @@ Table.prototype.add = function (k, r, func) {
         assert(!o.records[k], 'automatically allocated record id reused!');
     } else if (rOld = o.records[k]) {
         if (!rOld._deleted) {
-            throw new Error('record already exists - '
-                [ o.db.name, o.name, k ].join(' / '));
+            throw new UserError('record already exists - '
+                + [ o.db.name, o.name, k ].join(' / '));
         }
         r._version = rOld._version;
     }

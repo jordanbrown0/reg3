@@ -73,6 +73,9 @@ var externalExportSchema = [
                 ]
             }
         }
+    ],[
+        { title: 'Filter' },
+        { field: 'filter', input: InputFilter }
     ]
 ];
 
@@ -174,6 +177,9 @@ ExternalExport.prototype.export = function (r) {
         rMap.map.forEach(function (e) {
             e.from = e.from.toLowerCase();
         });
+        if (rMap.filter) {
+            rMap.filter = Filter.compile(rMap.filter);
+        }
 
         var t = table[rMap.table];
         t.externalExport(rMap, home);

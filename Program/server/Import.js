@@ -2,6 +2,7 @@ import { mkdate, assert, log, UserError } from './utils.js';
 import { DBMS } from './DBMS.js';
 import { DBF } from './DBFstream.js';
 import { CSV } from './CSV.js';
+import { Expression } from './Expression.js';
 
 var Import = {};
 
@@ -185,6 +186,8 @@ Import.import = async function (file, t, params) {
         replaced: 0,
         updated: 0,
         added: 0,
+        filtered: 0,
+        dropped: 0,
     };
     let map = [];
     var keyField = params.key ? params.key.toLowerCase() : null;
@@ -204,6 +207,9 @@ Import.import = async function (file, t, params) {
     assert(format, 'Bad format '+params.type);
     var importer = format.import;
     assert(importer, 'No importer for '+params.type);
+
+    var filter = params.filter ? new Expression(params.filter, {}) : null;
+
     try {
         t.sync(false);
         switch (params.existing) {
@@ -211,8 +217,8 @@ Import.import = async function (file, t, params) {
         case 'replace':
         case 'update':
             if (!keyField) {
-                throw new UserError('"Keep" and "Replace" modes require a key'
-                    + ' field in the import map.');
+                throw new UserError('"Keep", "Replace", and "Update" modes'
+                    + ' require a key field in the import map.');
             }
             break;
         case 'zap':
@@ -244,6 +250,11 @@ Import.import = async function (file, t, params) {
                     r[fieldName] = v;
                 }
             };
+
+            if (filter && !filter.exec(r)) {
+                ret.filtered++;
+                return;
+            }
 
             var k = keyField ? importRecord[keyField] : null;
             if (k) {
@@ -285,7 +296,8 @@ Import.import = async function (file, t, params) {
                 } else {
                     switch (params.existing) {
                     case 'update':
-                        throw new UserError('Unknown key "'+k+'" in imported data');
+                        ret.dropped++;
+                        return;
                     }
                     // We have a key, but no existing record; add it.
                     t.add(k, r, null);

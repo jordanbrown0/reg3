@@ -90,6 +90,11 @@ var externalImportSchema = [
                 ]
             }
         }
+    ], [
+        { title: 'Filter' },
+        { field: 'filter',
+            input: InputFilter,
+        }
     ]
 ];
 
@@ -219,6 +224,10 @@ ExternalImport.prototype.import = function (options) {
         });
 
         rMap.existing = options.existing;
+        // NEEDSWORK can/should this be handled through defaulting?
+        if (rMap.filter) {
+            rMap.filter = Filter.compile(rMap.filter);
+        }
 
         var t = table[rMap.table];
         t.externalImport(options.file, rMap, function (ret) {
@@ -238,9 +247,15 @@ ExternalImport.prototype.import = function (options) {
                 content.appendChild(div(
                     'Updated ' + ret.updated + ' existing records.'));
             }
-            if (ret.kept) {
+            if (ret.filtered) {
                 content.appendChild(div(
-                    'Kept ' + ret.kept + ' existing records.'));
+                    'Filtered out ' + ret.filtered + ' records.'));
+            }
+            if (ret.dropped) {
+                content.appendChild(div(
+                    'Dropped ' + ret.dropped
+                    + ' records because they did not match an existing record.'
+                ));
             }
             modal(content, { ok: home });
         });
