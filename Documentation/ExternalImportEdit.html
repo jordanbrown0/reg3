@@ -6,6 +6,7 @@
     <!-- INDEX: Import from DBF, CSV -->
     <!-- INDEX: Dates -->
     <!-- INDEX: Schema -->
+    <!-- INDEX: Filters -->
 </head>
 <body>
     <h2>
@@ -94,6 +95,12 @@
         <label>Class name</label> name of the class as defined in the
         <a href="ClassManager.html">class list</a>.
     </li>
+    <h3>Page 4: Filter</h3>
+    Optionally specify a <a href="Filters.html">filter</a> to control which
+    records are imported. <b>After</b> field and class mapping, the filter
+    is evaluated against the proposed record; it is imported only if the filter
+    returns true.
+
     <h3>
         Converters
     </h3>

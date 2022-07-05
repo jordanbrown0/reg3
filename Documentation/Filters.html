@@ -1,0 +1,138 @@
+<html>
+<head>
+    <title>Filters</title>
+    <script src="HelpCommon.js"> </script>
+    <!-- INDEX: Filters -->
+</head>
+<body>
+    <h2>
+        Filters
+    </h2>
+    The filter user interface appears in a number of places to allow you to
+    select records based on arbitrary criteria.
+    <p>
+    It defaults to matching all records.  You can pick operators off of a
+    pull-down list to add criteria.  All operators other than "All" require
+    one or more parameters, each of which can be another expression.
+    <p>
+    The record matches if the result is "truthy" - non-empty, non-zero, true -
+    and does not match if the result is "falsey".
+    <table border=1>
+        <tr>
+            <th>Operator</th>
+            <th>Arguments</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>All</td>
+            <td>None</td>
+            <td>Always true</td>
+        </tr>
+        <tr>
+            <td>All of</td>
+            <td>Any number</td>
+            <td>
+                True if none of its arguments are falsey.
+                <br>
+                Technical note: starts with true, evaluates arguments until
+                it reaches a falsey value or the end, and returns the last
+                value processed.
+            </td>
+        </tr>
+        <tr>
+            <td>Any of</td>
+            <td>Any number</td>
+            <td>
+                True if any of its arguments are truthy.
+                <br>
+                Technical note: starts with false, evaluates arguments until
+                it reaches a truthy value or the end, and returns the last
+                value processed.
+            </td>
+        </tr>
+        <tr>
+            <td>Not</td>
+            <td>One</td>
+            <td>
+                True if its argument is falsey, and false if it its argument
+                is truthy.
+            </td>
+        </tr>
+        <tr>
+            <td>If</td>
+            <td>Three</td>
+            <td>
+                If its first argument is truthy, returns its second argument.
+                If the first argument is falsey, returns its third argument.
+                <br>
+                Technical note: either the second or third argument is
+                evaluated, not both.
+            </td>
+        </tr>
+        <tr>
+            <td>Equal</td>
+            <td>Two</td>
+            <td>
+                Returns true if its arguments are the same, and false if not.
+                <br>
+                Technical note: although it is not an error to compare unlike
+                types - text and a number, say - the comparison rules are
+                tricky and it is best to compare only like types.
+            </td>
+        </tr>
+        <tr>
+            <td>Match</td>
+            <td>One, constant</td>
+            <td>
+                Splits the argument into individual words.  Scans all of the
+                fields in the record; returns true if all of the words are
+                found in the record.  This is the same matching mechanism used
+                for "Previously registered" lookups.
+            </td>
+        </tr>
+        <tr>
+            <td>Class any of</td>
+            <td>Any number, class names</td>
+            <td>
+                Arguments are names of defined member classes.  Returns true
+                if the member class is any of the classes listed.
+            </td>
+        </tr>
+        <tr>
+            <td>Category any of</td>
+            <td>Any number, category names</td>
+            <td>
+                Arguments are names of defined member categories.  Returns true
+                if the member is in any of the categories listed.
+                <br>
+                Note:  use "All of" combined with multiple "Category any of"
+                operators to match records that are in all of the categories
+                listed.
+            </td>
+        </tr>
+        <tr>
+            <td>Text</td>
+            <td>One, constant</td>
+            <td>
+                Constant textual value, typically for use in an "Equal"
+                comparison.
+            </td>
+        </tr>
+        <tr>
+            <td>Number</td>
+            <td>One, constant</td>
+            <td>
+                Constant number, typically for use in an "Equal" comparison.
+            </td>
+        </tr>
+        <tr>
+            <td>Field</td>
+            <td>One, field name</td>
+            <td>
+                Retrieves the value from the specified field in the current
+                record.
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
