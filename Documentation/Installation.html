@@ -10,6 +10,7 @@
     <h2>
         Installation
     </h2>
+
     <h3>Client</h3>
     <p>
         There is almost no client installation required.  The client needs to
@@ -23,9 +24,61 @@
         The <a href="Admin.html">administration menu</a> offers a small
         installer that will create desktop shortcuts.
     </p>
+
     <h3>Server</h3>
-    NEEDSWORK this needs more about HOW you install the software, and perhaps
-    about how to make installation wads.
+    <p>
+        Reg3 is distributed as a single .EXE file named
+        Reg3-&lt;release&gt;.exe.  To install:
+    </p>
+    <li>Execute that file.</li>
+    <li>A small popup window will ask for confirmation.</li>
+    <li>A command-prompt window will ask for the name of a directory name
+        to use for the convention.
+    </li>
+    <li>If that directory does not yet exist, you'll be asked whether you
+        want to set it up.
+        If it does exist, you'll be asked whether you want to upgrade the
+        existing installation.
+    </li>
+    <p>
+        A fresh installation is quite boring. Before it will be useful, you
+        must:
+    </p>
+    <li>Set convention-global configuration values - convention name,
+        start date, et cetera.
+    </li>
+    <li>Install label printer drivers on servers.</li>
+    <li>Mark label printers as being label printers.</li>
+    <li>Allocate membership numbers for each server to assign.</li>
+    <li>Set up membership classes.</li>
+    <li>Set up stations, assigning a label printer to each.</li>
+    <p>
+        Probably:
+    </p>
+    <li>Set up an import map to import data from pre-convention sources.
+    </li>
+    <li>Import pre-convention data.</li>
+    <p>
+        Optionally:
+    </p>
+    <li>Set up "standard" upgrades.</li>
+    <li>Set up metaclasses, assign classes to metaclasses, and authorize
+        appropriate stations to issue memberships from those metaclasses.
+    </li>
+    <li>Set permissions appropriately for particular stations.</li>
+    <li>Add custom fields.</li>
+    <li>Assign names to servers, stations, and label printers.</li>
+    <li>Set up member categories.</li>
+    <li>Set up automatic corrections.</li>
+    <li>Set up export maps.</li>
+    <li>Renumber memberships if pre-convention data does not include
+        membership numbers.
+    </li>
+    <p>
+        You might be able to use <u>A</u>dministration
+        <u>S</u>ynchronize <u>E</u>xport <u>S</u>elected and <u>I</u>mport
+        to copy settings from another convention.
+    </p>
     <p>
         Conventions each get their own directory, in
         Documents\Reg3\$CON.
@@ -39,15 +92,21 @@
         Conventions do <b>not</b> share Reg3 itself.  This keeps the convention
         data with a matched copy of the program.
     </p>
+    <h3>Making installation wads</h3>
+    NEEDSWORK
+    
+    <h3>Developer</h3>
+    <p>
+        The reference copy is on github at
+        <a href="https://github.com/jordanbrown0/reg3">https://github.com/jordanbrown0/reg3</a>.
+    </p>
+    <p>
+        For JavaScript development, you can extract that on top of a convention
+        directory and work.  However, that won't let you make changes to the
+        C++ printing module, and you can't start with *just* the sources and
+        produce a working environment.  You need the prerequisites for full
+        Node.js installations, which include Python and Microsoft Visual C++.
+        I don't remember the details and will need to rediscover them.
+    </p>
 </body>
 </html>
-
-
-
-
-DEVELOPER
-
-The reference copy is on github at
-https://github.com/jordanbrown0/reg3
-
-For JavaScript development, you can extract that on top of a convention directory and work.  However, that won't let you make changes to the C++ printing module, and you can't start with *just* the sources and produce a working environment.  You need the prerequisites for full Node.js installations, which include Python and Microsoft Visual C++.  I don't remember the details and will need to rediscover them.
