@@ -198,8 +198,15 @@ var stationSchema = [
                 { void: 'Void / unvoid memberships' }
             ],
             default: [
-                'adHocUpgrades', 'admin', 'newMember', 'reports',
-                'transfer', 'upgrade', 'unmark', 'void'
+                'adHocUpgrades',
+                'admin',
+                'allDays',
+                'newMember',
+                'reports',
+                'transfer',
+                'upgrade',
+                'unmark',
+                'void'
             ]
         }
     ],
