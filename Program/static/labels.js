@@ -69,7 +69,14 @@ function label_badge(r, done, err) {
 
         var bname = joinTruthy([r.badge1, r.badge2], ' ');
         var rname = joinTruthy([r.fname, r.lname], ' ');
-        var doBadgeNameLabel = (r.badge1 || r.badge2) && (rname != bname);
+        // Print a badge name label if
+        // * we have both badge1 and badge2, or
+        // * we have only one of them and they aren't the same as real name.
+        // Two special cases to pay attention to:
+        // * badge1 is first+last - bogus badge name, ignore it
+        // * badge1+badge2 is first+last, but with different line break
+        var doBadgeNameLabel = (r.badge1 && r.badge2)
+            || ((r.badge1 || r.badge2) && (rname != bname));
         var doRealNameLabel = cfg.realNameLabel || !doBadgeNameLabel;
 
         todo.push(calcNameLimits);
