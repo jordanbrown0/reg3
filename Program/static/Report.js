@@ -25,13 +25,23 @@ Report.prototype.activate = function () {
         var t = o.appendChild(new DElement('table'));
         t.addClass(getClassName(o));
         t.addClass('Report');
+
+        var h = new DElement('thead');
+        h.appendChild(tr(td(cfg.convention, {id: 'header', colSpan: 100})));
         if (o.header) {
-            t.appendChild(new DElement('thead', o.header()));
+            h.appendChild(o.header());
         }
+        t.appendChild(h);
+
         t.appendChild(tbody);
+
+        var f = new DElement('tfoot');
         if (o.footer) {
-            t.appendChild(new DElement('tfoot', o.footer()));
+            f.appendChild(o.footer());
         }
+        f.appendChild(tr(td(o.time.toDisplay(), {id: 'footer', colSpan: 100})));
+        t.appendChild(f);
+
         o.body(function (body) {
             tbody.replaceChildren(body);
         });

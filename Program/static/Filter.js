@@ -148,7 +148,6 @@ InputExpr.prototype.set = function (value) {
     for (var k in value) {
         o.select.set(k);
         o.replace();
-        console.log(o.child);
         o.child.set(value[k]);
     }
 };

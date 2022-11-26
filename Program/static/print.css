@@ -23,6 +23,15 @@ th {
     text-align: right;
 }
 
+.Report #header {
+    font-size: larger;
+    font-weight: bolder;
+}
+
+.Report #footer {
+    font-size: smaller;
+}
+
 .ReportList th, .ReportDups th {
     text-align: left;
 }

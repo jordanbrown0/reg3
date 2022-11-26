@@ -257,6 +257,14 @@ input, button, select {
     text-align: right;
 }
 
+.Report #header {
+    display: none;
+}
+
+.Report #footer {
+    display: none;
+}
+
 .ReportList th, .ReportDups th {
     text-align: left;
 }
