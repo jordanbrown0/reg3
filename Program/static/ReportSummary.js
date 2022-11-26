@@ -71,12 +71,19 @@ ReportSummary.prototype.body = function (cb) {
                 { v: ret.atTheDoor,     t: 'At the door' },
                 { v: ret.paid,          t: 'Paid' },
                 { v: ret.free,          t: 'Free' },
+                { v: ret.grand,         t: 'Grand total', c: 'Total' },
                 { v: ret.transferred,   t: 'Transferred' },
-                { v: ret.void,          t: 'Void' },
-                { v: ret.grand,         t: 'Grand total' }
+                { v: ret.void,          t: 'Void' }
             ];
             o.lines.forEach(function (r) {
-                body.push(tr(td(r.v||0, {className: 'Count'}), td(r.t)));
+                var line = tr(
+                    td(r.v||0, { className: 'Count' }),
+                    td(r.t)
+                );
+                if (r.c) {
+                    line.setProperties({ className: r.c });
+                }
+                body.push(line);
             });
             cb(body);
         }
