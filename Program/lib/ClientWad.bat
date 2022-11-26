@@ -31,6 +31,7 @@ set z=Program\imported\7za -bsp2
 %z% a %outz% Program\lib\mkClientShortcut.js                        > nul
 %z% a %outz% Program\lib\SetupClient.bat                            > nul
 %z% a %outz% Program\lib\FolderPath.bat                             > nul
+%z% a %outz% Program\lib\user.js                                    > nul
 %z% a %outz% Program\static\Reg.ico                                 > nul
 
 echo set servername=%COMPUTERNAME% > servername.bat

@@ -6,59 +6,61 @@ if (args.length != 1) {
 
 var servername = args(0);
 
+var shell = WSH.CreateObject("WScript.Shell");
+var distDir = shell.SpecialFolders('MyDocuments') + '\\reg3';
+var iconLocation = distDir + '\\Reg.ico';
+var linkDir = shell.SpecialFolders('Desktop');
+var fs = WSH.CreateObject('Scripting.FileSystemObject');
+
+var url = 'http://'+servername;
+var firefoxArgs = '-no-remote -profile '+distDir+'\\Firefox ';
 var variations = [
     {
         prog: '\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
-        args: '--kiosk http://' + servername,
+        args: '--kiosk ' + url,
         desc: 'Edge kiosk'
     },
     {
         prog: '\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
-        args: 'http://'+servername,
+        args: url,
         desc: 'Edge'
     },
     {
         prog: '\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-        args: '--kiosk http://'+servername,
+        args: '--kiosk '+url,
         desc: 'Chrome kiosk'
     },
     {
         prog: '\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-        args: 'http://'+servername,
+        args: url,
         desc: 'Chrome'
     },
     {
         prog: '\\Program Files (x86)\\Mozilla Firefox\\firefox.exe',
-        args: '--kiosk http://'+servername,
+        args: firefoxArgs + '--kiosk '+url,
         desc: 'Firefox kiosk (x86)'
     },
     {
         prog: '\\Program Files (x86)\\Mozilla Firefox\\firefox.exe',
-        args: 'http://'+servername,
+        args: firefoxArgs + url,
         desc: 'Firefox (x86)'
     },
     {
         prog: '\\Program Files\\Mozilla Firefox\\firefox.exe',
-        args: '--kiosk http://'+servername,
+        args: firefoxArgs + '--kiosk '+url,
         desc: 'Firefox kiosk'
     },
     {
         prog: '\\Program Files\\Mozilla Firefox\\firefox.exe',
-        args: 'http://'+servername,
+        args: firefoxArgs + url,
         desc: 'Firefox'
     },
     {
         prog: '\\Program Files (x86)\\Mozilla Firefox\\bogus.exe',
-        args: 'http://'+servername,
+        args: firefoxArgs + url,
         desc: 'Firefox bogus'
     }
 ];
-
-var shell = WSH.CreateObject("WScript.Shell");
-var distDir = shell.SpecialFolders('MyDocuments') + '/reg3';
-var iconLocation = distDir + '/Reg.ico';
-var linkDir = shell.SpecialFolders('Desktop');
-var fs = WSH.CreateObject('Scripting.FileSystemObject');
 
 for (i in variations) {
     var v = variations[i];
