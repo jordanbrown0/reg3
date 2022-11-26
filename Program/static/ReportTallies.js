@@ -120,7 +120,15 @@ ReportTally.prototype.body = function (cb) {
 
     table.members.reduce(
         { expr:
-            { addto: [ o.expr, 1 ]}
+            { if: [
+                { f: 'transferto' },
+                { addto: ['transferred', 1] },
+                { if: [
+                    { f: 'void' },
+                    { addto: [ 'void', 1 ] },
+                    { addto: [ o.expr, 1 ] }
+                ]}
+            ]}
         },
         gotTotals);
 
@@ -128,6 +136,10 @@ ReportTally.prototype.body = function (cb) {
         var body = [];
         var grandTotal = 0;
         var notEmptyTotal = 0;
+        var voidTotal = totals.void;
+        delete totals.void;
+        var transferredTotal = totals.transferred;
+        delete totals.transferred;
         var collator =
             new Intl.Collator(undefined, { sensitivity: 'base' }).compare;
         Object.keys(totals).sort(collator).forEach(function (d) {
@@ -153,6 +165,18 @@ ReportTally.prototype.body = function (cb) {
             td(grandTotal, {className: 'Count'}),
             td('Grand total')
         ));
+        if (voidTotal) {
+            body.push(tr(
+                td(voidTotal, {className: 'Count'}),
+                td('Void')
+            ));
+        }
+        if (transferredTotal) {
+            body.push(tr(
+                td(transferredTotal, {className: 'Count'}),
+                td('Transferred')
+            ));
+        }
 
         cb(body);
     }
