@@ -2,8 +2,7 @@ var fieldsSchema = [
     [
         { field: 'page', label: 'Page number', input: InputInt, minimum: 1,
             required: true },
-        { field: 'title', label: 'Page title (if new)',  default: '',
-            required: true },
+        { field: 'title', label: 'Page title (if new)',  default: '' },
         { field: 'fields',
             label: 'Fields',
             input: InputMulti,
