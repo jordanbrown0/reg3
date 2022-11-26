@@ -1,0 +1,81 @@
+<html>
+<head>
+    <title>External Import</title>
+    <script src="HelpCommon.js"> </script>
+    <script>helpCommon('FormCommon', 'NavCommon');</script>
+    <!-- INDEX: Import from DBF, CSV -->
+</head>
+<body>
+    <h2>
+        External Import
+    </h2>
+    Import data from an external file.
+    <p>
+    <li>
+        <label>Import from file</label> The file to import.
+        Click Browse, then select the file to
+        import.  Ensure that the file type matches the type expected by the
+        import mapping specified below.
+    </li>
+    <li>
+        <label>Import mapping</label> What import mapping to use.  Ensure that
+        the file type expected by the import mapping matches the type of the
+        file selected above.
+    </li>
+    <li>
+        <label>Existing records</label> Controls what happens when the imported
+        data includes records that are already present in the system:
+        <ul>
+            <table border=1>
+                <tr>
+                    <td>Keep existing record</td>
+                    <td>
+                        The existing record in the registration system is
+                        kept.  The record from the import file is ignored.
+                        (Requires that the import mapping specify a unique
+                        identifier field.)
+                    </td>
+                </tr>
+                <tr>
+                    <td>Replace existing record</td>
+                    <td>
+                        The record from the import file is used; the existing
+                        record in the registration system is discarded.
+                        (Synchronization data is retained so the newly imported
+                        record will propagate to other servers.)
+                        (Requires that the import mapping specify a unique
+                        identifier field.)
+                    </td>
+                </tr>
+                <tr>
+                    <td>Update existing record</td>
+                    <td>
+                        Records from the import file that do not exist in the
+                        registration system are ignored.  Existing records are
+                        updated, field by field, with the fields present in the
+                        import file.
+                        (Requires that the import mapping specify a unique
+                        identifier field.)
+                    </td>
+                </tr>
+                <tr>
+                    <td>Zap all existing records</td>
+                    <td>
+                        DISCARDS all records currently existing in the
+                        registration system; imports new records from the
+                        import file.  CAUTION!
+                    </td>
+                </tr>
+                <tr>
+                    <td>Add duplicate</td>
+                    <td>
+                        Adds all records from the import file.  If they already
+                        exist in the registration system, this will add
+                        duplicate records.  You almost never want this option.
+                    </td>
+                </tr>
+            </table>
+        </ul>
+    </li>
+</body>
+</html>
