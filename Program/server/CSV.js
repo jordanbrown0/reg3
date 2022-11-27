@@ -17,11 +17,14 @@ CSV.import = async function(path, params, cb) {
     const CRLFMAYBE = 4;        // Saw a \r, ignore \n
     const QUOTEQUOTE = 5;       // Saw two quotes
     const QUOTECRLFMAYBE = 6;   // Saw a \r inside quotes, ignore \n
+    const QUOTEBOR = 7;         // At beginning of line inside quotes
 
     var fieldNames = null;
     var state = BOR;
     var curField = '';
     var r = [];
+    var lineNumber = 0;
+
     function dataHandler(s) {
         var start = 0;
         var i;
@@ -46,6 +49,7 @@ CSV.import = async function(path, params, cb) {
                 }
                 break;
             case BOR:
+                lineNumber++;
                 switch (c) {
                 case '\n':          // ignore blank lines
                     emitSubstring();
@@ -67,19 +71,35 @@ CSV.import = async function(path, params, cb) {
                     state = BOR;
                     continue;
                 case '\r':              // ignore blank lines
+                    lineNumber++;
                     emitSubstring();
                     state = CRLFMAYBE;
                     continue;
                 default:
+                    lineNumber++;
                     state = NORMAL;
                     break;
                 }
                 break;
-            case QUOTECRLFMAYBE:
+            case QUOTEBOR:
+                lineNumber++;
                 state = INQUOTE;
-                if (c == '\n') {
+                break;
+            case QUOTECRLFMAYBE:
+                switch (c) {
+                case '\n':
                     emitSubstring();    // Skip over the \n.
+                    state = QUOTEBOR;
                     continue;
+                case '\r':
+                    lineNumber++;
+                    emitSubstring();
+                    state = QUOTECRLFMAYBE;
+                    continue;
+                default:
+                    lineNumber++;
+                    state = INQUOTE;
+                    break;
                 }
                 break;
             }
@@ -122,8 +142,7 @@ CSV.import = async function(path, params, cb) {
                     state = QUOTECRLFMAYBE;
                     break;
                 case '\n':
-                    // This is actually a normal case, but seems worth
-                    // calling out for its lack of special handling.
+                    state = QUOTEBOR;
                     break;
                 }
                 break;
@@ -171,7 +190,7 @@ CSV.import = async function(path, params, cb) {
                 }
                 r = tmp;
             }
-            cb(r);
+            cb(r, lineNumber);
             r = [];
         }
     }

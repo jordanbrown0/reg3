@@ -81,6 +81,7 @@ DBFstream.import = async function(fileName, params, cb) {
     var recSize;
     var version;
     var hdrSize;
+    var number = 0;
 
     function dataHandler(chunk) {
         chunks.push(chunk);
@@ -133,11 +134,12 @@ DBFstream.import = async function(fileName, params, cb) {
             case RECORD:
                 // NEEDSWORK might need to look for ^Z or number of
                 // records here.
+                number++;
                 var r = {};
                 for (let fn in fields) {
                     r[fn] = fields[fn].get(buf);
                 }
-                cb(r);
+                cb(r, number);
                 break;
             }
         }

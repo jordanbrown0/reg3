@@ -227,7 +227,7 @@ Import.import = async function (file, t, params) {
         case 'add':
             break;
         }
-        await importer(file.path, params, function (importRecord) {
+        await importer(file.path, params, function (importRecord, number) {
             if (importRecord._deleted) {
                 // Note:  dBASE deleted records have data preserved.
                 // Our deleted records do not; they are only a tombstone.
@@ -236,6 +236,8 @@ Import.import = async function (file, t, params) {
                 // Adding a tombstone would be pointless because this is a new
                 // record, from our DBMS's point of view.
                 // We just ignore dBASE deleted records.
+                // NEEDSWORK:  Theoretically, we could be deleting an existing
+                // record from a previous import.
                 return;
             }
             delete importRecord._deleted;
@@ -260,7 +262,9 @@ Import.import = async function (file, t, params) {
             if (k) {
                 k = k.toString();
                 if (keys[k]) {
-                    throw new UserError('Duplicate key "'+k+'" in imported data');
+                    throw new UserError(
+                        'Duplicate key "'+k+'" in imported data, number '
+                        + number);
                 }
                 keys[k] = true;
                 var rOld = t.getOrNull(k);
@@ -306,7 +310,8 @@ Import.import = async function (file, t, params) {
             } else {
                 switch (params.existing) {
                 case 'update':
-                    throw new UserError('No key in imported data');
+                    throw new UserError('No key in imported data, number '
+                        + number);
                 }
                 // No key, just add.
                 t.add(null, r, null);
