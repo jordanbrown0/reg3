@@ -290,6 +290,23 @@ input, button, select {
     font-weight: bolder;
 }
 
+.ReportImportMappings .Separator1 {
+    height: 20px;
+}
+
+.ReportImportMappings .Separator2 {
+    height: 5px;
+}
+
+.ReportImportMappings .Description {
+    font-size: larger;
+    font-weight: bolder;
+}
+
+.ReportImportMappings th {
+    text-align: left;
+}
+
 .ConflictResolver .Difference {
     background-color: yellow;
 }

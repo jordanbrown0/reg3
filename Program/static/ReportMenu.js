@@ -9,6 +9,7 @@ function ReportMenu()
             { label: '&Classes', page: ReportClasses },
             { label: '&Upgrades', page: ReportUpgrades },
             { label: '&Schema', page: ReportSchema },
+            { label: '&Import Mappings', page: ReportImportMappings },
             { label: 'Configuration', page: ReportConfigMenu }
         ]
     });

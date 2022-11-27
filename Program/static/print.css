@@ -32,6 +32,11 @@ th {
     font-size: smaller;
 }
 
+.ReportImportMappings .Description {
+    font-size: larger;
+    font-weight: bolder;
+}
+
 .ReportList th, .ReportDups th {
     text-align: left;
 }

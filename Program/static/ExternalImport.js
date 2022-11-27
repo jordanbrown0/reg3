@@ -264,6 +264,103 @@ ExternalImport.prototype.import = function (options) {
 
 ExternalImport.prototype.title = 'External import...';
 
+function ReportImportMappings()
+{
+    var o = this;
+    ReportImportMappings.sup.constructor.call(o);
+}
+extend(Report, ReportImportMappings);
+
+ReportImportMappings.prototype.activate = function () {
+    var o = this;
+    ReportImportMappings.sup.activate.call(o);
+};
+
+ReportImportMappings.prototype.body = function (cb) {
+    var o = this;
+    var first = true;
+
+    table.externalImport.list({}, function (recs) {
+        var body = [];
+        recs.forEach(function (k, imp) {
+            if (first) {
+                first = false;
+            } else {
+                body.push(tr(td({className: 'Separator1'})));
+            }
+            var t = new DElement('table',
+                tr(
+                    td(
+                        {className: 'Description', colSpan: 2},
+                        imp.description
+                    )
+                ),
+                tr(
+                    td('Table'),
+                    td(imp.table)
+                ),
+                tr(
+                    td('Type'),
+                    td(imp.type)
+                ),
+                tr(
+                    td('Encoding'),
+                    td(imp.encoding)
+                )
+            );
+            if (imp.key) {
+                t.appendChild(tr(
+                    td('Key'),
+                    td(imp.key)
+                ));
+            }
+            body.push(tr(td(t)));
+
+            body.push(tr(td({className: 'Separator2'})));
+
+            var fieldMappings = new DElement('table');
+            fieldMappings.appendChild(tr(
+                th('Field Mappings', {colSpan: 3})
+            ));
+            fieldMappings.appendChild(tr(
+                th('External'),
+                th('Reg3'),
+                th('Conversion')
+            ));
+            imp.map.forEach(function (fld) {
+                fieldMappings.appendChild(tr(
+                    td(fld.from),
+                    td(fld.to),
+                    td(fld.conversion||'')
+                ));
+            });
+            body.push(tr(td(fieldMappings)));
+
+            if (imp.classMap && imp.classMap.length > 0) {
+                body.push(tr(td({className: 'Separator2'})));
+                var classMappings = new DElement('table');
+                classMappings.appendChild(tr(
+                    th('Class Mappings', {colSpan: 2})
+                ));
+                classMappings.appendChild(tr(
+                    th('External'),
+                    th('Reg3')
+                ));
+                imp.classMap.forEach(function (c) {
+                    classMappings.appendChild(tr(
+                        td(c.from),
+                        td(c.to)
+                    ));
+                });
+                body.push(tr(td(classMappings)));
+            }
+        });
+        cb(body);
+    });
+};
+
+ReportImportMappings.prototype.title = 'External Import Mappings';
+
 init.push(function externalImportInit() {
     table.externalImport = new DBTable(db.reg, 'externalImport',
         { schema: externalImportSchema }
