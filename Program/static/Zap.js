@@ -19,12 +19,19 @@ Zap.prototype.activate = function () {
     var options = {}
     var editor = new Editor(options, {
         schema: schema,
-        doneButton: 'Zap',
-        done: function () {
-            o.zap(options);
-        },
         cancel: home
     });
+
+    base.addNav([{
+        label: 'Zap',
+        order: 1,
+        func: function () {
+            if (editor.get()) {
+                o.zap(options);
+            }
+        }
+    }]);
+
     o.appendChild(editor);
     editor.activate();
 };
