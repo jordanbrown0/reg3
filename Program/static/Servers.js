@@ -5,9 +5,9 @@ var serverSchema = [
         { field: 'noPrint', label: 'Disable printing?', input: InputBool,
             default: false },
         { field: 'nextNumber', label: 'Next membership number to assign',
-            input: InputInt, default: null, minimum: 1, required: true },
+            input: InputInt, default: null, minimum: 1 },
         { field: 'lastNumber', label: 'Last membership number to assign',
-            input: InputInt, default: null, minimum: 1, required: true },
+            input: InputInt, default: null, minimum: 1 },
         { field: 'lastExport', label: 'Last sync from this server',
             input: InputDateTime, readOnly: true },
     ],
@@ -108,6 +108,20 @@ ServerEdit.prototype.get = function (cb) {
 
 ServerEdit.prototype.put = function (cb) {
     var o = this;
+    if (o.r.nextNumber && o.r.lastNumber) {
+        if (o.r.nextNumber > o.r.lastNumber+1) {
+            working(false);
+            // Slight lie, because we allow next=last+1 so that you can set
+            // an empty range, should you want to.
+            modal('Next number is after last number.');
+            return;
+        }
+    } else if (o.r.nextNumber || o.r.lastNumber) {
+        working(false);
+        modal('Specify both membership number limits, or neither.')
+        return;
+    }
+    
     var r2 = Object.assign({}, o.rMembershipNumbers);
     r2.nextNumber = o.r.nextNumber;
     r2.lastNumber = o.r.lastNumber;
