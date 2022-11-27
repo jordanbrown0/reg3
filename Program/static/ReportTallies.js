@@ -51,7 +51,15 @@ function ReportTallyPickedUp()
                     notEmptyTitle: 'Total picked up',
                     header: 'Memberships Picked Up by Hour'
                 }));
-            }}
+            }},
+            { label: '&Class', func: function () {
+                base.switchTo(new ReportTally({
+                    expr: {if: [{f: 'pickedup'}, {f: 'class'}, '']},
+                    emptyTitle: 'Not picked up',
+                    notEmptyTitle: 'Total picked up',
+                    header: 'Memberships picked up by class'
+                }));
+            }},
         ]
     });
 }
