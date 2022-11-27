@@ -32,7 +32,7 @@ th {
     font-size: smaller;
 }
 
-.ReportImportMappings .Description {
+.ReportImportMappings .Description,.ReportExportMappings .Description {
     font-size: larger;
     font-weight: bolder;
 }

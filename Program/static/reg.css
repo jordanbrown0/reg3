@@ -290,20 +290,20 @@ input, button, select {
     font-weight: bolder;
 }
 
-.ReportImportMappings .Separator1 {
+.ReportImportMappings .Separator1, .ReportExportMappings .Separator1 {
     height: 20px;
 }
 
-.ReportImportMappings .Separator2 {
+.ReportImportMappings .Separator2, .ReportExportMappings .Separator2 {
     height: 5px;
 }
 
-.ReportImportMappings .Description {
+.ReportImportMappings .Description, .ReportExportMappings .Description {
     font-size: larger;
     font-weight: bolder;
 }
 
-.ReportImportMappings th {
+.ReportImportMappings th, .ReportExportMappings th {
     text-align: left;
 }
 

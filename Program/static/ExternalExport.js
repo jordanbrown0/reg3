@@ -188,6 +188,76 @@ ExternalExport.prototype.export = function (r) {
 
 ExternalExport.prototype.title = 'External export...';
 
+function ReportExportMappings()
+{
+    var o = this;
+    ReportExportMappings.sup.constructor.call(o);
+}
+extend(Report, ReportExportMappings);
+
+ReportExportMappings.prototype.activate = function () {
+    var o = this;
+    ReportExportMappings.sup.activate.call(o);
+};
+
+ReportExportMappings.prototype.body = function (cb) {
+    var o = this;
+    var first = true;
+
+    table.externalExport.list({}, function (recs) {
+        var body = [];
+        recs.forEach(function (k, exp) {
+            if (first) {
+                first = false;
+            } else {
+                body.push(tr(td({className: 'Separator1'})));
+            }
+            var t = new DElement('table',
+                tr(
+                    td(
+                        {className: 'Description', colSpan: 2},
+                        exp.description
+                    )
+                ),
+                tr(
+                    td('Table'),
+                    td(exp.table)
+                ),
+                tr(
+                    td('Type'),
+                    td(exp.type)
+                ),
+                tr(
+                    td('Encoding'),
+                    td(exp.encoding)
+                )
+            );
+            body.push(tr(td(t)));
+
+            body.push(tr(td({className: 'Separator2'})));
+
+            var fieldMappings = new DElement('table');
+            fieldMappings.appendChild(tr(
+                th('Field Mappings', {colSpan: 3})
+            ));
+            fieldMappings.appendChild(tr(
+                th('Reg3'),
+                th('External')
+            ));
+            exp.map.forEach(function (fld) {
+                fieldMappings.appendChild(tr(
+                    td(fld.from),
+                    td(fld.to)
+                ));
+            });
+            body.push(tr(td(fieldMappings)));
+        });
+        cb(body);
+    });
+};
+
+ReportExportMappings.prototype.title = 'External Export Mappings';
+
 init.push(function externalExportInit() {
     table.externalExport = new DBTable(db.reg, 'externalExport',
         { schema: externalExportSchema }
