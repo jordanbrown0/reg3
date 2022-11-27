@@ -244,7 +244,12 @@ Import.import = async function (file, t, params) {
 
             var r = {};
             map.forEach(function (m) {
-                r[m.to] = m.convert(importRecord[m.from]);
+                let v = m.convert(importRecord[m.from]);
+                // Don't populate "empty" values, but do populate zero and
+                // false.
+                if (v !== undefined && v !== null && v !== '') {
+                    r[m.to] = v;
+                }
             });
             for (var fieldName in params.contentMap) {
                 let v = params.contentMap[fieldName][r[fieldName]];
