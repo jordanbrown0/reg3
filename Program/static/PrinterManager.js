@@ -150,7 +150,7 @@ PrinterIdentify.prototype.activate = function () {
     ]);
 
     function done() {
-        modal('Identification labels sent.');
+        modal('Identification labels sent.', { ok: home });
     }
 };
 
