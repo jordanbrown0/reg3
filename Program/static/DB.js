@@ -177,6 +177,9 @@ DBTable.prototype.externalImport = function (file, params, cb) {
 DBTable.prototype.externalExport = function (params, cb) {
     var o = this;
     REST.export(o.dbName, o.tName, params);
+    // NEEDSWORK it would be better if we could detect when the export
+    // completes.
+    cb();
 };
 
 DBTable.prototype.zap = function  (cb) {
