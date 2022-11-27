@@ -210,68 +210,79 @@ MemberDisplay.prototype.activate = function () {
         o.setTitle();
 
         if (!r.void) {
-            base.addNav([
-                { label: 'Change', key: 'Enter', order: 1,
+            base.addNav([{
+                label: 'Change',
+                key: 'Enter',
+                order: 1,
+                func: function () {
+                    if (working(true)) {
+                        return;
+                    }
+                    base.switchTo(new MemberEdit(o.k));
+                }
+            }]);
+            if (cfg.offlinePrint) {
+                base.addNav([{
+                    label: '&Print',
                     func: function () {
                         if (working(true)) {
                             return;
                         }
-                        base.switchTo(new MemberEdit(o.k));
-                    }
-                }
-            ]);
-            if (cfg.offlinePrint) {
-                base.addNav([
-                    { label: '&Print', func: function () {
-                        if (working(true)) {
-                            return;
-                        }
                         o.print(home);
-                    } }
-                ]);
+                    }
+                }]);
             } else if (!r.pickedup && cfg.offlineMarkPickedUp) {
-                base.addNav([
-                    { label: '&Picked Up', func: function () {
+                base.addNav([{
+                    label: '&Picked Up',
+                    func: function () {
                         if (working(true)) {
                             return;
                         }
                         o.markPickedUp(function () {
                             Member.display(o.k);
                         });
-                    } }
-                ]);
+                    }
+                }]);
             }
 
             if (r.pickedup) {
-                base.addNav([
-                    { label: 'Un-pick-up', perms: 'unmark', order: 70,
-                        func: function () {
-                            if (working(true)) {
-                                return;
-                            }
-                            o.unmark(function () {
-                                Member.display(o.k);
-                            });
+                base.addNav([{
+                    label: 'Un-pick-up',
+                    perms: 'unmark',
+                    order: 70,
+                    func: function () {
+                        if (working(true)) {
+                            return;
                         }
+                        o.unmark(function () {
+                            Member.display(o.k);
+                        });
                     }
-                ]);
+                }]);
             }
 
-            base.addNav([
-                { label: '&Upgrade', perms: 'upgrade', func: function () {
+            base.addNav([{
+                label: '&Upgrade',
+                perms: 'upgrade',
+                func: function () {
                     base.switchTo(new MemberUpgrade(o.k));
-                } }
-            ]);
+                }
+            }]);
 
-            base.addNav([
-                { label: '&Transfer', perms: 'transfer', func: function () {
+            base.addNav([{
+                label: '&Transfer',
+                perms: 'transfer',
+                func: function () {
                     base.switchTo(new MemberTransfer(o.k, o.r));
-                } }
-            ]);
+                }
+            }]);
         }
         if (r.void) {
-            base.addNav([
-                { label: 'Unvoid', perms: 'void', order: 80, func: function () {
+            base.addNav([{
+                label: 'Unvoid',
+                perms: 'void',
+                order: 80,
+                func: function () {
                     modal('Return this membership to being active?', {
                         ok: function () {
                             if (working(true)) {
@@ -283,11 +294,14 @@ MemberDisplay.prototype.activate = function () {
                         },
                         cancel: function () {}
                     });
-                } }
-            ]);
+                }
+            }]);
         } else {
-            base.addNav([
-                { label: 'Void', perms: 'void', order: 80, func: function () {
+            base.addNav([{
+                label: 'Void',
+                perms: 'void',
+                order: 80,
+                func: function () {
                     modal('Mark this membership as void?', {
                         ok: function () {
                             if (working(true)) {
@@ -299,8 +313,8 @@ MemberDisplay.prototype.activate = function () {
                         },
                         cancel: function () {}
                     });
-                } }
-            ]);
+                }
+            }]);
         }
 
         var editor = new Editor(r, {
@@ -454,8 +468,10 @@ NewMemberEditor.prototype.activate = function () {
     });
 
     if (lastRec) {
-        base.addNav([
-            { label: 'Same address', key: 'ControlS', func: function () {
+        base.addNav([{
+            label: 'Same address',
+            key: 'ControlS',
+            func: function () {
                 editor.set({
                     addr1: lastRec.addr1,
                     addr2: lastRec.addr2,
@@ -464,8 +480,8 @@ NewMemberEditor.prototype.activate = function () {
                     postcode: lastRec.postcode,
                     country: lastRec.country
                 });
-            } }
-        ]);
+            }
+        }]);
     }
 
     o.appendChild(editor);
