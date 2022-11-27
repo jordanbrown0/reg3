@@ -2,11 +2,17 @@ var correctionsSchema = [
     [
         { field: 'table',
             label: 'Table',
-            input: InputTablePicker,
+            input: InputText,
             default: 'members',
+            hidden: true
+        },
+        { field: 'field',
+            label: 'Field name',
+            input: InputFieldPicker,
+            table: 'members',
+            default: '',
             required: true
         },
-        { field: 'field', label: 'Field name', default: '', required: true },
         { field: 'corrections',
             label: 'Corrections',
             input: InputMulti,
@@ -42,7 +48,7 @@ function CorrectionManager() {
 extend(DBManager, CorrectionManager);
 
 CorrectionManager.prototype.summarize = function (k, r) {
-    return (tr(td(r.table), td(r.field)));
+    return (tr(td(r.field)));
 };
 
 CorrectionManager.get = function(cb) {
