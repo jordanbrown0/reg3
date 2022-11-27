@@ -6,9 +6,9 @@ setlocal
 %~d0
 cd %~p0
 call Program\lib\nodever
-PATH %PATH%;%NODEDIR%
+:: PATH %NODEDIR%;%PATH%
 cd Program
-node server\reg.js
+%NODEDIR%\node server\reg.js
 if errorlevel 1 (
     pause
 )
