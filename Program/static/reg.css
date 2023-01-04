@@ -20,10 +20,6 @@ button {
     cursor: pointer;
 }
 
-.Editor #first, .Editor #last {
-    color: red;
-}
-
 .Editor #notes {
     color: red;
     font-weight: bolder;
