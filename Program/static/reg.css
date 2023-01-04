@@ -24,7 +24,7 @@ button {
     color: red;
 }
 
-.Editor #notes {
+.Editor #notes, .Editor #due {
     color: red;
     font-weight: bolder;
 }
