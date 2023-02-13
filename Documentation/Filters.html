@@ -17,6 +17,72 @@
     <p>
     The record matches if the result is "truthy" - non-empty, non-zero, true -
     and does not match if the result is "falsey".
+    <p>
+    <h3>
+        Example - members named Smith
+    </h3>
+    <table border=1>
+        <tr>
+            <td rowspan=2>
+                Equals
+            </td>
+            <td>
+                Field
+            </td>
+            <td>
+                lname
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Text
+            </td>
+            <td>
+                Smith
+            </td>
+        </tr>
+    </table>
+    <h3>
+        Example - members named Jones who are not full members
+    </h3>
+    <table border=1>
+        <tr>
+            <td rowspan=4>
+                All of
+            </td>
+            <td rowspan=2>
+                Equals
+            </td>
+            <td>
+                Field
+            </td>
+            <td>
+                lname
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Text
+            </td>
+            <td>
+                Jones
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Not
+            </td>
+            <td>
+                Class any of
+            </td>
+            <td>
+                Full
+            </td>
+        </tr>
+    </table>
+    <h3>
+        Operators
+    </h3>
     <table border=1>
         <tr>
             <th>Operator</th>
