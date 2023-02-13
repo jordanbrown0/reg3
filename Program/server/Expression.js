@@ -553,4 +553,10 @@ verbs.echo = function (r, args) {
     log.apply(null, values);
 };
 
+verbs.toInt = function (r, args) {
+    var o = this;
+    var v = o.exec(r, args[0]);
+    return (parseInt(v, 10));
+};
+
 export { Expression };
