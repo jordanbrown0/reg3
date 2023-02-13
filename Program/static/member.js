@@ -140,6 +140,7 @@ function MemberManager() {
     o.list = new List({
         table: table.members,
         limit: 15,
+        index: ['lname', 'fname'],
         summarize: function (k, r) {
             var status;
             if (r.transferto) {

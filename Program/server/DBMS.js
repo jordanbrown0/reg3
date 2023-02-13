@@ -6,6 +6,7 @@ import { Version } from './version.js';
 import { assert, log, unreachable, UserError } from './utils.js';
 import Concurrency from './Concurrency.js';
 import { Debug } from './Debug.js';
+import { Index } from './Index.js';
 
 // NEEDSWORK the "data/" should probably be specified by the caller,
 // probably in the form of a parameter on a (hypothetical future) DBMS object.
@@ -214,7 +215,7 @@ function Table(db, name) {
     o.records = {};
     o.serial = 0;
     o.syncFlag = true;
-    o.cachedSort = null;
+    o.indexes = [];
     o.version = 0;
 }
 
@@ -291,6 +292,16 @@ Table.prototype.forEachAsync = async function (cb) {
     }
 };
 
+Table.prototype.every = function (cb, thisArg) {
+    var o = this;
+    for (var k in o.records) {
+        if (!cb.call(thisArg, k)) {
+            return (false);
+        }
+    }
+    return (true);
+};
+
 Table.prototype.isDeleted = function (k) {
     var o = this;
     var r = o.records[k];
@@ -339,16 +350,71 @@ Table.prototype.list = function (params, filter) {
         }
         return (true);
     }
-    // Compare records according to the configured sort.
-    // The undefined and null values are considered to equal to each other,
-    // and to be greater than any other value.
-    function compareRecs(a, b) {
+    var keys;
+    if (params.index) {
+        keys = o.index(params.index);
+    } else if (params.sort) {
+        keys = o.sort(params.sort);
+    } else {
+        keys = o;
+    }
+    keys.every(doRec);
+    return (ret);
+};
+
+Table.prototype.sort = function (fields) {
+    var o = this;
+    return (Object.keys(o.records).sort(o.comparator(fields)));
+};
+
+Table.prototype.findIndex = function (fields) {
+    var o = this;
+    function compareFieldList(index) {
+        return (index.equals(fields));
+    }
+    return (o.indexes.find(compareFieldList));
+};
+
+Table.prototype.index = function (fields) {
+    var o = this;
+    var index = o.findIndex(fields);
+    if (index) {
+        return (index);
+    }
+    index = new Index(o, fields);
+    o.indexes.push(index);
+    return (index);
+};
+
+Table.prototype.reindex = function (k, oldr) {
+    var o = this;
+    o.indexes.forEach(function (index) {
+        if (oldr) {
+            index.put(k, oldr);
+        } else {
+            index.add(k);
+        }
+    });
+};
+
+// Return a function that compares records according to the requested sort.
+// The undefined and null values are considered to equal to each other,
+// and to be greater than any other value.
+Table.prototype.comparator = function (fields) {
+    var o = this;
+    return (function compareRecs(a, b) {
         var ar = o.records[a];
         var br = o.records[b];
-        for (var i = 0; i < params.sort.length; i++) {
-            var f = params.sort[i];
+        for (var i = 0; i < fields.length; i++) {
+            var f = fields[i];
             var af = ar[f];
             var bf = br[f];
+            if (typeof (af) == 'string') {
+                af = af.toLowerCase();
+            }
+            if (typeof (bf) == 'string') {
+                bf = bf.toLowerCase();
+            }
             if (af == undefined) {
                 if (bf != undefined) {
                     return (1);
@@ -361,47 +427,15 @@ Table.prototype.list = function (params, filter) {
                 return (1);
             }
         }
-        return (0);
-    }
-    function sameSort(fields, cached) {
-        if (!cached) {
-            return (false);
-        }
-        if (fields.length != cached.fields.length) {
-            return (false);
-        }
-        for (var i = 0; i < fields.length; i++) {
-            if (fields[i] != cached.fields[i]) {
-                return (false);
-            }
-        }
-        return (true);
-    }
-    if (params.sort) {
-        var keys;
-        if (sameSort(params.sort, o.cachedSort)) {
-            keys = o.cachedSort.keys;
+        // Compare the key, if nothing else, so that the sort is stable.
+        if (a < b) {
+            return (-1);
+        } else if (a > b) {
+            return (1);
         } else {
-            keys = Object.keys(o.records)
-            keys = keys.sort(compareRecs);
-            o.cachedSort = {
-                fields: params.sort,
-                keys: keys
-            };
+            return (0);
         }
-        for (var i = 0; i < keys.length; i++) {
-            if (!doRec(keys[i])) {
-                break;
-            }
-        }
-    } else {
-        for (var k in o.records) {
-            if (!doRec(k)) {
-                break;
-            }
-        }
-    }
-    return (ret);
+    });
 };
 
 Table.prototype.reduce = function (params, f) {
@@ -416,6 +450,7 @@ Table.prototype.reduce = function (params, f) {
             return;
         }
         if (f(r)) {
+            // NEEDSWORK reindex, but need an old copy of the record.
             o.bump(r);
             o.writeRec(k);
         }
@@ -519,9 +554,10 @@ Table.prototype.put = function(k, r, f) {
     case 0: // Equal - normal case
     case 1: // Candidate is newer (import resolve only)
         o.bump(r);
+        var oldr = o.records[k];
         o.records[k] = r;
+        o.reindex(k, oldr);
         o.writeRec(k);
-        o.cachedSort = null;
         return (null);
     case 2: // Existing is newer - somebody else has updated the record.
     case 3: // Conflict (import resolve with additional conflict)
@@ -550,6 +586,7 @@ Table.prototype.update = function (k, r, func) {
     }
 
     o.bump(rExist);
+    // NEEDSWORK reindex but need the old value
     o.writeRec(k);
 };
 
@@ -582,9 +619,9 @@ Table.prototype.inc = function (k, field, limitField) {
     }
     var ret = r[field];
     r[field]++;
+    // NEEDSWORK?  Theoretically should reindex but do we every really need it?
     o.bump(r);
     o.writeRec(k);
-    o.cachedSort = null;
     return (ret);
 };
 
@@ -620,8 +657,8 @@ Table.prototype.add = function (k, r, func) {
 
     o.bump(r);
     o.records[k] = r;
+    o.reindex(k, null);
     o.writeRec(k);
-    o.cachedSort = null;
     return (k);
 };
 
@@ -663,6 +700,7 @@ Table.prototype.importResync = function (k, rImport) {
             return (null);
         case 2: // Import is newer
             o.records[k] = rImport;
+            o.reindex(k, rExist);
             Debug.version('updated', o.name, k);
             return (null);
         case 3: // Conflict
@@ -672,6 +710,7 @@ Table.prototype.importResync = function (k, rImport) {
     } else {
         Debug.version('created', o.name, k);
         o.records[k] = rImport;
+        o.reindex(k, null);
         return (null);
     }
 };
@@ -679,7 +718,7 @@ Table.prototype.importResync = function (k, rImport) {
 Table.prototype.zap = function () {
     var o = this;
     o.records = {};
-    o.cachedSort = null;
+    o.indexes = [];
     o.write();
 };
 

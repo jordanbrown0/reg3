@@ -71,7 +71,8 @@ List.prototype.refresh = function () {
     var listParams = {
         filter: filter,
         limit: o.params.limit+1,
-        sort: o.params.sort
+        sort: o.params.sort,
+        index: o.params.index
     };
     o.params.table.list(listParams, function (recs) {
         o.searching = false;
