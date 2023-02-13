@@ -172,6 +172,13 @@ InputText.prototype.correct = function () {
     }
 };
 
+function InputTextRJ(params)
+{
+    var o = this;
+    InputTextRJ.sup.constructor.call(o, params);
+}
+extend(InputText, InputTextRJ);
+
 function InputPhone(params) {
     var o = this;
     InputPhone.sup.constructor.call(o, params);

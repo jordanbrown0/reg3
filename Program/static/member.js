@@ -36,7 +36,7 @@ Member.schema = [
             input: InputClassLookup },
         { field: 'amount', label: 'Amount paid', readOnly: true,
             input: InputCurrency },
-        { field: 'number', label: 'Number', readOnly: true, input: InputInt },
+        { field: 'number', label: 'Number', input: InputTextRJ },
         { field: 'transferfrom', label: 'Transferred from', readOnly: true,
             input: InputDBLookup, table: 'members', textField: Member.name
         },

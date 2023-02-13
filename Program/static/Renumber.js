@@ -30,12 +30,14 @@ Renumber.prototype.activate = function () {
                 o.renumber(options);
             } else {
                 table.members.reduce({
-                    expr: {
-                        if: [
-                            { gt: [ { f: 'number' }, { get: 'highest' } ] },
-                            { set: [ 'highest', { f: 'number' } ] }
-                        ]
-                    }
+                    init: { highest: 0 },
+                    expr: [
+                        { set: [ 'n', { toInt: { f: 'number' } } ] },
+                        { if: [
+                            { gt: [ { get: 'n' }, { get: 'highest' } ] },
+                            { set: [ 'highest', { get: 'n' } ] }
+                        ] }
+                    ]
                 }, function (ret) {
                     options.start = ret.highest || 0;
                     o.renumber(options);

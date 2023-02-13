@@ -44,6 +44,10 @@ table.Editor {
     background: lime;
 }
 
+.InputTextRJ {
+    text-align: right;
+}
+
 .InputInt, .InputCurrency {
     text-align: right;
     width: 5em;
