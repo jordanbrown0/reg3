@@ -141,6 +141,12 @@ methods.import = async function (file, dbName, tName, params) {
 };
 methods.import.file = true;
 
+methods.importConverter = function (converter, value) {
+    var f = Import.converters[converter];
+    assert(f, 'bad converter ' + converter);
+    return (f(value));
+};
+
 methods.nop = function () {
     return ('Bored now');
 };

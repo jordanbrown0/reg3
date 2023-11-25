@@ -47,6 +47,10 @@ function Test()
         {
             label: 'Test InputFilter',
             func: function () { o.testInputFilter(); }
+        },
+        {
+            label: 'Test Import Converters',
+            func: function () { o.testImportConverters(); }
         }
     ]});
     o.appendChild(o.menu);
@@ -211,6 +215,79 @@ Test.prototype.testUpdate = function () {
         alert('OK');
     }
     zap();
+};
+
+Test.prototype.testImportConverters = function () {
+    var o = this;
+    var tests = [
+        { c: 'null', v: 'x', r: 'x' },
+        { c: 'null', v: null, r: undefined },
+        { c: 'null', v: undefined, r: undefined },
+        { c: 'null', v: '', r: undefined },
+        { c: 'number', v: '123', r: 123 },
+        { c: 'number', v: '-123', r: -123 },
+        { c: 'number', v: '$123.45', r: 123.45 },
+        { c: 'number', v: undefined, r: undefined },
+        { c: 'number', v: null, r: undefined },
+        { c: 'number', v: '', r: undefined },
+        // { c: 'number', v: {}, r: undefined },
+        { c: 'number', v: '-', r: undefined },
+        { c: 'number', v: '.', r: undefined },
+        // { c: 'number', v: '1.5.5', r: undefined },
+        { c: 'datev2', v: '07/26/1961 18:43:00', r: '1961-07-26T18:43:00' },
+        { c: 'datev2', v: '01/17/02 12:34:56', r: '2002-01-17T12:34:56' },
+        { c: 'datev2', v: '07/26/1961', r: '1961-07-26' },
+        { c: 'datev2', v: '01/17/02', r: '2002-01-17' },
+        { c: 'datev2', v: '', r: undefined },
+        { c: 'mmddyyyy', v: '07/26/1961', r: '1961-07-26' },
+        { c: 'mmddyyyy', v: '01/17/02', r: '2002-01-17' },
+        { c: 'mmddyyyy', v: '1/2/3', r: '2003-01-02' },
+        { c: 'mmddyyyy', v: ' 1/ 2/ 3', r: '2003-01-02' },
+        { c: 'mmddyyyy', v: '', r: undefined },
+        { c: 'ddmmyyyy', v: '26/07/1961', r: '1961-07-26' },
+        { c: 'ddmmyyyy', v: '17/01/02', r: '2002-01-17' },
+        { c: 'ddmmyyyy', v: '1/2/3', r: '2003-02-01' },
+        { c: 'ddmmyyyy', v: ' 1/ 2/ 3', r: '2003-02-01' },
+        { c: 'ddmmyyyy', v: '', r: undefined },
+        // Note:  yyyymmdd allows "UTC" at end to convert from UTC to
+        // local time.  We don't know local TZ so don't test that case.
+        { c: 'yyyymmdd', v: '1961-07-26 01:02:03', r: '1961-07-26T01:02:03' },
+        { c: 'yyyymmdd', v: '02/01/17 1: 2: 3', r: '2002-01-17T01:02:03' },
+        // Note that TZ correction will introduce a time.
+        { c: 'yyyymmdd', v: '1/2/3', r: '2001-02-03T00:00:00' },
+        { c: 'yyyymmdd', v: ' 1/ 2/ 3', r: '2001-02-03T00:00:00' },
+        { c: 'yyyymmdd', v: '', r: undefined },
+        { c: 'dateMS', v: '07/26/1961 6:43pm', r: '1961-07-26T18:43:00' },
+        { c: 'dateMS', v: '01/17/02 1:2am', r: '2002-01-17T01:02:00' },
+        { c: 'dateMS', v: '1/2/3 4:56PM', r: '2003-01-02T16:56:00' },
+        { c: 'dateMS', v: ' 1/ 2/ 3 4:56AM', r: undefined },
+        { c: 'dateMS', v: '1/2/3 4: 6AM', r: undefined },
+        { c: 'dateMS', v: '', r: undefined },
+        { c: 'phone', v: '+1 818 555 1212', r: '+1 (818)555-1212' },
+        { c: 'phone', v: '818 555 1212', r: '+1 (818)555-1212' },
+        { c: 'phone', v: '818-555-1212', r: '+1 (818)555-1212' },
+        { c: 'phone', v: '+1 818-555-1212', r: '+1 (818)555-1212' },
+        { c: 'phone', v: '818/555.1212', r: '+1 (818)555-1212' },
+        { c: 'phone', v: '(818)555-1212', r: '+1 (818)555-1212' },
+        { c: 'phone', v: '+44 123 456 789', r: '+44 123 456 789' },
+        { c: 'phone', v: '', r: undefined },
+    ];
+    var i = 0;
+    function testOne(res) {
+        var t;
+        if (i > 0) {
+            t = tests[i-1];
+            assert(res === t.r, t.c+'('+t.v+')='+res+' should be ' + t.r);
+        }
+        if (i < tests.length) {
+            t = tests[i];
+            i++;
+            rpc.importConverter(t.c, t.v, testOne);
+        } else {
+            alert('OK');
+        }
+    }
+    testOne();
 };
 
 Test.prototype.testInputFilter = function () {

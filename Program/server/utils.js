@@ -4,7 +4,18 @@ function assert(bool, param) {
     }
 }
 
+// Convert 2-digit years to 4-digit.
+function fixyear(year) {
+    year = parseInt(year);
+    if (year < 100) {
+        year += 2000;
+    }
+    return (year);
+}
+
 function mkdate(year, month, day, hours, minutes, seconds) {
+    year = fixyear(year);
+
     var ret = year.toString().padStart(4, '0')
         + '-'
         + month.toString().padStart(2, '0')
@@ -102,6 +113,7 @@ function cache(c, f /* ... */) {
 export {
     assert,
     cache,
+    fixyear,
     mkdate,
     log,
     status,

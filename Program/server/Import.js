@@ -1,4 +1,4 @@
-import { mkdate, assert, log, UserError } from './utils.js';
+import { mkdate, assert, fixyear, log, UserError } from './utils.js';
 import { DBMS } from './DBMS.js';
 import { DBF } from './DBFstream.js';
 import { CSV } from './CSV.js';
@@ -42,11 +42,6 @@ Import.converters.datev2 = function (v) {
 
     var [ , month, day, year, junk, hour, minute, second ] = result;
 
-    year = parseInt(year);
-    if (year < 100) {
-        year += 2000;
-    }
-
     return (mkdate(year, month, day, hour, minute, second));
 };
 
@@ -61,9 +56,6 @@ Import.converters.mmddyyyy = function (v) {
     }
 
     var [ , month, day, year ] = result;
-    if (year < 100) {
-        year += 2000;
-    }
 
     return (mkdate(year, month, day));
 };
@@ -79,9 +71,6 @@ Import.converters.ddmmyyyy = function (v) {
     }
 
     var [ , day, month, year ] = result;
-    if (year < 100) {
-        year += 2000;
-    }
 
     return (mkdate(year, month, day));
 };
@@ -103,10 +92,7 @@ Import.converters.yyyymmdd = function (v) {
 
     var [ , year, month, day, junk, hour, minute, second, utc ] = result;
 
-    year = parseInt(year);
-    if (year < 100) {
-        year += 2000;
-    }
+    year = fixyear(year);
     month = parseInt(month);
     day = parseInt(day);
     hour = hour ? parseInt(hour) : 0;
