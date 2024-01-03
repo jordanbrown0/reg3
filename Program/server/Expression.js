@@ -90,6 +90,13 @@ verbs.c = function (r, args) {
     return (constant);
 };
 
+// { record: [] }
+// Return the current record.
+verbs.record = function (r, args) {
+    var o = this;
+    return (r);
+};
+
 // { f: [ field-name ] }
 // Returns the value of the specified field.
 verbs.f = function (r, args) {
@@ -104,14 +111,25 @@ verbs.f = function (r, args) {
 // Does NOT write the record to persistent storage!
 // Does NOT bump the record version!
 // Does, however, mark the record as dirty.
+// Does nothing if the value doesn't change.
+// Deletes the entry if the new value is undefined.
 verbs.setf = function (r, args) {
     var o = this;
 
     var name = o.exec(r, args[0]);
     var val = o.exec(r, args[1]);
 
-    r[name] = val;
-    o.setDirty(true);
+    // Separate test for undefined so that we will delete an explicit undefined.
+    if (val === undefined) {
+        if (name in r) {
+            delete r[name];
+            o.setDirty(true);
+        }
+    } else if (r[name] !== val) {
+        r[name] = val;
+        o.setDirty(true);
+    }
+
     return (val);
 };
 
@@ -229,6 +247,28 @@ verbs.includes = function (r, vals) {
         b = b.toLowerCase();
     }
     return (a.includes(b));
+};
+
+// { replaceRE: [ str, re, replace ] }
+// Undefined and null are treated as empty strings.
+// If the result is an empty string, it's reset to undefined.
+// If the value is a non-string, it's returned unmodified.
+verbs.replaceRE = function (r, args) {
+    var o = this;
+    var str = o.exec(r, args[0]);
+    if (str == undefined) {
+        str = '';
+    }
+    if (typeof (str) != 'string') {
+        return (str);
+    }
+    var re = new RegExp(o.exec(r, args[1]), 'ig');
+    var replace = o.exec(r, args[2]);
+    str = str.replace(re, replace);
+    if (str == '') {
+        str = undefined;
+    }
+    return (str);
 };
 
 // { eq: [ v1, ..., vN ] }
@@ -388,7 +428,7 @@ verbs.add = function (r, args) {
 };
 
 // { concat: [ s, ... ] }
-// The "concat" verb returns the concatenation of its arguments.
+// The "concat" verb returns the string concatenation of its arguments.
 // Null or undefined arguments are treated as empty strings.
 verbs.concat = function (r, args) {
     var o = this;
@@ -430,6 +470,17 @@ verbs.array = function (r, args) {
     var ret = [];
     args.forEach(function (e) {
         ret.push(o.exec(r, e));
+    });
+    return (ret);
+};
+
+// { do: [ v, ... ] }
+// Evaluates each argument, and returns the last one.
+verbs.do = function (r, args) {
+    var o = this;
+    var ret = null;
+    args.forEach(function (e) {
+        ret = o.exec(r, e);
     });
     return (ret);
 };

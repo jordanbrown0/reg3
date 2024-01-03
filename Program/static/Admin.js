@@ -81,6 +81,8 @@ function AdminMember()
             { label: 'E&xternal import/export', page: External },
             // Note:  Renumber does not have a one-key shortcut, for safety.
             { label: 'Renumber', page: Renumber },
+            { label: 'Bulk operations', page: BulkManager },
+            { label: 'Bulk runner', page: BulkRunner },
         ]
     });
 }
