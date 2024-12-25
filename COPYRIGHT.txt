@@ -1,3 +1,9 @@
-Copyright © 2020 Jordan Brown
+Copyright © 2024 Jordan Brown
 
-The intent is that this software will eventually be released under a relatively liberal license.  However, for now, it's not ready for production use.  Feel free to look at it and, if you like, play with it, but you are NOT AUTHORIZED to use this software for production use.
+This software is freely available for public use, but has ABSOLUTELY NO WARRANTY.  It
+undoubtedly has bugs.  It must be used only on a network where it is accessible only from
+trusted systems (preferably a disconnected network dedicated to registration) because it has
+ABSOLUTELY NO SECURITY.
+
+You are free to modify this software, preserving this copyright notice and adding your own
+attribution so that it is clear who wrote what.
