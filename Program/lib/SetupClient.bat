@@ -33,7 +33,7 @@ if errorlevel 1 (
     goto done
 )
 
-if not exist %ff%\chrome
+if not exist %ff%\chrome (
     mkdir %ff%\chrome
     if errorlevel 1 (
         echo mkdir %ff%\chrome failed, aborting.
